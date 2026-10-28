@@ -1,5 +1,73 @@
 \subsection{Acceptance Criteria}\label{acceptance-criteria}
 
-\emph{{[}For each Must-have feature, write acceptance criteria in Given
-/ When / Then form. They will become acceptance test cases in PA4.{]}}
+\subsubsection{F01 – Xác thực tài khoản bằng email trường}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.20\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.26\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Acceptance criterion} & \tableheader{Given} & \tableheader{When} & \tableheader{Then} \\ \hline
+\textbf{AC-F01-01} Đăng ký bằng email trường hợp lệ & Người dùng đang ở trang đăng ký. & Người dùng đăng ký bằng địa chỉ email có đuôi @student.hcmus.edu.vn hoặc @clc.fitus.edu.vn và cung cấp đầy đủ thông tin bắt buộc. & Hệ thống chấp nhận yêu cầu đăng ký và gửi liên kết hoặc mã xác minh email đến địa chỉ đã cung cấp. \\ \hline
+\textbf{AC-F01-02} Từ chối tên miền email không hợp lệ & Người dùng đang ở trang đăng ký. & Người dùng nhập địa chỉ email không thuộc các tên miền trường được chấp nhận. & Hệ thống hiển thị thông báo lỗi và không cho phép đăng ký. \\ \hline
+\textbf{AC-F01-03} Xác minh địa chỉ email & Người dùng đã đăng ký nhưng chưa xác minh địa chỉ email. & Người dùng hoàn tất quá trình xác minh email bằng liên kết hoặc mã xác minh hợp lệ. & Hệ thống đánh dấu tài khoản là đã xác minh và cho phép người dùng đăng nhập. \\ \hline
+\textbf{AC-F01-04} Đăng nhập bằng thông tin hợp lệ & Người dùng đã có tài khoản được đăng ký và xác minh. & Người dùng nhập đúng thông tin đăng nhập. & Hệ thống xác thực người dùng và chuyển đến trang chính. \\ \hline
+\textbf{AC-F01-05} Từ chối thông tin đăng nhập không hợp lệ & Người dùng đang ở trang đăng nhập. & Người dùng nhập sai thông tin đăng nhập hoặc cố gắng đăng nhập bằng tài khoản chưa được xác minh. & Hệ thống từ chối truy cập và hiển thị thông báo lỗi phù hợp. \\ \hline
+\end{longtable}
+
+\subsubsection{F02 – Quản lý bài đăng báo mất / nhặt được}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.20\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.26\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Acceptance criterion} & \tableheader{Given} & \tableheader{When} & \tableheader{Then} \\ \hline
+\textbf{AC-F02-01} Tạo bài đăng báo mất hoặc nhặt được & Người dùng đã xác minh tài khoản và đăng nhập vào hệ thống. & Người dùng chọn “Tạo bài đăng”, chọn “Báo mất” hoặc “Nhặt được” và nhập đầy đủ thông tin bắt buộc, bao gồm tiêu đề, địa điểm, thời gian, mô tả và chi tiết vật phẩm. & Hệ thống lưu bài đăng và gửi cho quản trị viên xét duyệt. \\ \hline
+\textbf{AC-F02-02} Tải lên hình ảnh vật phẩm & Người dùng đang tạo hoặc chỉnh sửa bài đăng. & Người dùng tải lên hình ảnh có định dạng được hệ thống hỗ trợ. & Hệ thống đính kèm hình ảnh vào bài đăng và hiển thị trong phần xem trước. \\ \hline
+\textbf{AC-F02-03} Kiểm tra thông tin bắt buộc của bài đăng & Người dùng đang tạo bài đăng báo mất hoặc nhặt được. & Người dùng cố gắng gửi bài đăng khi chưa điền đầy đủ các trường bắt buộc. & Hệ thống ngăn việc gửi bài và đánh dấu những thông tin còn thiếu. \\ \hline
+\textbf{AC-F02-04} Chỉnh sửa bài đăng hiện có & Người dùng đã đăng nhập và là chủ sở hữu của một bài đăng hiện có. & Người dùng chỉnh sửa thông tin bài đăng và lưu thay đổi. & Hệ thống cập nhật bài đăng bằng thông tin mới. \\ \hline
+\textbf{AC-F02-05} Quản lý bài đăng cá nhân & Người dùng đã đăng nhập vào hệ thống. & Người dùng truy cập mục “Bài đăng của tôi”. & Hệ thống hiển thị tất cả bài đăng do người dùng tạo, kèm thông tin chi tiết và trạng thái xét duyệt hiện tại. \\ \hline
+\end{longtable}
+
+\subsubsection{F03 – Tìm kiếm và lọc bài đăng}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.20\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.26\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Acceptance criterion} & \tableheader{Given} & \tableheader{When} & \tableheader{Then} \\ \hline
+\textbf{AC-F03-01} Tìm kiếm bài đăng theo từ khóa & Người dùng đang xem trang danh sách bài đăng báo mất và nhặt được. & Người dùng nhập từ khóa vào thanh tìm kiếm. & Hệ thống hiển thị các bài đăng chứa từ khóa trong những thông tin có thể tìm kiếm liên quan. \\ \hline
+\textbf{AC-F03-02} Lọc bài đăng theo cơ sở & Người dùng đang xem trang danh sách bài đăng. & Người dùng chọn một cơ sở trong bộ lọc cơ sở. & Hệ thống chỉ hiển thị những bài đăng thuộc cơ sở đã chọn. \\ \hline
+\textbf{AC-F03-03} Lọc bài đăng theo danh mục vật phẩm & Người dùng đang xem trang danh sách bài đăng. & Người dùng chọn một danh mục vật phẩm, chẳng hạn “Đồ điện tử” hoặc “Vật dụng cá nhân”. & Hệ thống chỉ hiển thị những bài đăng thuộc danh mục đó. \\ \hline
+\textbf{AC-F03-04} Lọc bài đăng theo thời gian và trạng thái & Người dùng đang xem trang danh sách bài đăng. & Người dùng chọn khoảng thời gian và trạng thái (“Báo mất” hoặc “Nhặt được”). & Hệ thống chỉ hiển thị những bài đăng thỏa mãn cả hai điều kiện. \\ \hline
+\textbf{AC-F03-05} Kết hợp nhiều bộ lọc tìm kiếm & Người dùng đã nhập từ khóa tìm kiếm và chọn nhiều bộ lọc. & Người dùng áp dụng các tiêu chí tìm kiếm. & Hệ thống chỉ hiển thị các bài đăng đáp ứng tất cả điều kiện đã chọn. \\ \hline
+\textbf{AC-F03-06} Xử lý trường hợp không có kết quả & Người dùng đã áp dụng các tiêu chí tìm kiếm. & Không có bài đăng nào phù hợp với các tiêu chí. & Hệ thống hiển thị thông báo “Không tìm thấy bài đăng phù hợp” và cho phép người dùng thay đổi hoặc xóa các bộ lọc. \\ \hline
+\end{longtable}
+
+\subsubsection{F04 – Quy trình xác minh và nhận lại vật phẩm}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.20\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.26\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Acceptance criterion} & \tableheader{Given} & \tableheader{When} & \tableheader{Then} \\ \hline
+\textbf{AC-F04-01} Gửi yêu cầu nhận lại vật phẩm & Người dùng đã xác minh tài khoản, đăng nhập và đang xem bài đăng nhặt được vật phẩm. & Người dùng chọn “Nhận lại vật phẩm”, cung cấp câu trả lời cho câu hỏi xác minh hoặc bằng chứng hỗ trợ rồi gửi yêu cầu. & Hệ thống ghi nhận yêu cầu nhận lại vật phẩm với trạng thái “Đang chờ”. \\ \hline
+\textbf{AC-F04-02} Kiểm tra thông tin yêu cầu nhận lại vật phẩm & Người dùng đang gửi yêu cầu nhận lại vật phẩm. & Người dùng cố gắng gửi yêu cầu mà không cung cấp đủ thông tin xác minh bắt buộc. & Hệ thống ngăn việc gửi yêu cầu và đề nghị người dùng bổ sung thông tin còn thiếu. \\ \hline
+\textbf{AC-F04-03} Xem xét yêu cầu nhận lại vật phẩm & Người dùng đã đăng bài về vật phẩm nhặt được và nhận được yêu cầu nhận lại. & Chủ bài đăng mở yêu cầu. & Hệ thống hiển thị câu trả lời xác minh hoặc bằng chứng do người yêu cầu cung cấp, đồng thời cho phép chấp thuận hoặc từ chối yêu cầu. \\ \hline
+\textbf{AC-F04-04} Chấp thuận yêu cầu nhận lại hợp lệ & Yêu cầu nhận lại vật phẩm đang chờ xử lý và chủ bài đăng đã xem xét thông tin xác minh. & Chủ bài đăng chấp thuận yêu cầu. & Hệ thống chuyển trạng thái yêu cầu thành “Đã chấp thuận” và mở quyền xem thông tin liên hệ liên quan cho người yêu cầu được chấp thuận. \\ \hline
+\textbf{AC-F04-05} Từ chối yêu cầu nhận lại không hợp lệ & Có một yêu cầu nhận lại vật phẩm đang chờ xử lý. & Chủ bài đăng từ chối yêu cầu vì thông tin xác minh không đầy đủ hoặc không chính xác. & Hệ thống chuyển trạng thái yêu cầu thành “Đã từ chối” và tiếp tục ẩn thông tin liên hệ đối với người yêu cầu. \\ \hline
+\textbf{AC-F04-06} Bảo vệ thông tin liên hệ trước khi chấp thuận & Yêu cầu nhận lại vật phẩm chưa được chấp thuận. & Người yêu cầu xem bài đăng nhặt được vật phẩm hoặc yêu cầu của mình. & Hệ thống không tiết lộ thông tin liên hệ được bảo vệ của chủ bài đăng. \\ \hline
+\end{longtable}
+
+\subsubsection{F05 – Bảng điều khiển quản trị}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.20\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.23\columnwidth}|>{\raggedright\arraybackslash}p{0.26\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Acceptance criterion} & \tableheader{Given} & \tableheader{When} & \tableheader{Then} \\ \hline
+\textbf{AC-F05-01} Truy cập bảng điều khiển quản trị & Người dùng có tài khoản quản trị viên. & Quản trị viên đăng nhập và mở bảng điều khiển quản trị. & Hệ thống hiển thị các chức năng quản trị hiện có, bao gồm kiểm duyệt bài đăng, quản lý tài khoản, quản lý danh mục và các yêu cầu liên quan đến trường học. \\ \hline
+\textbf{AC-F05-02} Chấp thuận hoặc từ chối bài đăng & Quản trị viên đang xem những bài đăng chờ xét duyệt. & Quản trị viên xem xét bài đăng và chọn “Chấp thuận” hoặc “Từ chối”. & Hệ thống cập nhật trạng thái xét duyệt của bài đăng: bài được chấp thuận sẽ hiển thị công khai, còn bài bị từ chối sẽ không được đăng công khai. \\ \hline
+\textbf{AC-F05-03} Khóa tài khoản vi phạm quy định & Quản trị viên phát hiện một tài khoản người dùng vi phạm quy định của nền tảng. & Quản trị viên chọn tài khoản và thực hiện thao tác “Khóa tài khoản”. & Hệ thống chuyển trạng thái tài khoản thành “Đã khóa” và ngăn người dùng đăng nhập. \\ \hline
+\textbf{AC-F05-04} Quản lý danh mục vật phẩm & Quản trị viên đang xem mục quản lý danh mục. & Quản trị viên thêm, cập nhật hoặc xóa một danh mục vật phẩm. & Hệ thống lưu các thay đổi và cập nhật các lựa chọn danh mục hiển thị cho người dùng, nếu áp dụng. \\ \hline
+\textbf{AC-F05-05} Chấp thuận yêu cầu bổ sung trường & Quản trị viên đang xem các yêu cầu bổ sung trường chờ xử lý. & Quản trị viên xem xét và chấp thuận một yêu cầu hợp lệ. & Hệ thống thêm trường được chấp thuận vào danh sách trường được hỗ trợ và cập nhật trạng thái yêu cầu thành “Đã chấp thuận”. \\ \hline
+\textbf{AC-F05-06} Từ chối yêu cầu bổ sung trường & Quản trị viên đang xem xét một yêu cầu bổ sung trường. & Quản trị viên từ chối yêu cầu. & Hệ thống đánh dấu yêu cầu là “Đã từ chối” và không thêm trường đó vào danh sách trường được hỗ trợ. \\ \hline
+\textbf{AC-F05-07} Giới hạn quyền thực hiện thao tác quản trị & Người dùng thông thường đã đăng nhập vào hệ thống. & Người dùng cố gắng truy cập bảng điều khiển quản trị hoặc thực hiện thao tác chỉ dành cho quản trị viên. & Hệ thống từ chối truy cập và ngăn thao tác được thực hiện. \\ \hline
+\end{longtable}
+
+\noindent\textbf{Giả định cần xác nhận:} Bài đăng phải được quản trị viên phê duyệt trước khi hiển thị công khai; người đăng bài về vật phẩm nhặt được sẽ xem xét các yêu cầu nhận lại
 

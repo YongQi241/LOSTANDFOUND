@@ -1,9 +1,4 @@
-\subsection{Non-Functional
-Requirements}\label{non-functional-requirements}
-
-\emph{{[}Every non-functional requirement must be verifiable: state a
-metric and the conditions. Example: ``Under 200 concurrent users, the
-search page shall return results in ≤ 1 s at P95.''{]}}
+\subsection{Non-Functional Requirements}\label{non-functional-requirements}
 
 \begin{longtable}[]{@{}
   |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 6\tabcolsep) * \real{0.1231}}
@@ -15,10 +10,10 @@ search page shall return results in ≤ 1 s at P95.''{]}}
 
 \tableheader{ID} & \tableheader{Category} & \tableheader{Requirement (measurable)} &
 \tableheader{How it will be verified} \\ \hline
-NFR-01 & Performance & & \\ \hline
-NFR-02 & Security & & \\ \hline
-NFR-03 & Usability & & \\ \hline
-& & & \\ \hline
-& & & \\ \hline
+NFR-01 & Performance & Với 100 người dùng truy cập đồng thời, chức năng tìm kiếm và lọc bài đăng phải trả kết quả trong ≤ 2 giây ở P95 (95\% số yêu cầu). & Chạy load test bằng k6 trong 5 phút với 100 người dùng ảo trên môi trường staging; đọc chỉ số thời gian phản hồi P95 trong báo cáo k6. \\ \hline
+NFR-02 & Security & Thông tin liên hệ (SĐT, email cá nhân) của Post Owner không được xuất hiện trong bất kỳ API response nào gửi cho người dùng khác khi Claim của họ chưa được chấp nhận. 100\% kết nối phải dùng HTTPS; truy cập bằng HTTP phải tự chuyển sang HTTPS. & Dùng Postman gọi API chi tiết bài đăng bằng 3 loại tài khoản (Khách, Sinh viên khác, Claimant chưa được chấp nhận) và kiểm tra response không chứa trường liên hệ. Truy cập trang bằng địa chỉ \texttt{http://} để kiểm tra có tự chuyển sang \texttt{https://}. \\ \hline
+NFR-03 & Usability & Sinh viên sử dụng hệ thống lần đầu phải tạo được một bài đăng hoàn chỉnh trong ≤ 3 phút mà không cần hướng dẫn. & Usability test với 5 sinh viên chưa từng dùng hệ thống, bấm giờ từng người; đạt khi ít nhất 4/5 người hoàn thành trong ≤ 3 phút. \\ \hline
+NFR-04 & Compatibility & Giao diện phải hiển thị đúng và dùng được đầy đủ chức năng trên Chrome, Firefox, Safari phiên bản mới nhất, với màn hình rộng từ 360 px đến 1920 px, không xuất hiện thanh cuộn ngang. & Kiểm thử thủ công các màn hình chính trên Chrome DevTools (360, 768, 1366, 1920 px), 1 điện thoại Android và 1 iPhone; ghi kết quả vào checklist. \\ \hline
+NFR-05 & Availability & Hệ thống phải hoạt động (uptime) ≥ 99\% trong giai đoạn kiểm thử và demo (tuần 10--11). & Theo dõi bằng UptimeRobot, kiểm tra mỗi 5 phút; xuất báo cáo uptime cuối tuần 11. \\ \hline
 \end{longtable}
 

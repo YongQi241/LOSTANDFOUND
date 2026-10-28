@@ -10,11 +10,14 @@ Converted from `PA2-SoftwareRequirementsSpecification (1).docx`.
 - `body.tex` — ordered list of the eleven section files.
 - `sections/` — editable document content. Each numbered section has its own directory, and each second-level subsection has a numbered file such as `2.1-purpose-and-scope.tex`.
 - `assets/hcmus_logo.png` — university logo extracted from the source Word document.
+- `assets/fonts/QuattrocentoSans-*.ttf` — vendored Quattrocento Sans regular, bold, italic, and bold-italic fonts.
+- `assets/fonts/QuattrocentoSans-OFL.txt` — SIL Open Font License for Quattrocento Sans.
+- `assets/fonts/Inter-*.ttf` — vendored Inter fonts used for the document body.
 - `main.pdf` — compiled preview.
 
 ## Compile
 
-Use an up-to-date TeX installation with XeLaTeX, TikZ, fontspec, longtable, hyperref, and the Liberation Sans font. From the project directory:
+Use an up-to-date TeX installation with XeLaTeX, TikZ, fontspec, longtable, and hyperref. Quattrocento Sans and Inter are included in `assets/fonts`, so no system font installation is required. From the project directory:
 
 ```sh
 xelatex -interaction=nonstopmode main.tex

@@ -1,12 +1,17 @@
 \usepackage[letterpaper,left=0.75in,right=0.75in,top=1.42in,bottom=0.81in,headheight=18pt,headsep=16pt,footskip=0.57in]{geometry}
 \usepackage{fontspec}
-\IfFontExistsTF{Liberation Sans}{%
-  \setmainfont{Liberation Sans}%
-  \setsansfont{Liberation Sans}%
-}{%
-  \setmainfont{DejaVu Sans}%
-  \setsansfont{DejaVu Sans}%
-}
+\setmainfont{QuattrocentoSans-Regular.ttf}[
+  Path=assets/fonts/,
+  BoldFont=QuattrocentoSans-Bold.ttf,
+  ItalicFont=QuattrocentoSans-Italic.ttf,
+  BoldItalicFont=QuattrocentoSans-BoldItalic.ttf
+]
+\setsansfont{QuattrocentoSans-Regular.ttf}[
+  Path=assets/fonts/,
+  BoldFont=QuattrocentoSans-Bold.ttf,
+  ItalicFont=QuattrocentoSans-Italic.ttf,
+  BoldItalicFont=QuattrocentoSans-BoldItalic.ttf
+]
 \newfontfamily\bodyfont{Inter-Regular.ttf}[
   Path=assets/fonts/,
   BoldFont=Inter-Bold.ttf,
@@ -15,7 +20,7 @@
   BoldItalicFont=Inter-Bold.ttf,
   BoldItalicFeatures={FakeSlant=0.2}
 ]
-\usepackage{microtype}
+\usepackage[protrusion=false]{microtype}
 \usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{calc}
@@ -27,6 +32,45 @@
 \definecolor{LightBlue}{RGB}{219,229,241}
 \newcommand{\tableheader}[1]{\textcolor{white}{\textbf{#1}}}
 \usepackage{array,longtable,booktabs,calc,colortbl}
+% Compatibility fix for longtable versions before the 2026 Q2 release.
+% Replaces infinite \vss shrinkage in the output routine with finite glue.
+\ExplSyntaxOn
+\makeatletter
+\def\LT@output{%
+  \ifnum\outputpenalty <-\@Mi
+    \ifnum\outputpenalty > -\LT@end@pen
+      \LT@err{floats~ and~ marginpars~ not~ allowed~ in~ a~ longtable}\@ehc
+    \else
+      \setbox\z@\vbox{\unvbox\@cclv}%
+      \ifdim \ht\LT@lastfoot>\ht\LT@foot
+        \dimen@\pagegoal
+        \advance\dimen@\ht\LT@foot
+        \advance\dimen@-\ht\LT@lastfoot
+        \ifdim\dimen@<\ht\z@
+          \setbox\@cclv\vbox{\unvbox\z@\copy\LT@foot
+            \vskip 0pt plus \maxdimen minus \normalbaselineskip}%
+          \@makecol
+          \@expl@@@mark@update@singlecol@structures@@
+          \@outputpage
+          \global\vsize\@colroom
+          \setbox\z@\vbox{\box\LT@head}%
+        \fi
+      \fi
+      \unvbox\z@\box\ifvoid\LT@lastfoot\LT@foot\else\LT@lastfoot\fi
+      \UseTaggingSocket{tbl/longtable/foot}%
+    \fi
+  \else
+    \setbox\@cclv\vbox{\unvbox\@cclv\copy\LT@foot
+      \vskip 0pt plus \maxdimen minus \normalbaselineskip}%
+    \UseTaggingSocket{tbl/longtable/foot}%
+    \@makecol
+    \@expl@@@mark@update@singlecol@structures@@
+    \@outputpage
+    \global\vsize\@colroom
+    \copy\LT@head\nobreak
+  \fi}
+\makeatother
+\ExplSyntaxOff
 \usepackage{etoolbox}
 \usepackage{enumitem}
 \usepackage{titlesec}
