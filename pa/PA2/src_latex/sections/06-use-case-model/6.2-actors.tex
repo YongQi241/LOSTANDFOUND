@@ -1,0 +1,16 @@
+\subsection{Actors}\label{actors}
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 2\tabcolsep) * \real{0.2769}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 2\tabcolsep) * \real{0.7231}}|@{}}
+\hline
+\rowcolor{TableBlue}
+
+\tableheader{Actor} & \tableheader{Description} \\ \hline
+Khách (Guest) & Người chưa đăng nhập. Được xem, tìm kiếm bài đăng và đăng ký tài khoản. \\ \hline
+Sinh viên (Student) & Người dùng đã xác thực email trường. Kế thừa quyền của Khách, thêm quyền đăng bài, gửi Claim, xử lý Claim và báo cáo vi phạm. Đóng vai Post Owner khi đăng bài và Claimant khi gửi Claim. \\ \hline
+Admin & Quản trị viên. Kiểm duyệt bài đăng, khóa tài khoản, quản lý danh mục và duyệt yêu cầu thêm trường. \\ \hline
+Đại diện trường & Đại diện trường đại học muốn tham gia. Gửi đề nghị thêm trường vào hệ thống. \\ \hline
+Dịch vụ Email (Brevo SMTP) & Hệ thống bên ngoài, gửi email xác minh và email thông báo kết quả. \\ \hline
+\end{longtable}
+

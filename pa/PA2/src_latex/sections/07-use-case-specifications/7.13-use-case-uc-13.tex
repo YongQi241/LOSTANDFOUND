@@ -1,0 +1,21 @@
+\subsection{Use Case UC-13}\label{use-case-uc-13}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-13} \\ \hline
+\emph{Use case name} & Xét duyệt yêu cầu thêm trường \\ \hline
+\emph{Brief description} & Admin duyệt hoặc từ chối yêu cầu thêm trường mới. \\ \hline
+\emph{Primary actor} & Admin \\ \hline
+\emph{Secondary actors} & Dịch vụ Email (Brevo SMTP) \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-08 \\ \hline
+\emph{Trigger} & Admin mở mục “Yêu cầu thêm trường”. \\ \hline
+\emph{Pre-conditions} & Admin đã đăng nhập và có ít nhất một yêu cầu “Chờ duyệt”. \\ \hline
+\emph{Post-conditions} & Nếu duyệt: trường mới được thêm và sinh viên trường đó có thể đăng ký. Nếu từ chối: yêu cầu chuyển sang “Bị từ chối”. Trong cả hai trường hợp, người liên hệ đều nhận được email. \\ \hline
+\emph{Main flow} & 1. Admin mở “Yêu cầu thêm trường”. 2. Hệ thống hiển thị các yêu cầu đang chờ duyệt. 3. Admin chọn một yêu cầu và kiểm tra thông tin. 4. Admin nhấn “Duyệt”. 5. Hệ thống thêm trường, các cơ sở và tên miền email vào hệ thống. 6. Trường mới xuất hiện trong bộ lọc, và sinh viên của trường đó có thể đăng ký (UC-01). 7. Hệ thống gửi email báo kết quả đến người liên hệ. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 4): Admin nhấn “Từ chối” và nhập lý do. Hệ thống chuyển yêu cầu sang “Bị từ chối” và gửi email kèm lý do. \\ \hline
+\emph{Exception flows} & E1 (tại A1): Admin bỏ trống lý do. Hệ thống yêu cầu nhập lý do. E2 (tại bước 5): Tên miền đã tồn tại do một yêu cầu khác đã được duyệt trước. Hệ thống báo lỗi và gợi ý từ chối yêu cầu này. \\ \hline
+\emph{Business rules} & Không có \\ \hline
+\emph{Non-functional constraints} & Không có \\ \hline
+\end{longtable}

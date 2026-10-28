@@ -1,0 +1,50 @@
+\subsection{Functional Requirements}\label{functional-requirements}
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.1076}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.4770}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.1231}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.1231}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.1692}}|@{}}
+\hline
+\rowcolor{TableBlue}
+
+\tableheader{ID} & \tableheader{Requirement} & \tableheader{Feature} &
+\tableheader{Priority} & \tableheader{Source} \\ \hline
+FR-01 & Hệ thống phải yêu cầu người dùng đăng ký và xác thực tài khoản
+bằng địa chỉ email chính thức của trường đại học (@\ldots edu.vn). & F01
+& Must & Stakeholder/ PA1 \\ \hline
+FR-02 & Hệ thống phải phân quyền truy cập theo vai trò, phân biệt rõ
+quyền hạn giữa Sinh viên (End User) và Quản trị viên (Admin). & F01 &
+Must & Stakeholder/ PA1 \\ \hline
+FR-03 & Hệ thống phải cho phép người dùng đã đăng nhập tạo, chỉnh sửa và
+quản lý các bài đăng báo cáo "Mất đồ" hoặc "Nhặt đồ" kèm tiêu đề, hình
+ảnh, cơ sở trường, danh mục, thời gian và mô tả. & F02 & Must & End
+User/ PA1 \\ \hline
+FR-04 & Hệ thống phải cho phép người dùng tìm kiếm bài đăng theo từ khóa
+và lọc dữ liệu đa chiều theo cơ sở trường đại học, danh mục vật phẩm,
+khoảng thời gian và trạng thái (Mất/Nhặt). & F03 & Must & End User/
+PA1 \\ \hline
+FR-05 & Hệ thống phải cho phép người bị mất đồ gửi yêu cầu nhận lại đồ
+(Claim) kèm câu trả lời xác minh hoặc bằng chứng trước khi mở khóa thông
+tin liên hệ. & F04 & Must & End User/ PA1 \\ \hline
+FR-06 & Hệ thống phải cho phép người đăng bài chấp nhận hoặc từ chối yêu
+cầu nhận đồ và cập nhật trạng thái bài đăng thành "Đã giải quyết"
+(Resolved). & F04 & Must & End User/ PA1 \\ \hline
+FR-07 & Hệ thống phải cung cấp Bảng quản trị (Admin Dashboard) để kiểm
+duyệt các bài đăng bị báo cáo, xóa nội dung giả mạo/spam và khóa tài
+khoản vi phạm. & F05 & Must & Admin/ PA1 \\ \hline
+FR-08 & Hệ thống phải cho phép Admin quản lý danh mục vật phẩm và xét
+duyệt/từ chối yêu cầu bổ sung các cơ sở trường đại học mới. & F05 & Must
+& Admin/ PA1 \\ \hline
+FR-09 & Hệ thống nên gửi thông báo nội bộ (In-app notification) cho
+người dùng khi bài đăng của họ nhận được yêu cầu Claim hoặc có thay đổi
+trạng thái. & F06 & Should & End User/ PA1 \\ \hline
+FR-10 & Hệ thống có thể tự động quét thẻ sinh viên bằng công nghệ OCR để
+trích xuất MSSV, tự động mờ thông tin riêng tư và gửi email thông báo
+cho chủ thẻ. & F07 & Could & Feature Proposal \\ \hline
+FR-11 & Hệ thống có thể tự động tính toán phần trăm độ trùng khớp giữa
+bài đăng mất đồ và nhặt đồ bằng công nghệ AI Smart Matching. & F08 &
+Would & Feature Proposal \\ \hline
+\end{longtable}
+

@@ -1,0 +1,21 @@
+\subsection{Use Case UC-10}\label{use-case-uc-10}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-10} \\ \hline
+\emph{Use case name} & Kiểm duyệt bài đăng \& khóa tài khoản \\ \hline
+\emph{Brief description} & Admin xem các bài bị báo cáo, quyết định giữ hoặc gỡ bài, và khóa tài khoản vi phạm. \\ \hline
+\emph{Primary actor} & Admin \\ \hline
+\emph{Secondary actors} & Không có \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-07, FR-02 \\ \hline
+\emph{Trigger} & Admin mở mục “Hàng đợi kiểm duyệt”. \\ \hline
+\emph{Pre-conditions} & Admin đã đăng nhập. \\ \hline
+\emph{Post-conditions} & Bài được giữ lại hoặc bị gỡ; tài khoản vi phạm có thể bị khóa; mọi thao tác được ghi lại. \\ \hline
+\emph{Main flow} & 1. Admin mở “Hàng đợi kiểm duyệt”. 2. Hệ thống hiển thị các bài bị báo cáo, kèm số lượt và lý do. 3. Admin chọn một bài và xem chi tiết bài cùng các báo cáo. 4. Admin nhấn “Gỡ bài” và nhập lý do. 5. Hệ thống ẩn bài khỏi tìm kiếm, hủy các Claim đang chờ và thông báo lý do cho chủ bài. 6. Hệ thống ghi lại lịch sử thao tác của Admin. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 4): Admin nhấn “Giữ bài”. Hệ thống đưa bài ra khỏi hàng đợi và đánh dấu các báo cáo là “Đã xử lý”. A2 (tại bước 4): Admin nhấn “Khóa tài khoản” và nhập lý do. Hệ thống khóa tài khoản, kết thúc phiên đăng nhập, ẩn mọi bài đang mở của tài khoản đó và gửi thông báo cho chủ tài khoản. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4 hoặc A2): Admin bỏ trống lý do. Hệ thống yêu cầu nhập lý do. E2 (tại A2): Tài khoản cần khóa là một Admin khác. Hệ thống không cho phép. \\ \hline
+\emph{Business rules} & BR-03 \\ \hline
+\emph{Non-functional constraints} & NFR-02 \\ \hline
+\end{longtable}

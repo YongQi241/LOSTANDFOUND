@@ -1,0 +1,21 @@
+\subsection{Use Case UC-01}\label{use-case-uc-01}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-01} \\ \hline
+\emph{Use case name} & Đăng ký \& xác thực email trường \\ \hline
+\emph{Brief description} & Khách tạo tài khoản bằng email trường đại học và kích hoạt tài khoản qua link xác minh. \\ \hline
+\emph{Primary actor} & Khách \\ \hline
+\emph{Secondary actors} & Dịch vụ Email (Brevo SMTP) \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-01 \\ \hline
+\emph{Trigger} & Khách nhấn nút “Đăng ký”. \\ \hline
+\emph{Pre-conditions} & Email chưa từng được đăng ký trong hệ thống. \\ \hline
+\emph{Post-conditions} & Tài khoản được tạo ở trạng thái “Đã xác minh” với vai trò Sinh viên. \\ \hline
+\emph{Main flow} & 1. Khách nhấn “Đăng ký”. 2. Hệ thống hiển thị form gồm họ tên, email trường, mật khẩu và xác nhận mật khẩu. 3. Khách nhập thông tin và nhấn “Đăng ký”. 4. Hệ thống kiểm tra email có đuôi edu.vn thuộc trường đã có trong hệ thống, email chưa được đăng ký và mật khẩu hợp lệ. 5. Hệ thống tạo tài khoản ở trạng thái “Chưa xác minh”. 6. Hệ thống gửi email chứa link xác minh qua Dịch vụ Email. 7. Hệ thống hiển thị “Vui lòng kiểm tra hộp thư”. 8. Khách mở email và nhấn vào link. 9. Hệ thống kiểm tra link hợp lệ và chuyển tài khoản sang “Đã xác minh”. 10. Hệ thống hiển thị “Xác minh thành công” và chuyển đến trang Đăng nhập. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 7): Khách không nhận được email và nhấn “Gửi lại”. Hệ thống gửi link mới, vô hiệu hóa link cũ, rồi quay lại bước 7. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4): Email không phải email trường, hoặc trường chưa có trong hệ thống. Hệ thống báo “Chỉ chấp nhận email của các trường đại học tham gia”. E2 (tại bước 4): Email đã được đăng ký. Hệ thống báo lỗi và gợi ý đăng nhập. E3 (tại bước 4): Mật khẩu dưới 8 ký tự hoặc xác nhận mật khẩu không khớp. Hệ thống báo lỗi tại ô tương ứng. E4 (tại bước 9): Link đã hết hạn (quá 24 giờ). Hệ thống báo hết hạn và cho gửi lại như A1. E5 (tại bước 6): Dịch vụ Email lỗi. Hệ thống báo “Không gửi được email, vui lòng thử lại sau”; tài khoản vẫn ở trạng thái “Chưa xác minh”. \\ \hline
+\emph{Business rules} & BR-01 \\ \hline
+\emph{Non-functional constraints} & NFR-06 \\ \hline
+\end{longtable}

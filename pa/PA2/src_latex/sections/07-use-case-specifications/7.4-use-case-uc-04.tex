@@ -1,0 +1,21 @@
+\subsection{Use Case UC-04}\label{use-case-uc-04}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-04} \\ \hline
+\emph{Use case name} & Xem chi tiết bài đăng \\ \hline
+\emph{Brief description} & Người dùng xem toàn bộ thông tin của một bài đăng; thông tin liên hệ được ẩn. \\ \hline
+\emph{Primary actor} & Khách (Sinh viên kế thừa) \\ \hline
+\emph{Secondary actors} & Không có \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-04, FR-05 \\ \hline
+\emph{Trigger} & Người dùng chọn một bài trong danh sách. \\ \hline
+\emph{Pre-conditions} & Bài đăng tồn tại và chưa bị gỡ. \\ \hline
+\emph{Post-conditions} & Chi tiết bài đăng được hiển thị; thông tin liên hệ vẫn bị ẩn (trừ các trường hợp ở A3, A4). \\ \hline
+\emph{Main flow} & 1. Người dùng chọn một bài đăng. 2. Hệ thống lấy thông tin bài đăng. 3. Hệ thống hiển thị tiêu đề, ảnh, loại bài, danh mục, cơ sở, thời gian, mô tả và trạng thái, đồng thời ẩn thông tin liên hệ. 4. Hệ thống hiển thị các nút phù hợp: “Đây là đồ của tôi” nếu là bài Nhặt đồ chưa giải quyết, và “Báo cáo vi phạm”. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 4): Người dùng nhấn “Đây là đồ của tôi”. Chuyển sang UC-07. A2 (tại bước 4): Người dùng nhấn “Báo cáo vi phạm”. Chuyển sang UC-09. A3 (tại bước 3): Người xem là chủ bài. Hệ thống hiển thị thêm nút “Sửa” và “Xóa” (UC-06). A4 (tại bước 3): Người xem có Claim đã được chấp nhận. Hệ thống hiển thị thông tin liên hệ. \\ \hline
+\emph{Exception flows} & E1 (tại bước 2): Bài đã bị xóa hoặc bị gỡ. Hệ thống báo “Bài đăng không còn tồn tại”. \\ \hline
+\emph{Business rules} & BR-02 \\ \hline
+\emph{Non-functional constraints} & NFR-02 \\ \hline
+\end{longtable}

@@ -1,0 +1,85 @@
+\usepackage[letterpaper,left=0.75in,right=0.75in,top=1.42in,bottom=0.81in,headheight=18pt,headsep=16pt,footskip=0.57in]{geometry}
+\usepackage{fontspec}
+\IfFontExistsTF{Liberation Sans}{%
+  \setmainfont{Liberation Sans}%
+  \setsansfont{Liberation Sans}%
+}{%
+  \setmainfont{DejaVu Sans}%
+  \setsansfont{DejaVu Sans}%
+}
+\newfontfamily\bodyfont{Inter-Regular.ttf}[
+  Path=assets/fonts/,
+  BoldFont=Inter-Bold.ttf,
+  ItalicFont=Inter-Regular.ttf,
+  ItalicFeatures={FakeSlant=0.2},
+  BoldItalicFont=Inter-Bold.ttf,
+  BoldItalicFeatures={FakeSlant=0.2}
+]
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{xcolor}
+\definecolor{CoverBlue}{RGB}{79,129,189}
+\definecolor{PrimaryBlue}{RGB}{0,112,192}
+\definecolor{HeaderBlue}{RGB}{0,112,192}
+\definecolor{TableBlue}{RGB}{83,145,208}
+\definecolor{LightBlue}{RGB}{219,229,241}
+\newcommand{\tableheader}[1]{\textcolor{white}{\textbf{#1}}}
+\usepackage{array,longtable,booktabs,calc,colortbl}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{url}
+\hypersetup{colorlinks=true,linkcolor=PrimaryBlue,urlcolor=PrimaryBlue}
+\providecommand{\real}[1]{#1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5.5pt}
+\setlength{\emergencystretch}{2em}
+\linespread{1.13}
+\setlist[itemize]{leftmargin=1.7em,topsep=3pt,itemsep=2pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.7em,topsep=3pt,itemsep=2pt,parsep=0pt}
+\setlength{\LTpre}{7pt}
+\setlength{\LTpost}{8pt}
+\setlength{\tabcolsep}{4pt}
+\setlength{\arrayrulewidth}{0.35pt}
+\AtBeginEnvironment{longtable}{\fontsize{9.1}{12.3}\selectfont\arrayrulecolor{black!65}\renewcommand{\arraystretch}{1.26}}
+\titleformat{\section}[hang]{\bfseries\color{PrimaryBlue}}{\fontsize{44}{44}\selectfont\thesection}{0.25em}{\fontsize{20}{23}\selectfont}
+\titlespacing*{\section}{0pt}{8pt}{26pt}
+\titleformat{\subsection}[hang]{\bfseries\color{black}}{\thesubsection}{0.75em}{\fontsize{14.5}{17}\selectfont}
+\titlespacing*{\subsection}{0pt}{16pt}{8pt}
+\titleformat{\subsubsection}[hang]{\bfseries}{\thesubsubsection}{0.7em}{}
+\fancyhf{}
+\pagestyle{empty}
+\AddToShipoutPictureBG{%
+  \ifnum\value{page}>2\relax
+  \begin{tikzpicture}[remember picture,overlay]
+    % Page header (original template)
+    \fill[HeaderBlue] ([xshift=0.67in,yshift=-0.50in]current page.north west)
+      rectangle ([xshift=4.94in,yshift=-1.06in]current page.north west);
+    \node[anchor=west,text=white,font=\fontsize{12}{14}\bfseries] at
+      ([xshift=0.75in,yshift=-0.72in]current page.north west)
+      {Introduction to Software Engineering};
+    \node[anchor=east,align=right,font=\fontsize{11}{14}\bfseries] at
+      ([xshift=-0.85in,yshift=-0.73in]current page.north east)
+      {Software Requirements\\Specification};
+    \draw[PrimaryBlue,line width=.42pt] ([xshift=0.67in,yshift=-1.06in]current page.north west)
+      -- ([xshift=-0.83in,yshift=-1.06in]current page.north east);
+    % Page footer
+    \draw[PrimaryBlue,line width=.45pt] ([xshift=0.67in,yshift=0.94in]current page.south west)
+      -- ([xshift=-0.83in,yshift=0.94in]current page.south east);
+    \fill[HeaderBlue] ([xshift=-1.53in,yshift=0.94in]current page.south east)
+      rectangle ([xshift=-0.83in,yshift=0.60in]current page.south east);
+    \node[anchor=west,font=\fontsize{11}{13}\selectfont] at
+      ([xshift=0.75in,yshift=0.74in]current page.south west) {HCMUS | SE Dept.};
+    \node[text=white,font=\fontsize{11}{13}\selectfont] at
+      ([xshift=-1.18in,yshift=0.75in]current page.south east) {\number\numexpr\value{page}-2\relax};
+  \end{tikzpicture}
+  \fi
+}
