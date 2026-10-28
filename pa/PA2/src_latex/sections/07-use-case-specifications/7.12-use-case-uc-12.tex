@@ -1,0 +1,21 @@
+\subsection{Use Case UC-12}\label{use-case-uc-12}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-12} \\ \hline
+\emph{Use case name} & Gửi yêu cầu thêm cơ sở trường \\ \hline
+\emph{Brief description} & Đại diện một trường đại học gửi đề nghị đưa trường của họ vào hệ thống. \\ \hline
+\emph{Primary actor} & Đại diện trường \\ \hline
+\emph{Secondary actors} & Không có \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-08 \\ \hline
+\emph{Trigger} & Đại diện trường nhấn “Đề nghị thêm trường” ở chân trang. \\ \hline
+\emph{Pre-conditions} & Không cần tài khoản. \\ \hline
+\emph{Post-conditions} & Yêu cầu được lưu với trạng thái “Chờ duyệt”. \\ \hline
+\emph{Main flow} & 1. Đại diện trường nhấn “Đề nghị thêm trường”. 2. Hệ thống hiển thị form gồm tên trường, tên miền email sinh viên (ví dụ @hcmut.edu.vn), danh sách cơ sở, tên người liên hệ, email liên hệ và ghi chú. 3. Đại diện trường điền thông tin và nhấn “Gửi”. 4. Hệ thống kiểm tra dữ liệu. 5. Hệ thống lưu yêu cầu với trạng thái “Chờ duyệt”. 6. Hệ thống hiển thị mã yêu cầu và thông báo kết quả sẽ được gửi qua email. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 3): Đại diện trường nhấn “Hủy”. Hệ thống không lưu gì. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4): Thiếu trường bắt buộc. Hệ thống báo lỗi tại ô tương ứng. E2 (tại bước 4): Tên miền không có đuôi .edu.vn. Hệ thống báo lỗi. E3 (tại bước 4): Trường đã có trong hệ thống, hoặc đã có một yêu cầu đang chờ cho tên miền này. Hệ thống báo lỗi. \\ \hline
+\emph{Business rules} & Không có \\ \hline
+\emph{Non-functional constraints} & Không có \\ \hline
+\end{longtable}

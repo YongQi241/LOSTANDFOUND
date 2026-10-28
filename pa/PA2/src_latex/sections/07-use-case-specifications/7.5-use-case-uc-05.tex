@@ -1,0 +1,21 @@
+\subsection{Use Case UC-05}\label{use-case-uc-05}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-05} \\ \hline
+\emph{Use case name} & Tạo bài đăng Mất/Nhặt đồ \\ \hline
+\emph{Brief description} & Sinh viên tạo bài báo cáo mất đồ hoặc nhặt được đồ với đầy đủ thông tin. \\ \hline
+\emph{Primary actor} & Sinh viên (Post Owner) \\ \hline
+\emph{Secondary actors} & Không có \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-03 \\ \hline
+\emph{Trigger} & Sinh viên nhấn “Đăng bài”. \\ \hline
+\emph{Pre-conditions} & Sinh viên đã đăng nhập; tài khoản đã xác minh và không bị khóa. \\ \hline
+\emph{Post-conditions} & Bài đăng được lưu với trạng thái “Đang mở” và xuất hiện trong kết quả tìm kiếm. \\ \hline
+\emph{Main flow} & 1. Sinh viên nhấn “Đăng bài”. 2. Hệ thống hiển thị form gồm loại bài (Mất/Nhặt), tiêu đề, danh mục, cơ sở trường, thời gian, mô tả vị trí, mô tả, ảnh và thông tin liên hệ. 3. Sinh viên chọn “Nhặt đồ”, điền thông tin và đặt một câu hỏi xác minh (ví dụ: “Trong ví có những thẻ gì?”). 4. Sinh viên nhấn “Đăng”. 5. Hệ thống kiểm tra dữ liệu. 6. Hệ thống lưu bài với trạng thái “Đang mở”. 7. Hệ thống hiển thị trang chi tiết của bài vừa đăng. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 3): Sinh viên chọn “Mất đồ”. Form không yêu cầu câu hỏi xác minh. A2 (tại bước 3): Sinh viên tải lên ảnh thẻ sinh viên. Hệ thống có thể chạy UC-15 (OCR, Could-have). A3 (tại bước 4): Sinh viên nhấn “Hủy”. Hệ thống không lưu gì. \\ \hline
+\emph{Exception flows} & E1 (tại bước 5): Thiếu trường bắt buộc (loại bài, tiêu đề, danh mục, cơ sở, thời gian, hoặc câu hỏi xác minh với bài Nhặt đồ). Hệ thống báo lỗi tại ô tương ứng và quay lại bước 3. E2 (tại bước 5): Ảnh không phải JPG/PNG, lớn hơn 5 MB, hoặc quá 5 ảnh. Hệ thống báo lỗi. E3 (tại bước 5): Thời gian chọn ở tương lai. Hệ thống báo lỗi. \\ \hline
+\emph{Business rules} & BR-01, BR-02 \\ \hline
+\emph{Non-functional constraints} & NFR-03 (tạo được bài trong $\leq$ 3 phút) \\ \hline
+\end{longtable}

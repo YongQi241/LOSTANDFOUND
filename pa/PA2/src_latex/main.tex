@@ -1,0 +1,9 @@
+% Software Requirements Specification entry point.
+% Compile twice with XeLaTeX or run: latexmk -xelatex main.tex
+\documentclass[letterpaper,11pt]{article}
+\input{preamble.tex}
+
+\begin{document}
+\input{frontmatter.tex}
+\bodyfont{\input{body.tex}}
+\end{document}

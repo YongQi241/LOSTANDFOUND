@@ -1,0 +1,58 @@
+% PAGE 1 -- high-fidelity title page, editable elements
+\thispagestyle{empty}
+\null
+\begin{tikzpicture}[remember picture,overlay]
+  % Positions follow the original Word cover. All coordinates are measured
+  % from the physical page edges, independently of LaTeX text margins.
+  \node[anchor=north,align=center,inner sep=0,
+        font=\fontsize{21}{25}\bfseries] at
+     ([yshift=-0.82in]current page.north)
+     {Introduction to Software Engineering};
+  % Inset title banner.
+  \fill[CoverBlue]
+     ([xshift=0.65in,yshift=-1.78in]current page.north west)
+     rectangle
+     ([xshift=-0.65in,yshift=-3.42in]current page.north east);
+  \node[font=\fontsize{42}{47}\bfseries,text=white,anchor=center] at
+     ([yshift=-2.23in]current page.north) {Software Requirements};
+  \node[font=\fontsize{42}{47}\bfseries,text=white,anchor=center] at
+     ([yshift=-3.02in]current page.north) {Specification};
+  \node[anchor=south west,inner sep=0] at
+     ([xshift=0.52in,yshift=1.54in]current page.south west)
+     {\includegraphics[scale=1.25]{assets/hcmus_logo.png}};
+  \node[anchor=west,inner sep=0,align=right,
+        font=\fontsize{11}{15}\selectfont] at
+     ([xshift=1.72in,yshift=1.98in]current page.south west)
+     {Software Engineering Department\\
+      Faculty of Information and Technology\\
+      University of Science};
+\end{tikzpicture}
+\clearpage
+% PAGE 2 -- standard LaTeX table of contents.
+\setcounter{tocdepth}{1}
+\tableofcontents
+\clearpage
+% PAGE 3 -- Objectives page
+\pagestyle{empty}
+\begin{center}
+{\color{PrimaryBlue}\bfseries\fontsize{35}{47}\selectfont Software Requirements}\\[0.35in]
+{\color{PrimaryBlue}\bfseries\fontsize{35}{43}\selectfont Specification}
+\end{center}
+\vspace{0.66in}
+{\fontsize{21}{25}\bfseries Objectives}\par\vspace{6pt}
+This document focus on the following topics:
+\begin{itemize}[label=$\checkmark$,leftmargin=1.9em,itemsep=7pt]
+\item Completing the Software Requirements Specification (SRS) document with the following sections:
+  \begin{itemize}[label=\textbullet,itemsep=4pt]
+  \item Problem Statement
+  \item Stakeholders
+  \item Functional, non-functional and domain requirements
+  \item Use case model and use case specifications
+  \item Prototype / mockups
+  \item Traceability and requirements review
+  \end{itemize}
+\item Including an AI usage log for this phase
+\item Understanding the Software Requirements Specification (SRS) document.
+\end{itemize}
+\addcontentsline{toc}{section}{Objectives}
+% Source content from here onward, including all numbered sections.

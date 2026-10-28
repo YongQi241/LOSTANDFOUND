@@ -1,0 +1,21 @@
+\subsection{Use Case UC-02}\label{use-case-uc-02}
+
+\begin{longtable}[]{@{}|>{\raggedright\arraybackslash}p{0.27\columnwidth}|>{\raggedright\arraybackslash}p{0.67\columnwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Use case ID} & \tableheader{UC-02} \\ \hline
+\emph{Use case name} & Đăng nhập / Đăng xuất \\ \hline
+\emph{Brief description} & Người dùng đăng nhập bằng email và mật khẩu, được chuyển đến giao diện theo vai trò, và có thể đăng xuất. \\ \hline
+\emph{Primary actor} & Sinh viên, Admin \\ \hline
+\emph{Secondary actors} & Không có \\ \hline
+\emph{Priority} & Must \\ \hline
+\emph{Related requirements} & FR-01, FR-02 \\ \hline
+\emph{Trigger} & Người dùng nhấn “Đăng nhập”. \\ \hline
+\emph{Pre-conditions} & Tài khoản đã tồn tại và đã được xác minh email. \\ \hline
+\emph{Post-conditions} & Người dùng đăng nhập thành công với đúng quyền theo vai trò. \\ \hline
+\emph{Main flow} & 1. Người dùng nhấn “Đăng nhập”. 2. Hệ thống hiển thị form gồm email và mật khẩu. 3. Người dùng nhập thông tin và nhấn “Đăng nhập”. 4. Hệ thống kiểm tra thông tin đúng, tài khoản đã xác minh và không bị khóa. 5. Hệ thống tạo phiên đăng nhập. 6. Hệ thống chuyển trang theo vai trò: Sinh viên đến Trang chủ, Admin đến Admin Dashboard. \\ \hline
+\emph{Alternative flows} & A1 (bất kỳ lúc nào sau khi đăng nhập): Người dùng nhấn “Đăng xuất”. Hệ thống hủy phiên và quay về Trang chủ ở chế độ Khách. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4): Sai email hoặc mật khẩu. Hệ thống báo “Email hoặc mật khẩu không đúng”, không nói rõ sai ô nào. E2 (tại bước 4): Tài khoản chưa xác minh. Hệ thống báo lỗi và cho gửi lại link xác minh. E3 (tại bước 4): Tài khoản đã bị khóa. Hệ thống báo “Tài khoản đã bị khóa” kèm lý do. E4 (tại bước 4): Nhập sai 5 lần liên tiếp. Hệ thống tạm khóa chức năng đăng nhập của tài khoản đó trong 15 phút. \\ \hline
+\emph{Business rules} & BR-01 \\ \hline
+\emph{Non-functional constraints} & NFR-02, NFR-06 \\ \hline
+\end{longtable}

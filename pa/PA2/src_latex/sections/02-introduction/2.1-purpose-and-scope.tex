@@ -1,0 +1,59 @@
+\subsection{Purpose and Scope}\label{purpose-and-scope}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Purpose}: Tài liệu SRS này quy định chi tiết các yêu cầu chức
+  năng (Functional Requirements), yêu cầu phi chức năng (Non-Functional
+  Requirements), các quy tắc nghiệp vụ (Business Rules) và mô hình Use
+  Case cho hệ thống US-Recovery (tên dự án trong PA1: CampusHub). Tài
+  liệu này đóng vai trò là cơ sở (Baseline) cho các giai đoạn thiết kế
+  (PA3), Lập kế hoạch kiểm thử (PA4) và Lập trình triển khai (PA5).
+\item
+  \textbf{Scope}:
+\end{enumerate}
+
+\begin{itemize}
+\item
+  \textbf{In-Scope:}
+
+  \begin{itemize}
+  \item
+    Hệ thống xác thực tài khoản chính danh qua Email sinh viên đại học
+    (@...edu.vn )
+  \item
+    Quản lý tạo, chỉnh sửa và theo dõi bài đăng báo cáo ``Mất đồ'' và
+    ``Nhặt đồ'' kèm hình ảnh, cơ sở trường, thời gian, danh mục và mô
+    tả.
+  \item
+    Tìm kiếm từ khoá và lọc dữ liệu đa chiều (theo cơ sở, danh mục vật
+    phẩm, thời gian, trạng thái).
+  \item
+    Quy trình xác minh và nhận lại đồ (Claim Workflow) an toàn thông qua
+    câu hỏi bảo mật/ bằng chứng hình ảnh trước khi mở khoá thông tin
+    liên hệ.
+  \item
+    Hệ thống thông báo nội bộ (In-app Notification) khi có tương tác
+    Claim hoặc thay đổi trạng thái bài đăng.
+  \item
+    Bản quản trị (Admin Dashboard) hỗ trợ duyệt/ gỡ bài viết sai sự
+    thật, khoá tài khoản vi phạm, quản lý danh mục và xét duyệt thêm cơ
+    sở trường mới.
+  \end{itemize}
+\item
+  \textbf{Out-of\_Scope:}
+
+  \begin{itemize}
+  \item
+    Ứng dụng di động Native (IOS/ Android).
+  \item
+    Trò chuyện thời gian thực (Real-time-chat) phức tạp.
+  \item
+    Tích hợp hệ thống đăng nhập một lần (SSO/ LDAP) trực tiếp với máy
+    chủ nội bộ của các trường đại học
+  \item
+    Bản đồ vệ tinh tương tác phức tạp (chỉ sử dụng danh sách thả xuống/
+    chọn khu vực văn bản hoặc thả ghim đơn giản).
+  \end{itemize}
+\end{itemize}
+
