@@ -1,22 +1,104 @@
 \clearpage
 \section{Prototype / Mockups}\label{prototype-mockups}
 
-\emph{{[}Present the screen list and wireframes/mockups for the main use
-cases (Figma, Penpot, Balsamiq, \ldots). Include the link to the
-interactive prototype. Check basic accessibility: contrast, labels,
-keyboard use.{]}}
+Bảng dưới đây liệt kê các màn hình của US-Recovery và use case tương ứng.
+Mã màn hình (SCR-xx) được dùng thống nhất với Ma trận truy vết yêu cầu ở
+Mục~\ref{requirements-traceability-matrix}. Wireframe được thiết kế trên Figma;
+mỗi màn hình là một frame có cùng tên với mã màn hình. Tài liệu trình bày
+wireframe của các màn hình phục vụ use case Must-have; các màn hình còn lại
+có thể xem trong prototype tương tác.
+
+\textbf{Prototype tương tác:}
+\href{https://www.figma.com/design/RIcHWj9dLTwpNBgFgyr4aH/SE-LAB?node-id=44-26&t=7qYy3ClUu2M67OQr-1}{Figma prototype -- US-Recovery}
 
 \begin{longtable}[]{@{}
-  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.2770}}
-  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.2770}}
-  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.4461}}|@{}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.3200}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.2000}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.4800}}|@{}}
 \hline
 \rowcolor{TableBlue}
-
-\tableheader{Screen} & \tableheader{Related use case(s)} & \tableheader{Mockup /
-link} \\ \hline
-& & \\ \hline
-& & \\ \hline
-& & \\ \hline
+\tableheader{Screen} & \tableheader{Related use case(s)} & \tableheader{Mockup / link} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{TableBlue}
+\tableheader{Screen} & \tableheader{Related use case(s)} & \tableheader{Mockup / link} \\ \hline
+\endhead
+SCR-01 -- Đăng ký & UC-01 & Hình~\ref{fig:scr-auth}(a); Figma: frame \textit{SCR-01 Đăng ký} \\ \hline
+SCR-02 -- Kiểm tra hộp thư / Kết quả xác minh & UC-01 & Figma: frame \textit{SCR-02a}, \textit{SCR-02b} \\ \hline
+SCR-03 -- Đăng nhập & UC-02 & Hình~\ref{fig:scr-auth}(b); Figma: frame \textit{SCR-03 Đăng nhập} \\ \hline
+SCR-04 -- Trang chủ (Tìm kiếm \& lọc) & UC-03 & Hình~\ref{fig:scr-auth}(c); Figma: frame \textit{SCR-04 Trang chủ} \\ \hline
+SCR-05 -- Chi tiết bài đăng & UC-04, UC-07, UC-09 & Hình~\ref{fig:scr-auth}(d); Figma: frame \textit{SCR-05 Chi tiết bài đăng} \\ \hline
+SCR-06 -- Form tạo / sửa bài đăng & UC-05, UC-06, UC-15 & Hình~\ref{fig:scr-claim}(a); Figma: frame \textit{SCR-06 Form bài đăng} \\ \hline
+SCR-07 -- Bài đăng của tôi & UC-06, UC-08 & Figma: frame \textit{SCR-07 Bài đăng của tôi} \\ \hline
+SCR-08 -- Popup gửi yêu cầu nhận đồ (Claim) & UC-07 & Hình~\ref{fig:scr-claim}(b); Figma: frame \textit{SCR-08 Gửi Claim} \\ \hline
+SCR-09 -- Danh sách Claim của bài đăng & UC-08 & Hình~\ref{fig:scr-claim}(c); Figma: frame \textit{SCR-09 Danh sách Claim} \\ \hline
+SCR-10 -- Popup báo cáo vi phạm & UC-09 & Hình~\ref{fig:scr-claim}(d); Figma: frame \textit{SCR-10 Báo cáo vi phạm} \\ \hline
+SCR-11 -- Thông báo & UC-14 & Figma: frame \textit{SCR-11 Thông báo} \\ \hline
+SCR-12 -- Admin Dashboard (Hàng đợi kiểm duyệt) & UC-02, UC-10 & Hình~\ref{fig:scr-admin}(a); Figma: frame \textit{SCR-12 Kiểm duyệt} \\ \hline
+SCR-13 -- Admin: Quản lý danh mục & UC-11 & Hình~\ref{fig:scr-admin}(b); Figma: frame \textit{SCR-13 Quản lý danh mục} \\ \hline
+SCR-14 -- Form đề nghị thêm trường & UC-12 & Hình~\ref{fig:scr-admin}(c); Figma: frame \textit{SCR-14 Đề nghị thêm trường} \\ \hline
+SCR-15 -- Admin: Yêu cầu thêm trường & UC-13 & Hình~\ref{fig:scr-admin}(d); Figma: frame \textit{SCR-15 Yêu cầu thêm trường} \\ \hline
 \end{longtable}
 
+\subsection*{Wireframe các màn hình chính}
+
+\providecommand{\scrimg}[2]{%
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth,height=5.5cm,keepaspectratio]{#1}
+    \par\small #2
+  \end{minipage}}
+
+\begin{figure}[H]
+  \centering
+  \scrimg{images/scr-01-dang-ky.png}{(a) SCR-01 -- Đăng ký (UC-01)}\hfill
+  \scrimg{images/scr-03-dang-nhap.png}{(b) SCR-03 -- Đăng nhập (UC-02)}
+  \par\vspace{1em}
+  \scrimg{images/scr-04-trang-chu.png}{(c) SCR-04 -- Trang chủ: tìm kiếm và lọc (UC-03)}\hfill
+  \scrimg{images/scr-05-chi-tiet-bai-dang.png}{(d) SCR-05 -- Chi tiết bài đăng (UC-04)}
+  \caption{Nhóm màn hình xác thực và tìm kiếm}
+  \label{fig:scr-auth}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \scrimg{images/scr-06-form-bai-dang.png}{(a) SCR-06 -- Form tạo / sửa bài đăng (UC-05, UC-06)}\hfill
+  \scrimg{images/scr-08-gui-claim.png}{(b) SCR-08 -- Gửi yêu cầu nhận đồ (UC-07)}
+  \par\vspace{1em}
+  \scrimg{images/scr-09-danh-sach-claim.png}{(c) SCR-09 -- Xử lý yêu cầu nhận đồ (UC-08)}\hfill
+  \scrimg{images/scr-10-bao-cao-vi-pham.png}{(d) SCR-10 -- Báo cáo vi phạm (UC-09)}
+  \caption{Nhóm màn hình đăng bài, nhận đồ và báo cáo vi phạm}
+  \label{fig:scr-claim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \scrimg{images/scr-12-kiem-duyet.png}{(a) SCR-12 -- Kiểm duyệt bài đăng (UC-10)}\hfill
+  \scrimg{images/scr-13-quan-ly-danh-muc.png}{(b) SCR-13 -- Quản lý danh mục (UC-11)}
+  \par\vspace{1em}
+  \scrimg{images/scr-14-de-nghi-them-truong.png}{(c) SCR-14 -- Đề nghị thêm trường (UC-12)}\hfill
+  \scrimg{images/scr-15-yeu-cau-them-truong.png}{(d) SCR-15 -- Xét duyệt yêu cầu thêm trường (UC-13)}
+  \caption{Nhóm màn hình quản trị và mở rộng trường}
+  \label{fig:scr-admin}
+\end{figure}
+
+\subsection*{Kiểm tra khả năng tiếp cận cơ bản (Accessibility)}
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.2200}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.4800}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 4\tabcolsep) * \real{0.3000}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Tiêu chí} & \tableheader{Cách kiểm tra} & \tableheader{Kết quả} \\ \hline
+\endhead
+Độ tương phản (Contrast) & Chữ thường đạt tỉ lệ tương phản tối thiểu 4.5:1,
+chữ lớn và icon đạt 3:1 (WCAG 2.1 mức AA). Kiểm tra bằng plugin Contrast
+trên Figma hoặc WebAIM Contrast Checker. & \textit{(điền sau khi kiểm tra)} \\ \hline
+Nhãn (Labels) & Mọi ô nhập có nhãn hiển thị, không chỉ dùng placeholder;
+thông báo lỗi nằm ngay dưới ô tương ứng (ví dụ SCR-01, SCR-13). & \textit{(điền sau khi kiểm tra)} \\ \hline
+Sử dụng bàn phím & Duyệt toàn bộ form bằng phím Tab theo thứ tự hợp lý;
+phần tử đang chọn có viền focus rõ ràng; Enter để gửi form, Esc để đóng popup. & \textit{(điền sau khi kiểm tra)} \\ \hline
+Kích thước vùng chạm & Nút và liên kết trên màn hình di động có vùng chạm
+tối thiểu 44$\times$44 px. & \textit{(điền sau khi kiểm tra)} \\ \hline
+\end{longtable}
