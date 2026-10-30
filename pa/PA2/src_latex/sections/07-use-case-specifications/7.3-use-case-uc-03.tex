@@ -13,9 +13,9 @@
 \emph{Trigger} & Người dùng nhập từ khóa hoặc chọn bộ lọc trên Trang chủ. \\ \hline
 \emph{Pre-conditions} & Không có. \\ \hline
 \emph{Post-conditions} & Danh sách bài đăng phù hợp với điều kiện được hiển thị. \\ \hline
-\emph{Main flow} & 1. Người dùng mở Trang chủ. 2. Hệ thống hiển thị các bài đăng mới nhất cùng bộ lọc gồm cơ sở trường, danh mục, khoảng thời gian và loại bài. 3. Người dùng nhập từ khóa, chọn bộ lọc hoặc cả hai, rồi nhấn “Tìm”. 4. Hệ thống tìm các bài khớp với tất cả điều kiện, bỏ qua bài đã bị gỡ. 5. Hệ thống hiển thị kết quả, mỗi bài gồm ảnh, tiêu đề, loại bài, cơ sở và thời gian; bài mới nhất xếp trước, mỗi trang 20 bài. \\ \hline
-\emph{Alternative flows} & A1 (tại bước 5): Người dùng nhấn “Xóa bộ lọc”. Hệ thống quay lại bước 2. A2 (tại bước 5): Người dùng chọn một bài. Chuyển sang UC-04. \\ \hline
-\emph{Exception flows} & E1 (tại bước 4): Không có bài phù hợp. Hệ thống hiển thị “Không tìm thấy bài phù hợp” và gợi ý bỏ bớt bộ lọc. E2 (tại bước 3): Ngày bắt đầu sau ngày kết thúc. Hệ thống báo lỗi và không thực hiện tìm kiếm. \\ \hline
+\emph{Main flow} & 1. Người dùng mở Trang chủ.\newline 2. Hệ thống hiển thị các bài đăng mới nhất cùng bộ lọc gồm cơ sở trường, danh mục, khoảng thời gian và loại bài.\newline 3. Người dùng nhập từ khóa, chọn bộ lọc hoặc cả hai, rồi nhấn “Tìm”.\newline 4. Hệ thống tìm các bài khớp với tất cả điều kiện, bỏ qua bài đã bị gỡ.\newline 5. Hệ thống hiển thị kết quả, mỗi bài gồm ảnh, tiêu đề, loại bài, cơ sở và thời gian; bài mới nhất xếp trước, mỗi trang 20 bài. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 5): Người dùng nhấn “Xóa bộ lọc”. Hệ thống quay lại bước 2.\newline A2 (tại bước 5): Người dùng chọn một bài. Chuyển sang UC-04. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4): Không có bài phù hợp. Hệ thống hiển thị “Không tìm thấy bài phù hợp” và gợi ý bỏ bớt bộ lọc.\newline E2 (tại bước 3): Ngày bắt đầu sau ngày kết thúc. Hệ thống báo lỗi và không thực hiện tìm kiếm. \\ \hline
 \emph{Business rules} & BR-02 (kết quả không hiển thị thông tin liên hệ) \\ \hline
 \emph{Non-functional constraints} & NFR-01 (≤ 2 giây ở P95 với 100 người dùng đồng thời) \\ \hline
 \end{longtable}
