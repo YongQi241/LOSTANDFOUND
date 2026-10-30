@@ -13,9 +13,9 @@
 \emph{Trigger} & Admin mở mục “Hàng đợi kiểm duyệt”. \\ \hline
 \emph{Pre-conditions} & Admin đã đăng nhập. \\ \hline
 \emph{Post-conditions} & Bài được giữ lại hoặc bị gỡ; tài khoản vi phạm có thể bị khóa; mọi thao tác được ghi lại. \\ \hline
-\emph{Main flow} & 1. Admin mở “Hàng đợi kiểm duyệt”. 2. Hệ thống hiển thị các bài bị báo cáo, kèm số lượt và lý do. 3. Admin chọn một bài và xem chi tiết bài cùng các báo cáo. 4. Admin nhấn “Gỡ bài” và nhập lý do. 5. Hệ thống ẩn bài khỏi tìm kiếm, hủy các Claim đang chờ và thông báo lý do cho chủ bài. 6. Hệ thống ghi lại lịch sử thao tác của Admin. \\ \hline
-\emph{Alternative flows} & A1 (tại bước 4): Admin nhấn “Giữ bài”. Hệ thống đưa bài ra khỏi hàng đợi và đánh dấu các báo cáo là “Đã xử lý”. A2 (tại bước 4): Admin nhấn “Khóa tài khoản” và nhập lý do. Hệ thống khóa tài khoản, kết thúc phiên đăng nhập, ẩn mọi bài đang mở của tài khoản đó và gửi thông báo cho chủ tài khoản. \\ \hline
-\emph{Exception flows} & E1 (tại bước 4 hoặc A2): Admin bỏ trống lý do. Hệ thống yêu cầu nhập lý do. E2 (tại A2): Tài khoản cần khóa là một Admin khác. Hệ thống không cho phép. \\ \hline
+\emph{Main flow} & 1. Admin mở “Hàng đợi kiểm duyệt”.\newline 2. Hệ thống hiển thị các bài bị báo cáo, kèm số lượt và lý do.\newline 3. Admin chọn một bài và xem chi tiết bài cùng các báo cáo.\newline 4. Admin nhấn “Gỡ bài” và nhập lý do.\newline 5. Hệ thống ẩn bài khỏi tìm kiếm, hủy các Claim đang chờ và thông báo lý do cho chủ bài.\newline 6. Hệ thống ghi lại lịch sử thao tác của Admin. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 4): Admin nhấn “Giữ bài”. Hệ thống đưa bài ra khỏi hàng đợi và đánh dấu các báo cáo là “Đã xử lý”.\newline A2 (tại bước 4): Admin nhấn “Khóa tài khoản” và nhập lý do. Hệ thống khóa tài khoản, kết thúc phiên đăng nhập, ẩn mọi bài đang mở của tài khoản đó và gửi thông báo cho chủ tài khoản. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4 hoặc A2): Admin bỏ trống lý do. Hệ thống yêu cầu nhập lý do.\newline E2 (tại A2): Tài khoản cần khóa là một Admin khác. Hệ thống không cho phép. \\ \hline
 \emph{Business rules} & BR-03 \\ \hline
 \emph{Non-functional constraints} & NFR-02 \\ \hline
 \end{longtable}

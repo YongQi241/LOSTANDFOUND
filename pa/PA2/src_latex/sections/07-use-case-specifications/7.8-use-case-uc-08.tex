@@ -13,9 +13,9 @@
 \emph{Trigger} & Post Owner mở thông báo có Claim mới, hoặc mở danh sách Claim của một bài. \\ \hline
 \emph{Pre-conditions} & Post Owner đã đăng nhập, là chủ bài, và bài có ít nhất một Claim “Chờ xử lý”. \\ \hline
 \emph{Post-conditions} & Nếu chấp nhận: thông tin liên hệ được mở cho cả hai bên và bài chuyển sang “Đã giải quyết”. Nếu từ chối: Claim chuyển sang “Bị từ chối” và bài vẫn “Đang mở”. \\ \hline
-\emph{Main flow} & 1. Post Owner mở danh sách Claim của bài. 2. Hệ thống hiển thị các Claim đang chờ, kèm câu trả lời và ảnh bằng chứng. 3. Post Owner chọn một Claim và đối chiếu với câu hỏi xác minh. 4. Post Owner nhấn “Chấp nhận”. 5. Hệ thống hỏi xác nhận. 6. Post Owner xác nhận. 7. Hệ thống chuyển Claim sang “Đã chấp nhận” và mở thông tin liên hệ cho cả hai bên. 8. Hệ thống chuyển bài sang “Đã giải quyết”; các Claim khác của bài tự động chuyển sang “Bị từ chối”. 9. Hệ thống gửi thông báo kết quả cho tất cả Claimant liên quan. \\ \hline
+\emph{Main flow} & 1. Post Owner mở danh sách Claim của bài.\newline 2. Hệ thống hiển thị các Claim đang chờ, kèm câu trả lời và ảnh bằng chứng.\newline 3. Post Owner chọn một Claim và đối chiếu với câu hỏi xác minh.\newline 4. Post Owner nhấn “Chấp nhận”.\newline 5. Hệ thống hỏi xác nhận.\newline 6. Post Owner xác nhận.\newline 7. Hệ thống chuyển Claim sang “Đã chấp nhận” và mở thông tin liên hệ cho cả hai bên.\newline 8. Hệ thống chuyển bài sang “Đã giải quyết”; các Claim khác của bài tự động chuyển sang “Bị từ chối”.\newline 9. Hệ thống gửi thông báo kết quả cho tất cả Claimant liên quan. \\ \hline
 \emph{Alternative flows} & A1 (tại bước 4): Post Owner nhấn “Từ chối” và có thể nhập lý do. Hệ thống chuyển Claim sang “Bị từ chối” và thông báo cho Claimant; bài vẫn “Đang mở”. \\ \hline
-\emph{Exception flows} & E1 (tại bước 2): Không còn Claim nào đang chờ. Hệ thống hiển thị “Chưa có yêu cầu nào”. E2 (tại bước 7): Tài khoản Claimant đã bị khóa. Hệ thống báo không thể chấp nhận Claim này. \\ \hline
+\emph{Exception flows} & E1 (tại bước 2): Không còn Claim nào đang chờ. Hệ thống hiển thị “Chưa có yêu cầu nào”.\newline E2 (tại bước 7): Tài khoản Claimant đã bị khóa. Hệ thống báo không thể chấp nhận Claim này. \\ \hline
 \emph{Business rules} & BR-02 \\ \hline
 \emph{Non-functional constraints} & NFR-02 \\ \hline
 \end{longtable}

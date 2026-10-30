@@ -13,9 +13,9 @@
 \emph{Trigger} & Sinh viên mở trang “Bài đăng của tôi”. \\ \hline
 \emph{Pre-conditions} & Sinh viên đã đăng nhập và có ít nhất một bài đăng. \\ \hline
 \emph{Post-conditions} & Bài đăng được cập nhật, đóng hoặc xóa. \\ \hline
-\emph{Main flow} & 1. Sinh viên mở “Bài đăng của tôi”. 2. Hệ thống hiển thị danh sách bài của sinh viên kèm trạng thái và số Claim đang chờ. 3. Sinh viên chọn một bài và nhấn “Sửa”. 4. Hệ thống hiển thị form với dữ liệu hiện tại. 5. Sinh viên chỉnh sửa và nhấn “Lưu”. 6. Hệ thống kiểm tra dữ liệu theo cùng quy tắc như UC-05. 7. Hệ thống cập nhật bài và hiển thị “Đã cập nhật”. \\ \hline
-\emph{Alternative flows} & A1 (tại bước 3): Sinh viên nhấn “Xóa”. Hệ thống hỏi xác nhận rồi xóa bài; các Claim đang chờ bị hủy và Claimant được thông báo. A2 (tại bước 3): Với bài Mất đồ, sinh viên nhấn “Đã tìm được đồ”. Hệ thống chuyển bài sang “Đã giải quyết”. A3 (tại bước 3): Sinh viên chọn xem các Claim. Chuyển sang UC-08. \\ \hline
-\emph{Exception flows} & E1 (tại bước 6): Dữ liệu không hợp lệ. Hệ thống báo lỗi như E1, E2 của UC-05. E2 (tại bước 3): Bài đã ở trạng thái “Đã giải quyết”. Hệ thống không cho sửa, chỉ cho xem. \\ \hline
+\emph{Main flow} & 1. Sinh viên mở “Bài đăng của tôi”.\newline 2. Hệ thống hiển thị danh sách bài của sinh viên kèm trạng thái và số Claim đang chờ.\newline 3. Sinh viên chọn một bài và nhấn “Sửa”.\newline 4. Hệ thống hiển thị form với dữ liệu hiện tại.\newline 5. Sinh viên chỉnh sửa và nhấn “Lưu”.\newline 6. Hệ thống kiểm tra dữ liệu theo cùng quy tắc như UC-05.\newline 7. Hệ thống cập nhật bài và hiển thị “Đã cập nhật”. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 3): Sinh viên nhấn “Xóa”. Hệ thống hỏi xác nhận rồi xóa bài; các Claim đang chờ bị hủy và Claimant được thông báo.\newline A2 (tại bước 3): Với bài Mất đồ, sinh viên nhấn “Đã tìm được đồ”. Hệ thống chuyển bài sang “Đã giải quyết”.\newline A3 (tại bước 3): Sinh viên chọn xem các Claim. Chuyển sang UC-08. \\ \hline
+\emph{Exception flows} & E1 (tại bước 6): Dữ liệu không hợp lệ. Hệ thống báo lỗi như E1, E2 của UC-05.\newline E2 (tại bước 3): Bài đã ở trạng thái “Đã giải quyết”. Hệ thống không cho sửa, chỉ cho xem. \\ \hline
 \emph{Business rules} & BR-01 \\ \hline
 \emph{Non-functional constraints} & NFR-03 \\ \hline
 \end{longtable}

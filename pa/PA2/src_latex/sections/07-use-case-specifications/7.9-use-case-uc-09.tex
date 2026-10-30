@@ -13,9 +13,9 @@
 \emph{Trigger} & Sinh viên nhấn “Báo cáo vi phạm” trên trang chi tiết bài. \\ \hline
 \emph{Pre-conditions} & Sinh viên đã đăng nhập và không phải chủ bài. \\ \hline
 \emph{Post-conditions} & Báo cáo được lưu. Nếu bài có từ 3 người báo cáo trở lên, bài được chuyển vào hàng đợi kiểm duyệt. \\ \hline
-\emph{Main flow} & 1. Sinh viên nhấn “Báo cáo vi phạm” (từ UC-04). 2. Hệ thống hiển thị các lý do: Spam, Thông tin sai sự thật, Nội dung không phù hợp, Khác. 3. Sinh viên chọn lý do, có thể ghi chú thêm, rồi nhấn “Gửi”. 4. Hệ thống lưu báo cáo. 5. Hệ thống đếm số người khác nhau đã báo cáo bài này. 6. Nếu từ 3 người trở lên, hệ thống chuyển bài vào hàng đợi kiểm duyệt của Admin. 7. Hệ thống hiển thị “Cảm ơn bạn đã báo cáo”. \\ \hline
-\emph{Alternative flows} & A1 (tại bước 1): Người dùng chưa đăng nhập. Chuyển sang UC-02, đăng nhập xong thì quay lại bước 2. A2 (tại bước 3): Sinh viên nhấn “Hủy”. Hệ thống không lưu gì. \\ \hline
-\emph{Exception flows} & E1 (tại bước 4): Sinh viên đã báo cáo bài này trước đó. Hệ thống báo “Bạn đã báo cáo bài này rồi”. E2 (tại bước 3): Chọn “Khác” nhưng không ghi chú. Hệ thống yêu cầu nhập ghi chú. \\ \hline
+\emph{Main flow} & 1. Sinh viên nhấn “Báo cáo vi phạm” (từ UC-04).\newline 2. Hệ thống hiển thị các lý do: Spam, Thông tin sai sự thật, Nội dung không phù hợp, Khác.\newline 3. Sinh viên chọn lý do, có thể ghi chú thêm, rồi nhấn “Gửi”.\newline 4. Hệ thống lưu báo cáo.\newline 5. Hệ thống đếm số người khác nhau đã báo cáo bài này.\newline 6. Nếu từ 3 người trở lên, hệ thống chuyển bài vào hàng đợi kiểm duyệt của Admin.\newline 7. Hệ thống hiển thị “Cảm ơn bạn đã báo cáo”. \\ \hline
+\emph{Alternative flows} & A1 (tại bước 1): Người dùng chưa đăng nhập. Chuyển sang UC-02, đăng nhập xong thì quay lại bước 2.\newline A2 (tại bước 3): Sinh viên nhấn “Hủy”. Hệ thống không lưu gì. \\ \hline
+\emph{Exception flows} & E1 (tại bước 4): Sinh viên đã báo cáo bài này trước đó. Hệ thống báo “Bạn đã báo cáo bài này rồi”.\newline E2 (tại bước 3): Chọn “Khác” nhưng không ghi chú. Hệ thống yêu cầu nhập ghi chú. \\ \hline
 \emph{Business rules} & BR-03 \\ \hline
 \emph{Non-functional constraints} & Không \\ \hline
 \end{longtable}
