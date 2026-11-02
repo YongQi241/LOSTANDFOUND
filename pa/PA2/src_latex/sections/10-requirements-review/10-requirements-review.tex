@@ -1,9 +1,15 @@
 \clearpage
 \section{Requirements Review}\label{requirements-review}
 
-\emph{{[}Record the requirements review held before submission (who took
-part, date, issues found and how they were resolved). This version
-becomes the requirements baseline.{]}}
+\textbf{Review date:} 31 October 2026
+
+\textbf{Participants:} Đỗ Vĩnh Kỳ, Huỳnh Thái Hòa, Nguyễn Anh Tá,
+Nguyễn Gia, and Trần Thiên Phú.
+
+The team reviewed the SRS against PA0, PA1, the PA2 rubric, the GitHub issue
+assignments, and the compiled PDF. The resolutions below were incorporated
+before submission. This reviewed version is the requirements baseline for
+PA3 design and PA4 test planning.
 
 \begin{longtable}[]{@{}
   |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 6\tabcolsep) * \real{0.0615}}
@@ -15,8 +21,25 @@ becomes the requirements baseline.{]}}
 
 \tableheader{\#} & \tableheader{Issue found} & \tableheader{Requirement(s)} &
 \tableheader{Resolution} \\ \hline
-& & & \\ \hline
-& & & \\ \hline
-& & & \\ \hline
+1 & The Use Case Specifications prepared with the use-case model were
+accidentally nested under Section 6 as Subsection 6.4 instead of being a
+separate report section. & Sections 6 and 7 & Restored Use Case Specifications
+as standalone Section 7, moved UC-01--UC-13 to Subsections 7.1--7.13, and
+renumbered the following sections consistently. \\ \hline
+2 & Main, alternative, and exception flows were displayed as dense inline
+paragraphs, making numbered steps difficult to review. & UC-01--UC-13 &
+Reformatted the numbered flow steps so each step appears on a separate line
+and applied the same convention to main, alternative, and exception flows. \\ \hline
+3 & Editing Sections 1--5 in DOCX caused inconsistent styling and made issue,
+workflow, and change review harder. & Sections 1--5; document workflow &
+Migrated the report to modular LaTeX. Shared typography and table definitions
+standardize presentation, while one file per section makes GitHub issue and
+pull-request review easier. The DOCX is retained as a legacy record. \\ \hline
+4 & Final review found incomplete contribution, accessibility-review,
+requirements-review, and AI-disclosure content, together with template
+instructions left in completed sections. & Sections 1, 4, 8--11 & Completed
+the evidence-backed sections, converted the PA3/PA4 traceability guidance into
+an explicit note, removed obsolete instructions, and rebuilt the PDF for a
+final consistency check. \\ \hline
 \end{longtable}
 

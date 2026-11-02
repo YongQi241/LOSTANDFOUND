@@ -46,7 +46,7 @@ SCR-15 -- Admin: Yêu cầu thêm trường & UC-13 & Hình~\ref{fig:scr-admin}(
   \begin{minipage}[t]{0.48\linewidth}
     \centering
     \includegraphics[width=\linewidth,height=5.5cm,keepaspectratio]{#1}
-    \par\small #2
+    \par{\bodyfont\small #2}
   \end{minipage}}
 
 \begin{figure}[H]
@@ -56,7 +56,7 @@ SCR-15 -- Admin: Yêu cầu thêm trường & UC-13 & Hình~\ref{fig:scr-admin}(
   \par\vspace{1em}
   \scrimg{images/scr-04-trang-chu.png}{(c) SCR-04 -- Trang chủ: tìm kiếm và lọc (UC-03)}\hfill
   \scrimg{images/scr-05-chi-tiet-bai-dang.png}{(d) SCR-05 -- Chi tiết bài đăng (UC-04)}
-  \caption{Nhóm màn hình xác thực và tìm kiếm}
+  \caption{{\bodyfont Nhóm màn hình xác thực và tìm kiếm}}
   \label{fig:scr-auth}
 \end{figure}
 
@@ -67,7 +67,7 @@ SCR-15 -- Admin: Yêu cầu thêm trường & UC-13 & Hình~\ref{fig:scr-admin}(
   \par\vspace{1em}
   \scrimg{images/scr-09-danh-sach-claim.png}{(c) SCR-09 -- Xử lý yêu cầu nhận đồ (UC-08)}\hfill
   \scrimg{images/scr-10-bao-cao-vi-pham.png}{(d) SCR-10 -- Báo cáo vi phạm (UC-09)}
-  \caption{Nhóm màn hình đăng bài, nhận đồ và báo cáo vi phạm}
+  \caption{{\bodyfont Nhóm màn hình đăng bài, nhận đồ và báo cáo vi phạm}}
   \label{fig:scr-claim}
 \end{figure}
 
@@ -78,7 +78,7 @@ SCR-15 -- Admin: Yêu cầu thêm trường & UC-13 & Hình~\ref{fig:scr-admin}(
   \par\vspace{1em}
   \scrimg{images/scr-14-de-nghi-them-truong.png}{(c) SCR-14 -- Đề nghị thêm trường (UC-12)}\hfill
   \scrimg{images/scr-15-yeu-cau-them-truong.png}{(d) SCR-15 -- Xét duyệt yêu cầu thêm trường (UC-13)}
-  \caption{Nhóm màn hình quản trị và mở rộng trường}
+  \caption{{\bodyfont Nhóm màn hình quản trị và mở rộng trường}}
   \label{fig:scr-admin}
 \end{figure}
 
@@ -94,11 +94,19 @@ SCR-15 -- Admin: Yêu cầu thêm trường & UC-13 & Hình~\ref{fig:scr-admin}(
 \endhead
 Độ tương phản (Contrast) & Chữ thường đạt tỉ lệ tương phản tối thiểu 4.5:1,
 chữ lớn và icon đạt 3:1 (WCAG 2.1 mức AA). Kiểm tra bằng plugin Contrast
-trên Figma hoặc WebAIM Contrast Checker. & \textit{(điền sau khi kiểm tra)} \\ \hline
+trên Figma hoặc WebAIM Contrast Checker. & Đánh giá tĩnh cho thấy chữ và
+thành phần chính có độ phân biệt rõ trên nền. Tỉ lệ chính xác phải được đo
+lại bằng công cụ contrast trước khi chốt giao diện triển khai. \\ \hline
 Nhãn (Labels) & Mọi ô nhập có nhãn hiển thị, không chỉ dùng placeholder;
-thông báo lỗi nằm ngay dưới ô tương ứng (ví dụ SCR-01, SCR-13). & \textit{(điền sau khi kiểm tra)} \\ \hline
+thông báo lỗi nằm ngay dưới ô tương ứng (ví dụ SCR-01, SCR-13). & Đạt ở
+mức wireframe: các trường nhập chính có nhãn hiển thị và vùng thông báo lỗi
+được đặt gần trường liên quan. \\ \hline
 Sử dụng bàn phím & Duyệt toàn bộ form bằng phím Tab theo thứ tự hợp lý;
-phần tử đang chọn có viền focus rõ ràng; Enter để gửi form, Esc để đóng popup. & \textit{(điền sau khi kiểm tra)} \\ \hline
+phần tử đang chọn có viền focus rõ ràng; Enter để gửi form, Esc để đóng popup. &
+Không thể xác minh từ ảnh tĩnh. Đây là tiêu chí bắt buộc phải kiểm thử trên
+prototype tương tác và phiên bản triển khai. \\ \hline
 Kích thước vùng chạm & Nút và liên kết trên màn hình di động có vùng chạm
-tối thiểu 44$\times$44 px. & \textit{(điền sau khi kiểm tra)} \\ \hline
+tối thiểu 44×44 px. & Bố cục wireframe dành đủ không gian cho các nút
+chính; kích thước thực tế 44×44 px phải được xác nhận bằng thông số
+frame trong giai đoạn triển khai giao diện. \\ \hline
 \end{longtable}
