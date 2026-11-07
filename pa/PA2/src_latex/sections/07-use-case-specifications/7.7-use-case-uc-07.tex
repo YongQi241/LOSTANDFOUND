@@ -4,18 +4,18 @@
 \hline
 \rowcolor{TableBlue}
 \tableheader{Use case ID} & \tableheader{UC-07} \\ \hline
-\emph{Use case name} & Gửi yêu cầu nhận đồ (Claim) \\ \hline
-\emph{Brief description} & Sinh viên bị mất đồ gửi yêu cầu xác minh quyền sở hữu với một bài “Nhặt đồ” bằng câu trả lời bảo mật hoặc ảnh bằng chứng. \\ \hline
+\emph{Use case name} & Gửi yêu cầu kết nối (Claim) \\ \hline
+\emph{Brief description} & Sinh viên gửi yêu cầu kết nối đến bài đăng của người khác: người mất gửi đến bài "Nhặt đồ" kèm câu trả lời xác minh, người nhặt gửi đến bài "Mất đồ" kèm mô tả hoặc ảnh. \\ \hline
 \emph{Primary actor} & Sinh viên (Claimant) \\ \hline
 \emph{Secondary actors} & Không có \\ \hline
 \emph{Priority} & Must \\ \hline
 \emph{Related requirements} & FR-05, FR-09 \\ \hline
-\emph{Trigger} & Sinh viên nhấn nút “Đây là đồ của tôi” trên trang chi tiết bài đăng. \\ \hline
-\emph{Pre-conditions} & Sinh viên đã đăng nhập bằng tài khoản đã xác thực email trường. Bài đăng thuộc loại “Nhặt đồ” và chưa ở trạng thái “Đã giải quyết”. \\ \hline
-\emph{Post-conditions} & Claim được lưu với trạng thái “Chờ xử lý”. Post Owner nhận được thông báo. Thông tin liên hệ vẫn chưa được mở khóa. \\ \hline
-\emph{Main flow} & 1. Sinh viên mở trang chi tiết bài “Nhặt đồ” (UC-04).\newline 2. Sinh viên nhấn “Đây là đồ của tôi”.\newline 3. Hệ thống kiểm tra Sinh viên không phải chủ bài đăng và chưa có Claim đang chờ cho bài này.\newline 4. Hệ thống hiển thị form gồm câu hỏi xác minh do người nhặt đặt và ô tải ảnh bằng chứng.\newline 5. Sinh viên nhập câu trả lời, có thể đính kèm ảnh, rồi nhấn “Gửi yêu cầu”.\newline 6. Hệ thống kiểm tra dữ liệu hợp lệ.\newline 7. Hệ thống lưu Claim với trạng thái “Chờ xử lý”.\newline 8. Hệ thống gửi thông báo in-app cho Post Owner.\newline 9. Hệ thống hiển thị “Đã gửi yêu cầu thành công”. \\ \hline
-\emph{Alternative flows} & A1 (tại bước 2): Sinh viên chưa đăng nhập. Hệ thống chuyển sang trang Đăng nhập (UC-02); đăng nhập xong thì quay lại bước 4.\newline A2 (tại bước 5): Sinh viên nhấn “Hủy”. Hệ thống đóng form, không lưu gì. \\ \hline
-\emph{Exception flows} & E1 (tại bước 3): Sinh viên là chủ bài đăng. Hệ thống báo “Bạn không thể nhận đồ trên bài của chính mình”.\newline E2 (tại bước 3): Đã có Claim đang chờ. Hệ thống báo “Bạn đã gửi yêu cầu cho bài này”.\newline E3 (tại bước 6): Câu trả lời để trống, hoặc ảnh sai định dạng hay lớn hơn 5 MB. Hệ thống báo lỗi và quay lại bước 5. \\ \hline
+\emph{Trigger} & Sinh viên nhấn "Đây là đồ của tôi" hoặc "Tôi đã nhặt được" trên trang chi tiết bài đăng. \\ \hline
+\emph{Pre-conditions} & Người dùng đang xem chi tiết một bài đăng chưa ở trạng thái "Đã giải quyết". \\ \hline
+\emph{Post-conditions} & Claim được lưu với trạng thái "Chờ xử lý". Post Owner nhận được thông báo. Thông tin liên hệ vẫn chưa được mở khóa. \\ \hline
+\emph{Main flow} & 1. Sinh viên mở trang chi tiết bài "Nhặt đồ" (UC-04).\newline 2. Sinh viên nhấn "Đây là đồ của tôi".\newline 3. Hệ thống kiểm tra Sinh viên không phải chủ bài đăng và chưa có Claim đang chờ cho bài này.\newline 4. Hệ thống hiển thị form gồm câu hỏi xác minh do người nhặt đặt và ô tải ảnh bằng chứng.\newline 5. Sinh viên nhập câu trả lời, có thể đính kèm ảnh, rồi nhấn "Gửi yêu cầu".\newline 6. Hệ thống kiểm tra dữ liệu hợp lệ.\newline 7. Hệ thống lưu Claim với trạng thái "Chờ xử lý".\newline 8. Hệ thống gửi thông báo in-app cho Post Owner.\newline 9. Hệ thống hiển thị "Đã gửi yêu cầu thành công". \\ \hline
+\emph{Alternative flows} & A1 (tại bước 2): Sinh viên chưa đăng nhập. Hệ thống chuyển sang trang Đăng nhập (UC-02); đăng nhập xong thì quay lại bước 4.\newline A2 (tại bước 5): Sinh viên nhấn "Hủy". Hệ thống đóng form, không lưu gì.\newline A3 (tại bước 2): Bài thuộc loại “Mất đồ”. Sinh viên nhấn “Tôi đã nhặt được”. Ở bước 4, form không có câu hỏi xác minh mà gồm ô mô tả nơi nhặt và ô tải ảnh vật phẩm (bắt buộc ít nhất một trong hai). Tiếp tục từ bước 3. \\ \hline
+\emph{Exception flows} & E1 (tại bước 3): Sinh viên là chủ bài đăng. Hệ thống báo "Bạn không thể nhận đồ trên bài của chính mình".\newline E2 (tại bước 3): Đã có Claim "Chờ xử lý" cho bài này. Hệ thống báo "Bạn đã gửi yêu cầu cho bài này".\newline E3 (tại bước 6): Câu trả lời để trống, hoặc ảnh sai định dạng hay lớn hơn 5 MB. Hệ thống báo lỗi và quay lại bước 5. \\ \hline
 \emph{Business rules} & BR-01, BR-02 \\ \hline
 \emph{Non-functional constraints} & NFR-02 \\ \hline
 \end{longtable}
