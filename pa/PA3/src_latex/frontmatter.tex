@@ -1,0 +1,52 @@
+% PAGE 1 -- editable title page matching the PA3 Word template.
+\thispagestyle{empty}
+\null
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north,align=center,inner sep=0,
+        font=\fontsize{21}{25}\bfseries] at
+     ([yshift=-0.82in]current page.north)
+     {Introduction to Software Engineering};
+  \fill[CoverBlue]
+     ([xshift=0.65in,yshift=-1.78in]current page.north west)
+     rectangle
+     ([xshift=-0.65in,yshift=-3.42in]current page.north east);
+  \node[font=\fontsize{42}{47}\bfseries,text=white,anchor=center] at
+     ([yshift=-2.60in]current page.north) {Software Design};
+  \node[anchor=south west,inner sep=0] at
+     ([xshift=0.52in,yshift=1.54in]current page.south west)
+     {\includegraphics[scale=1.25]{assets/hcmus_logo.png}};
+  \node[anchor=west,inner sep=0,align=right,
+        font=\fontsize{11}{15}\selectfont] at
+     ([xshift=1.72in,yshift=1.98in]current page.south west)
+     {Software Engineering Department\\
+      Faculty of Information and Technology\\
+      University of Science};
+\end{tikzpicture}
+\clearpage
+
+% PAGE 2 -- generated table of contents.
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+% PAGE 3 -- objectives.
+\pagestyle{empty}
+\begin{center}
+{\color{PrimaryBlue}\bfseries\fontsize{35}{43}\selectfont Software Design}
+\end{center}
+\vspace{0.66in}
+{\fontsize{21}{25}\bfseries Objectives}\par\vspace{6pt}
+This document focus on the following topics:
+\begin{itemize}[label=$\checkmark$,leftmargin=1.9em,itemsep=7pt]
+\item Completing the Software Design document with the following sections:
+  \begin{itemize}[label=\textbullet,itemsep=4pt]
+  \item Architectural design (C4, ADR, deployment)
+  \item Object-oriented design (domain model, class and sequence diagrams)
+  \item Data design
+  \item User interface design
+  \item Traceability update
+  \end{itemize}
+\item Including an AI usage log for this phase
+\item Understanding the Software Design document.
+\end{itemize}
+\addcontentsline{toc}{section}{Objectives}
