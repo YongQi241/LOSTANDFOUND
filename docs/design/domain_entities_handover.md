@@ -1,5 +1,5 @@
 # BÀN GIAO MÔ HÌNH THỰC THỂ MIỀN NGHIỆP VỤ (DOMAIN ENTITIES HANDOVER)
-**Dự án:** US-Recovery (CampusHub) — Hệ thống Quản trị & Tìm kiếm Đồ thất lạc Đại học  
+**Dự án:** US-Recovery — Hệ thống Quản trị & Tìm kiếm Đồ thất lạc Đại học  
 **Giai đoạn:** Software Design (PA3)  
 **Người thực hiện (BA):** Huỳnh Thái Hòa (MSSV: 24127374)  
 **Người nhận bàn giao:**
@@ -19,7 +19,7 @@ Tài liệu này tổng hợp toàn bộ các thực thể khái niệm (Concept
 | STT | Tên thực thể | Bản chất nghiệp vụ | Các thuộc tính khái niệm chính (No Methods) | Quy tắc nghiệp vụ liên quan |
 | :---: | :--- | :--- | :--- | :--- |
 | **1** | `User` | Đại diện cho sinh viên đại học hoặc quản trị viên hệ thống. | `userId`, `fullName`, `universityEmail`, `phoneNumber`, `studentId`, `role` (GUEST, STUDENT, ADMIN), `status` (ACTIVE, BANNED) | **BR-01:** Phải có email trường `@...edu.vn` đã xác thực.<br>**BR-02:** SĐT được che giấu mặc định. |
-| **2** | `UniversityCampus` | Cơ sở trường đại học nơi xảy ra sự việc (CS1 Nguyễn Văn Cừ, CS2 Linh Trung,...). | `campusId`, `campusName`, `campusCode`, `address`, `status` (APPROVED, PENDING) | Cơ sở mới cần Admin phê duyệt (**FR-08**). |
+| **2** | `University` | Trường đại học nơi xảy ra sự việc (ĐH KHTN CS1 Nguyễn Văn Cừ, CS2 Linh Trung,...). | `universityId`, `universityName`, `universityCode`, `address`, `status` (APPROVED, PENDING) | Cơ sở mới cần Admin phê duyệt (**FR-08**). |
 | **3** | `ItemCategory` | Danh mục phân loại vật phẩm (Thẻ SV, Điện tử, Ví/Bóp, Chìa khóa, Balo,...). | `categoryId`, `categoryName`, `description` | Phục vụ bộ lọc đa chiều (**FR-04**). |
 | **4** | `Post` *(Abstract)* | Thực thể chung cho tin báo cáo mất đồ hoặc nhặt được đồ. | `postId`, `title`, `description`, `incidentDate`, `locationDetail`, `status` (ACTIVE, PENDING_VERIFICATION, RESOLVED, CLOSED, REPORTED), `createdAt` | **BR-03:** Tự động chuyển vào hàng đợi nếu $\ge 3$ báo cáo vi phạm. |
 | **5** | `LostPost` | Chuyên biệt hóa của `Post` cho trường hợp sinh viên tìm đồ bị thất lạc. | Kế thừa `Post`, bổ sung: `rewardAmount` (khoản hậu tạ), `privateIdentifier` (đặc điểm nhận dạng kín). | Chỉ chủ bài đăng mới được chuyển trạng thái sang `RESOLVED`. |
@@ -33,7 +33,7 @@ Tài liệu này tổng hợp toàn bộ các thực thể khái niệm (Concept
 
 ## 3. Ma trận Quan hệ và Bội số (Relationships & Multiplicities)
 
-* `UniversityCampus` **1 : 0..*** `Post` *(hosts / located_at)*
+* `University` **1 : 0..*** `Post` *(hosts / located_at)*
 * `ItemCategory` **1 : 0..*** `Post` *(classifies)*
 * `Post` **1 : 1..*** `ItemMedia` *(contains)*
 * `User` **1 : 0..*** `Post` *(creates / owns)*
