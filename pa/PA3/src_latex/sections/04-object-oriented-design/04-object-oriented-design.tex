@@ -237,6 +237,18 @@ User & Report & files & 1 : 0..* & Một người dùng có thể gửi báo cá
 User & Notification & receives & 1 : 0..* & Một người dùng nhận nhiều thông báo trong quá trình tương tác; mỗi thông báo thuộc quyền sở hữu của 1 người dùng. \\\\ \hline
 \end{longtable}
 
+
+\subsubsection{Business Rules Verification in Domain Model}
+
+Bốn quy tắc nghiệp vụ then chốt từ PA2 được ánh xạ và xác minh trực tiếp trên các thực thể khái niệm của Domain Model:
+
+\begin{enumerate}[label=\arabic*.,leftmargin=1.5em,itemsep=5pt]
+  \item \textbf{Verified School Email (BR-01):} Thực thể \texttt{User} quản lý thuộc tính \texttt{universityEmail} (bắt buộc đuôi tên miền giáo dục hợp lệ) và trạng thái \texttt{status = ACTIVE} sau khi hoàn tất xác thực OTP/link. Các mối quan hệ tạo bài (\texttt{creates}) và gửi yêu cầu nhận đồ (\texttt{submits}) chỉ hợp lệ đối với \texttt{User} đã qua kiểm tra chính danh này.
+  \item \textbf{Protected Contact Details (BR-02):} Thuộc tính liên hệ riêng tư (\texttt{phoneNumber}, email cá nhân) được mô hình hóa gắn liền với \texttt{User}, nhưng độc lập với thực thể \texttt{Post}. Không có liên kết trực tiếp nào bộc lộ thông tin liên hệ của chủ bài đăng cho các sinh viên khác; thông tin này chỉ được chia sẻ theo ngữ cảnh cho một \texttt{User} đóng vai trò Claimant khi thực thể \texttt{Claim} chuyển sang trạng thái \texttt{ACCEPTED}.
+  \item \textbf{Claim Approval Workflow (BR-04 / FR-05, FR-06):} Quan hệ giữa \texttt{FoundPost} và \texttt{Claim} cho phép một bài đăng nhận nhiều yêu cầu đối chất. Trạng thái của thực thể \texttt{Claim} tuân thủ vòng đời nghiêm ngặt: \texttt{PENDING} $\rightarrow$ \texttt{ACCEPTED} / \texttt{REJECTED}. Khi một \texttt{Claim} được chấp thuận bởi chủ bài đăng, một liên kết trạng thái đồng thời kích hoạt chuyển \texttt{Post.status} sang \texttt{RESOLVED}, khép lại bài toán tìm đồ.
+  \item \textbf{Moderation Threshold (BR-03 / FR-07):} Quan hệ kết tập \texttt{Post} (1) -- (0..*) \texttt{Report} ghi nhận các khiếu nại từ cộng đồng. Bất biến nghiệp vụ quy định: nếu $\sum \text{Report} \ge 3$, bài đăng vi phạm sẽ tự động kích hoạt chuyển trạng thái \texttt{Post.status = REPORTED}, tạm thời thu hồi quyền hiển thị công khai trên thanh tìm kiếm và đưa vào danh sách kiểm duyệt ưu tiên của Quản trị viên.
+\end{enumerate}
+
 \subsection{Class Diagram}
 \emph{[Design-level class diagram: class names, relationships (type, multiplicity). Include attributes and operations if the diagram is not too large; split by package if needed.]}
 

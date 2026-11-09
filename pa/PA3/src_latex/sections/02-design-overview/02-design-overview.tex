@@ -44,6 +44,25 @@ NFR-04 & Compatibility (Khả năng tương thích) & Giao diện thích ứng (
 NFR-05 & Availability (Tính sẵn sàng) & Hệ thống duy trì tính sẵn sàng (uptime) $\ge$ 99\% trong suốt giai đoạn thử nghiệm và đánh giá nghiệm thu. & Tận dụng hạ tầng đám mây PaaS/BaaS (Vercel, Render) có cơ chế auto-restart khi gặp sự cố; thiết lập giám sát định kỳ thông qua UptimeRobot; tách biệt database độc lập với application server. \\ \hline
 \end{longtable}
 
+
+\subsubsection{Verification of Core Business Rules}
+
+Hệ thống thiết kế phải đảm bảo thực thi triệt để 4 quy tắc nghiệp vụ cốt lõi đã cam kết từ PA2, đóng vai trò là các chốt chặn kiến trúc (Architectural Invariants):
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.14}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.22}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.32}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.32}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Quy tắc} & \tableheader{Nội dung quy tắc} & \tableheader{Cơ chế kiến trúc bảo đảm} & \tableheader{Tiêu chí xác minh (Verification)} \\ \hline
+BR-01 & Xác thực Email trường (@\ldots edu.vn) & Chỉ những tài khoản đã xác minh email chính danh trường đại học mới được phép tạo bài đăng và gửi Claim. & Auth Middleware kiểm tra cờ \texttt{is\_verified = true} trước khi cho phép gửi request tạo Post hoặc Claim. Khách chỉ có quyền đọc/tìm kiếm (Read-only). \\ \hline
+BR-02 & Bảo vệ thông tin liên hệ (Protected Contact) & Số điện thoại và email cá nhân của chủ bài đăng tuyệt đối không hiển thị công khai; chỉ được mở khóa khi Claim được chấp thuận. & Cơ chế Data Masking tại tầng Business Service. API chi tiết bài đăng mặc định loại bỏ trường thông tin liên hệ trừ khi caller là chủ sở hữu hoặc Claimant đã được duyệt. \\ \hline
+BR-03 & Ngưỡng kiểm duyệt (Moderation Threshold) & Bất kỳ bài đăng nào nhận từ 3 báo cáo vi phạm trở lên ($\ge$ 3 reports) sẽ tự động bị ẩn khỏi danh sách công khai và chuyển vào hàng đợi Admin. & Database Trigger / Service Hook đếm số lượng bản ghi Report hợp lệ. Khi vượt ngưỡng 3, tự động chuyển \texttt{status} của Post sang \texttt{REPORTED} và gửi thông báo cảnh báo. \\ \hline
+BR-04 & Quy trình duyệt Claim (Claim Approval) & Người nhặt có toàn quyền đánh giá câu trả lời bí mật / bằng chứng ảnh để duyệt (Accept) hoặc từ chối (Reject) Claim. Khi duyệt, bài đăng tự động hoàn tất. & Thiết kế máy trạng thái Claim hữu hạn (\texttt{PENDING} $\rightarrow$ \texttt{ACCEPTED} / \texttt{REJECTED}). Sử dụng Database Transaction để đồng thời cập nhật Claim sang \texttt{ACCEPTED} và Post sang \texttt{RESOLVED}. \\ \hline
+\end{longtable}
+
 \subsubsection{Design and Implementation Constraints}
 
 Thiết kế phần mềm phải tuân thủ nghiêm ngặt các giới hạn về công nghệ, tài chính và tiến độ:
