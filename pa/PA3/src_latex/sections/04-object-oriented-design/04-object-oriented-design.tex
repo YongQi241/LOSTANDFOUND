@@ -1,7 +1,241 @@
-\section{Object-Oriented Design}
+\section{Object-Oriented Design}\label{object-oriented-design}
 
-\subsection{Domain Model}
-\emph{[Conceptual class diagram of the main business entities and their relationships (no methods).]}
+\subsection{Domain Model}\label{domain-model}
+
+Mô hình lĩnh vực (Domain Model) biểu diễn các thực thể khái niệm (Conceptual Business Entities) và mối quan hệ ngữ nghĩa thế giới thực trong hệ thống US-Recovery (CampusHub). Tuân thủ nguyên lý phân tích hướng đối tượng (OOA), Domain Model tập trung vào việc làm rõ bản chất nghiệp vụ, ý nghĩa thuộc tính và các quy tắc bất biến, \textbf{hoàn toàn không chứa phương thức xử lý (no methods)} cũng như không phụ thuộc vào chi tiết cài đặt kỹ thuật (khóa ngoại, chỉ mục, REST controller hay giao diện).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  scale=0.88,
+  transform shape,
+  entity/.style={
+    draw=PrimaryBlue!90,
+    fill=white,
+    thick,
+    rectangle split,
+    rectangle split parts=2,
+    rectangle split part fill={LightBlue!60, white},
+    rounded corners=1.5pt,
+    text width=3.4cm,
+    font=\footnotesize\bodyfont,
+    align=left
+  },
+  subentity/.style={
+    draw=PrimaryBlue!80,
+    fill=white,
+    thick,
+    rectangle split,
+    rectangle split parts=2,
+    rectangle split part fill={LightBlue!30, white},
+    rounded corners=1.5pt,
+    text width=3.1cm,
+    font=\footnotesize\bodyfont,
+    align=left
+  },
+  assoc/.style={
+    draw=black!75,
+    thick,
+    -
+  },
+  inherit/.style={
+    draw=black!75,
+    thick,
+    -{Triangle[open, length=7pt, width=7pt]}
+  },
+  card/.style={
+    font=\scriptsize\bfseries\bodyfont,
+    text=black!85
+  },
+  lbl/.style={
+    font=\scriptsize\itshape\bodyfont,
+    text=black!70
+  }
+]
+
+% Nodes
+\node[entity] (campus) at (0, 7.2) {
+  \textbf{\centering UniversityCampus}
+  \nodepart{second}
+  - campusId \\
+  - campusName \\
+  - campusCode \\
+  - address \\
+  - status
+};
+
+\node[entity] (category) at (0, 2.8) {
+  \textbf{\centering ItemCategory}
+  \nodepart{second}
+  - categoryId \\
+  - categoryName \\
+  - description
+};
+
+\node[entity] (media) at (0, -1.8) {
+  \textbf{\centering ItemMedia}
+  \nodepart{second}
+  - mediaId \\
+  - mediaUrl \\
+  - fileType \\
+  - uploadedAt
+};
+
+\node[entity] (post) at (6.2, 5.0) {
+  \textbf{\centering Post}
+  \nodepart{second}
+  - postId \\
+  - title \\
+  - description \\
+  - incidentDate \\
+  - locationDetail \\
+  - status \\
+  - createdAt
+};
+
+\node[subentity] (lost) at (4.3, 0.6) {
+  \textbf{\centering LostPost}
+  \nodepart{second}
+  - rewardAmount \\
+  - privateIdentifier
+};
+
+\node[subentity] (found) at (8.1, 0.6) {
+  \textbf{\centering FoundPost}
+  \nodepart{second}
+  - storageLocation \\
+  - securityQuestion
+};
+
+\node[entity] (user) at (13.0, 5.0) {
+  \textbf{\centering User}
+  \nodepart{second}
+  - userId \\
+  - fullName \\
+  - universityEmail \\
+  - phoneNumber \\
+  - studentId \\
+  - role \\
+  - status
+};
+
+\node[entity] (claim) at (8.1, -4.0) {
+  \textbf{\centering Claim}
+  \nodepart{second}
+  - claimId \\
+  - claimMessage \\
+  - proofImage \\
+  - securityAnswer \\
+  - status \\
+  - submittedAt
+};
+
+\node[entity] (report) at (13.0, -0.6) {
+  \textbf{\centering Report}
+  \nodepart{second}
+  - reportId \\
+  - reason \\
+  - detailMessage \\
+  - status \\
+  - reportedAt
+};
+
+\node[entity] (notif) at (13.0, 9.6) {
+  \textbf{\centering Notification}
+  \nodepart{second}
+  - notificationId \\
+  - title \\
+  - messageBody \\
+  - type \\
+  - isRead \\
+  - createdAt
+};
+
+% Generalization
+\draw[inherit] (lost.north) -- ++(0, 0.8) -| ([xshift=-1.0cm]post.south);
+\draw[inherit] (found.north) -- ++(0, 0.8) -| ([xshift=1.0cm]post.south);
+
+% Associations
+% campus - post
+\draw[assoc] (campus.east) -| node[near start, above, card] {1} node[near start, below, lbl] {hosts} ([xshift=-0.4cm]post.north) node[near end, left, card] {0..*};
+
+% category - post
+\draw[assoc] (category.east) -- node[near start, above, card] {1} node[midway, above, lbl] {classifies} (post.west) node[near end, above, card] {0..*};
+
+% media - post
+\draw[assoc] (media.east) -| node[near start, above, card] {1..*} node[near start, below, lbl] {contains} ([xshift=-0.4cm]post.south) node[near end, left, card] {1};
+
+% post - user
+\draw[assoc] (post.east) -- node[near start, above, card] {0..*} node[midway, above, lbl] {created by} (user.west) node[near end, above, card] {1};
+
+% found - claim
+\draw[assoc] (found.south) -- node[near start, right, card] {1} node[midway, right, lbl] {receives} (claim.north) node[near end, right, card] {0..*};
+
+% user - claim
+\draw[assoc] (user.south) |- node[near start, right, card] {1} node[near end, above, lbl] {submits} (claim.east) node[near end, above, card] {0..*};
+
+% post - report
+\draw[assoc] (post.south east) -- node[near start, above, card] {1} node[midway, above, lbl] {flagged on} (report.north west) node[near end, above, card] {0..*};
+
+% user - report
+\draw[assoc] (user.south) -- node[near start, right, card] {1} node[midway, right, lbl] {files} (report.north) node[near end, right, card] {0..*};
+
+% user - notification
+\draw[assoc] (user.north) -- node[near start, right, card] {1} node[midway, right, lbl] {receives} (notif.south) node[near end, right, card] {0..*};
+
+\end{tikzpicture}
+\caption{Domain Model diagram for US-Recovery}
+\label{fig:domain-model}
+\end{figure}
+
+\subsubsection{Domain Entities Specification}
+
+Bảng dưới đây đặc tả chi tiết ý nghĩa nghiệp vụ và các thuộc tính khái niệm của từng thực thể trong miền bài toán:
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.17}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.25}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.30}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.28}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Thực thể} & \tableheader{Định nghĩa nghiệp vụ} & \tableheader{Thuộc tính khái niệm} & \tableheader{Quy tắc ràng buộc nghiệp vụ} \\ \hline
+User & Đại diện cho người dùng đã định danh trong trường đại học hoặc quản trị viên hệ thống. & userId, fullName, universityEmail, phoneNumber, studentId, role (GUEST, STUDENT, ADMIN), status (ACTIVE, BANNED) & Bắt buộc phải có email đuôi @\ldots edu.vn đã xác thực (BR-01). Số điện thoại được bảo vệ mặc định (BR-02). \\ \hline
+UniversityCampus & Cơ sở hoặc địa điểm trường đại học nơi vật phẩm bị mất hoặc được nhặt được. & campusId, campusName, campusCode, address, status (APPROVED, PENDING) & Các cơ sở mới do đại diện trường đề xuất cần được Quản trị viên xét duyệt trước khi hiển thị (FR-08). \\ \hline
+ItemCategory & Danh mục phân loại vật phẩm (ví dụ: Thẻ sinh viên, Thiết bị điện tử, Ví/Bóp, Chìa khóa, Balo/Túi). & categoryId, categoryName, description & Do Quản trị viên quản lý tập trung; hỗ trợ phân loại cho bộ lọc tìm kiếm (FR-04). \\ \hline
+Post & Thực thể trừu tượng đại diện cho một tin báo cáo vật phẩm thất lạc hoặc nhặt được trên khuôn viên trường. & postId, title, description, incidentDate, locationDetail, status (ACTIVE, PENDING\_VERIFICATION, RESOLVED, CLOSED, REPORTED), createdAt & Mỗi bài đăng thuộc đúng một người tạo và gắn với một cơ sở trường; tự động chuyển sang hàng đợi nếu có $\ge 3$ báo cáo vi phạm (BR-03). \\ \hline
+LostPost & Chuyên biệt hóa của Post cho trường hợp sinh viên thông báo tài sản cá nhân bị thất lạc. & Kế thừa từ Post, bổ sung: rewardAmount (khoản hậu tạ tự nguyện), privateIdentifier (đặc điểm nhận dạng kín). & Chỉ chủ sở hữu bài đăng mới có thể cập nhật trạng thái bài đăng sang Resolved khi tìm lại được đồ. \\ \hline
+FoundPost & Chuyên biệt hóa của Post cho trường hợp nhặt được vật phẩm và muốn tìm chủ sở hữu. & Kế thừa từ Post, bổ sung: storageLocation (nơi lưu giữ hiện tại: Bảo vệ/Tự giữ), securityQuestion (câu hỏi bảo mật). & Cung cấp câu hỏi bảo mật để người nhận (Claimant) chứng minh quyền sở hữu trước khi mở khóa thông tin liên hệ (BR-02). \\ \hline
+ItemMedia & Hình ảnh thực tế của vật phẩm thất lạc hoặc khu vực xảy ra vụ việc. & mediaId, mediaUrl, fileType, uploadedAt & Mỗi bài đăng có thể đính kèm nhiều ảnh (1..*); ảnh thẻ sinh viên có thể che mờ thông tin riêng tư (FR-10). \\ \hline
+Claim & Yêu cầu nhận lại vật phẩm do một sinh viên gửi tới một bài đăng nhặt đồ (FoundPost). & claimId, claimMessage, proofImage, securityAnswer, status (PENDING, ACCEPTED, REJECTED, CANCELLED), submittedAt & Người gửi Claim phải trả lời câu hỏi xác minh hoặc cung cấp ảnh chứng minh; người nhặt có quyền duyệt hoặc từ chối (FR-05, FR-06). \\ \hline
+Report & Báo cáo phản ánh bài đăng có dấu hiệu vi phạm quy định (lừa đảo, thông tin sai sự thật, spam). & reportId, reason, detailMessage, status (PENDING, APPROVED, DISMISSED), reportedAt & Sinh viên chỉ được báo cáo 1 lần cho mỗi bài đăng; bài viết có $\ge 3$ báo cáo tự động chuyển vào hàng đợi kiểm duyệt (BR-03). \\ \hline
+Notification & Thông báo hệ thống gửi tới sinh viên nhằm cập nhật tiến trình nhận đồ hoặc tương tác tài khoản. & notificationId, title, messageBody, type (CLAIM\_RECEIVED, CLAIM\_DECIDED, POST\_MODERATED), isRead, createdAt & Gửi tự động cho người dùng đích khi có sự kiện tương tác Claim hoặc thay đổi trạng thái bài đăng (FR-09). \\ \hline
+\end{longtable}
+
+\subsubsection{Domain Relationships and Multiplicities}
+
+Các mối quan hệ cấu trúc và ngữ nghĩa giữa các thực thể trong mô hình lĩnh vực được tóm tắt trong bảng sau:
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.18}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.16}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.17}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.13}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.40}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Thực thể nguồn} & \tableheader{Thực thể đích} & \tableheader{Tên quan hệ} & \tableheader{Bội số} & \tableheader{Ý nghĩa nghiệp vụ} \\\\ \hline
+UniversityCampus & Post & hosts / located\_at & 1 : 0..* & Một cơ sở trường có thể diễn ra nhiều bài đăng mất/nhặt đồ; mỗi bài đăng bắt buộc gắn với đúng 1 cơ sở trường. \\\\ \hline
+ItemCategory & Post & classifies & 1 : 0..* & Một danh mục chứa nhiều bài đăng; mỗi bài đăng được phân loại vào đúng 1 danh mục vật phẩm. \\\\ \hline
+Post & ItemMedia & contains & 1 : 1..* & Một bài đăng chứa ít nhất 1 ảnh minh họa thực tế; mỗi ảnh đính kèm thuộc về đúng 1 bài đăng. \\\\ \hline
+User & Post & creates & 1 : 0..* & Một người dùng có thể tạo nhiều bài đăng theo thời gian; mỗi bài đăng do đúng 1 người dùng sở hữu. \\\\ \hline
+Post & LostPost / FoundPost & generalizes & 1 : 1 & Post là lớp cha trừu tượng khái niệm hóa các đặc tính chung của bài đăng mất đồ (LostPost) và nhặt đồ (FoundPost). \\\\ \hline
+FoundPost & Claim & receives & 1 : 0..* & Một bài đăng nhặt đồ có thể nhận nhiều yêu cầu nhận đồ từ nhiều sinh viên khác nhau; mỗi Claim gửi đến đúng 1 FoundPost. \\\\ \hline
+User & Claim & submits & 1 : 0..* & Một sinh viên có thể nộp nhiều yêu cầu Claim cho các tài sản thất lạc khác nhau; mỗi Claim do đúng 1 sinh viên gửi. \\\\ \hline
+Post & Report & flagged\_on & 1 : 0..* & Một bài đăng có thể bị khiếu nại/báo cáo bởi nhiều người dùng khác nhau; mỗi Report trỏ tới đúng 1 bài đăng. \\\\ \hline
+User & Report & files & 1 : 0..* & Một người dùng có thể gửi báo cáo vi phạm đối với các bài đăng nghi vấn; mỗi Report do đúng 1 người gửi. \\\\ \hline
+User & Notification & receives & 1 : 0..* & Một người dùng nhận nhiều thông báo trong quá trình tương tác; mỗi thông báo thuộc quyền sở hữu của 1 người dùng. \\\\ \hline
+\end{longtable}
 
 \subsection{Class Diagram}
 \emph{[Design-level class diagram: class names, relationships (type, multiplicity). Include attributes and operations if the diagram is not too large; split by package if needed.]}
