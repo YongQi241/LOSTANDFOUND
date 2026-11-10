@@ -1,5 +1,92 @@
-\section{Design Overview}
+\section{Design Overview}\label{design-overview}
 
-\subsection{Design Goals and Constraints}
+\subsection{Design Goals and Constraints}\label{design-goals-and-constraints}
 
-\emph{[List the architecturally significant requirements (key NFRs and high-priority functions) that drive the design, and any constraints (technology, budget, deadline).]}
+Thiết kế kiến trúc và mô hình hóa hệ thống US-Recovery (CampusHub) được xây dựng dựa trên việc thỏa mãn các Yêu cầu có ý nghĩa kiến trúc (Architecturally Significant Requirements -- ASRs). Các yêu cầu này bao gồm các tính năng nghiệp vụ cốt lõi (Core Functional Drivers), các thuộc tính chất lượng then chốt (Key Quality Attributes / NFRs), cùng hệ thống các ràng buộc kỹ thuật, ngân sách và tiến độ khắt khe của dự án môn học Nhập môn Công nghệ Phần mềm.
+
+\subsubsection{Architecturally Significant Functional Requirements}
+
+Các yêu cầu chức năng có mức ưu tiên cao nhất (Must-have) được xác định từ PA1 và đặc tả chi tiết trong PA2 đóng vai trò then chốt trong việc định hình các thành phần kiến trúc, mô hình dữ liệu và cơ chế bảo mật của hệ thống:
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.10}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.20}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.38}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.32}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{ID} & \tableheader{Tính năng (Feature)} & \tableheader{Yêu cầu chức năng cốt lõi} & \tableheader{Tác động định hướng thiết kế} \\ \hline
+FR-01 & Xác thực tài khoản (@\ldots edu.vn) & Bắt buộc đăng ký và đăng nhập thông qua email chính danh trường đại học. Cung cấp mã OTP/link kích hoạt để định danh sinh viên. & Thiết kế module xác thực (Auth Service) tích hợp Supabase Auth và SMTP Service; phát hành JWT token để xác thực phiên làm việc không trạng thái (stateless). \\ \hline
+FR-02 & Phân quyền người dùng (RBAC) & Phân định rạch ròi 3 vai trò: Khách (Guest -- chỉ xem/tìm kiếm), Sinh viên (Student -- đăng bài, claim, quản lý tin) và Quản trị viên (Admin -- kiểm duyệt, cấu hình). & Cài đặt Middleware kiểm soát truy cập phân tầng (Role-based Authorization Middleware) tại Backend và cơ chế Route Guards bảo vệ các trang điều hướng tại Frontend. \\ \hline
+FR-03 & Quản lý bài đăng Mất/Nhặt đồ & Cho phép sinh viên tạo, sửa, đóng bài đăng; đính kèm ảnh thực tế, chọn cơ sở trường, phân loại danh mục, thời gian và địa điểm chi tiết. & Thiết kế mô hình dữ liệu tách biệt giữa CSDL quan hệ (PostgreSQL lưu metadata) và Cloud Storage (lưu trữ tệp ảnh tĩnh); xây dựng máy trạng thái bài đăng (Active, Resolved, Closed). \\ \hline
+FR-04 & Tìm kiếm \& Lọc đa chiều & Cho phép tìm kiếm toàn văn theo từ khóa và bộ lọc kết hợp: Cơ sở trường, Danh mục vật phẩm, Khoảng thời gian, Loại bài đăng (Mất/Nhặt). & Thiết kế chỉ mục tìm kiếm tối ưu (PostgreSQL B-Tree trên các trường lọc, GIN index trên tiêu đề/nội dung), xử lý phân trang dữ liệu (Pagination) giảm tải mạng. \\ \hline
+FR-05 \newline FR-06 & Quy trình nhận đồ (Claim Workflow) & Người mất gửi yêu cầu Claim kèm câu trả lời xác minh hoặc ảnh bằng chứng. Người nhặt duyệt (Accept/Reject) để mở khóa thông tin liên hệ bảo mật. & Thiết kế luồng xử lý trạng thái Claim (State Pattern), cơ chế kiểm duyệt hai bước (Two-step verification), và che giấu dữ liệu nhạy cảm (Data Masking) tại tầng API. \\ \hline
+FR-07 \newline FR-08 & Kiểm duyệt \& Quản trị nền tảng & Bảng điều khiển Admin xử lý báo cáo bài đăng vi phạm (ngưỡng $\ge$ 3 báo cáo theo BR-03 sẽ tự động chuyển vào hàng đợi), khóa tài khoản, duyệt cơ sở mới. & Thiết kế kiến trúc hàng đợi xử lý báo cáo (Moderation Queue), trigger cập nhật trạng thái tự động và các endpoint quản trị chuyên biệt được bảo vệ nghiêm ngặt. \\ \hline
+FR-09 & Thông báo nội bộ (In-app Notification) & Tự động gửi thông báo cho người dùng khi có tương tác Claim mới, thay đổi trạng thái bài đăng hoặc cảnh báo từ quản trị viên. & Thiết kế phân hệ lưu trữ và phân phối thông báo (Notification Subsystem), hỗ trợ truy vấn danh sách thông báo chưa đọc theo thời gian thực. \\ \hline
+\end{longtable}
+
+\subsubsection{Key Quality Attributes and Non-Functional Requirements}
+
+Hệ thống phải đáp ứng các tiêu chuẩn chất lượng (NFRs) đã cam kết trong PA2, qua đó chi phối trực tiếp đến các giải pháp kiến trúc:
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.12}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.18}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.36}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.34}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{ID} & \tableheader{Thuộc tính (Quality)} & \tableheader{Chỉ số đo lường (Measurable Metric)} & \tableheader{Giải pháp thiết kế kiến trúc} \\ \hline
+NFR-01 & Performance (Hiệu năng) & Dưới tải 100 người dùng đồng thời, thời gian phản hồi tìm kiếm/lọc phải đạt P95 $\le$ 2 giây. & Thiết kế kiến trúc phi trạng thái (Stateless REST API); thiết lập chỉ mục (Indexes) trên các khóa ngoại và cột lọc; giới hạn kích thước phân trang (Page Size); nén ảnh phía client trước khi upload. \\ \hline
+NFR-02 & Security \& Privacy (Bảo mật \& Riêng tư) & 100\% kết nối sử dụng giao thức HTTPS. Tuyệt đối không để lộ thông tin liên hệ (SĐT, Email cá nhân) của chủ bài đăng cho tới khi Claim được chấp thuận (BR-02). & Triển khai cơ chế Data Masking tại Business Service; áp dụng nguyên tắc đặc quyền tối thiểu (Least Privilege); cấu hình Row Level Security (RLS) trên PostgreSQL; băm mật khẩu bằng thuật toán bcrypt. \\ \hline
+NFR-03 & Usability (Tính khả dụng) & Sinh viên mới có thể hoàn tất việc tạo một bài đăng hoàn chỉnh trong vòng $\le$ 3 phút mà không cần tài liệu hướng dẫn. & Thiết kế luồng giao diện tinh gọn, trực quan (Wizard/Modal form); tự động điền thông tin người dùng từ token; cung cấp phản hồi lỗi trực quan ngay tại trường nhập liệu (Client-side validation). \\ \hline
+NFR-04 & Compatibility (Khả năng tương thích) & Giao diện thích ứng (Responsive) hoàn hảo trên các trình duyệt Chrome, Firefox, Safari từ màn hình di động (360px) đến máy tính để bàn (1920px), không bị vỡ bố cục hoặc cuộn ngang. & Sử dụng kiến trúc Single Page Application (SPA) với React và Tailwind CSS theo triết lý Mobile-First; xây dựng các UI component linh hoạt (Flexbox, CSS Grid). \\ \hline
+NFR-05 & Availability (Tính sẵn sàng) & Hệ thống duy trì tính sẵn sàng (uptime) $\ge$ 99\% trong suốt giai đoạn thử nghiệm và đánh giá nghiệm thu. & Tận dụng hạ tầng đám mây PaaS/BaaS (Vercel, Render) có cơ chế auto-restart khi gặp sự cố; thiết lập giám sát định kỳ thông qua UptimeRobot; tách biệt database độc lập với application server. \\ \hline
+\end{longtable}
+
+
+\subsubsection{Verification of Core Business Rules}
+
+Hệ thống thiết kế phải đảm bảo thực thi triệt để 4 quy tắc nghiệp vụ cốt lõi đã cam kết từ PA2, đóng vai trò là các chốt chặn kiến trúc (Architectural Invariants):
+
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.14}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.22}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.32}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.32}}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Quy tắc} & \tableheader{Nội dung quy tắc} & \tableheader{Cơ chế kiến trúc bảo đảm} & \tableheader{Tiêu chí xác minh (Verification)} \\ \hline
+BR-01 & Xác thực Email trường (@\ldots edu.vn) & Chỉ những tài khoản đã xác minh email chính danh trường đại học mới được phép tạo bài đăng và gửi Claim. & Auth Middleware kiểm tra cờ \texttt{is\_verified = true} trước khi cho phép gửi request tạo Post hoặc Claim. Khách chỉ có quyền đọc/tìm kiếm (Read-only). \\ \hline
+BR-02 & Bảo vệ thông tin liên hệ (Protected Contact) & Số điện thoại và email cá nhân của chủ bài đăng tuyệt đối không hiển thị công khai; chỉ được mở khóa khi Claim được chấp thuận. & Cơ chế Data Masking tại tầng Business Service. API chi tiết bài đăng mặc định loại bỏ trường thông tin liên hệ trừ khi caller là chủ sở hữu hoặc Claimant đã được duyệt. \\ \hline
+BR-03 & Ngưỡng kiểm duyệt (Moderation Threshold) & Bất kỳ bài đăng nào nhận từ 3 báo cáo vi phạm trở lên ($\ge$ 3 reports) sẽ tự động bị ẩn khỏi danh sách công khai và chuyển vào hàng đợi Admin. & Database Trigger / Service Hook đếm số lượng bản ghi Report hợp lệ. Khi vượt ngưỡng 3, tự động chuyển \texttt{status} của Post sang \texttt{REPORTED} và gửi thông báo cảnh báo. \\ \hline
+BR-04 & Quy trình duyệt Claim (Claim Approval) & Người nhặt có toàn quyền đánh giá câu trả lời bí mật / bằng chứng ảnh để duyệt (Accept) hoặc từ chối (Reject) Claim. Khi duyệt, bài đăng tự động hoàn tất. & Thiết kế máy trạng thái Claim hữu hạn (\texttt{PENDING} $\rightarrow$ \texttt{ACCEPTED} / \texttt{REJECTED}). Sử dụng Database Transaction để đồng thời cập nhật Claim sang \texttt{ACCEPTED} và Post sang \texttt{RESOLVED}. \\ \hline
+\end{longtable}
+
+\subsubsection{Design and Implementation Constraints}
+
+Thiết kế phần mềm phải tuân thủ nghiêm ngặt các giới hạn về công nghệ, tài chính và tiến độ:
+
+\begin{enumerate}[label=\arabic*.,leftmargin=1.5em,itemsep=5pt]
+  \item \textbf{Ràng buộc Công nghệ (Technology Constraints):}
+  \begin{itemize}[label=\textbullet,leftmargin=1.2em,itemsep=3pt]
+    \item \textbf{Frontend:} Ứng dụng nền tảng web React 18+ kết hợp Vite làm công cụ build tối ưu, sử dụng React Router cho điều hướng SPA và Tailwind CSS để xây dựng hệ thống design tokens responsive.
+    \item \textbf{Backend:} Sử dụng Node.js (LTS) với nền tảng Express.js để xây dựng RESTful Web APIs chuẩn JSON. Cấu trúc mã nguồn tuân thủ nghiêm ngặt kiến trúc phân tầng (Layered Architecture: Routing -- Controller -- Service -- Data Access).
+    \item \textbf{Cơ sở dữ liệu \& Backend Services:} Sử dụng dịch vụ Supabase trên nền PostgreSQL 15+, tận dụng cơ chế Supabase Auth cho quản lý phiên và Supabase Storage làm kho lưu trữ hình ảnh vật phẩm.
+    \item \textbf{Dịch vụ bên thứ ba:} Tích hợp Brevo SMTP Server để gửi email kích hoạt và mã xác thực OTP chính danh sinh viên.
+    \item \textbf{Triển khai (Deployment):} Mã nguồn Frontend triển khai tự động trên Vercel CDN; Backend triển khai dưới dạng web service trên nền tảng Render (máy chủ đặt tại khu vực Singapore để tối ưu độ trễ mạng đối với người dùng tại TP.HCM).
+  \end{itemize}
+
+  \item \textbf{Ràng buộc Ngân sách (Budget Constraints):}
+  \begin{itemize}[label=\textbullet,leftmargin=1.2em,itemsep=3pt]
+    \item \textbf{Chi phí triển khai 0 VNĐ (Zero-Budget):} Dự án vận hành hoàn toàn dựa trên các gói tài nguyên miễn phí (Free Tiers) của các nền tảng đám mây (Vercel Hobby, Render Free Web Service, Supabase Free Project, Brevo Free 300 emails/day).
+    \item \textbf{Tối ưu hóa tài nguyên phần cứng:} Do gói máy chủ Render Free bị giới hạn RAM ở mức 512MB và có hiện tượng sleep sau thời gian nhàn rỗi, kiến trúc Backend phải thiết kế gọn nhẹ (lightweight), không chạy các tác vụ chạy nền (background workers) tốn bộ nhớ, đồng thời phía Frontend cần có thông báo chờ tải (skeleton loading/spinner) thân thiện.
+  \end{itemize}
+
+  \item \textbf{Ràng buộc Tiến độ và Quy trình (Schedule and Process Constraints):}
+  \begin{itemize}[label=\textbullet,leftmargin=1.2em,itemsep=3pt]
+    \item \textbf{Phương pháp luận phát triển:} Tuân thủ mô hình Waterfall theo đúng đề cương môn học, chia làm 5 mốc nghiệm thu tương ứng với các đồ án thành phần (PA1 đến PA5). Thiết kế tại PA3 đóng vai trò là bản thiết kế khung (Blueprint) bất biến cho giai đoạn cài đặt.
+    \item \textbf{Thời hạn lập trình (Coding Window):} Giai đoạn hiện thực mã nguồn (PA5) bị giới hạn nghiêm ngặt trong tối đa \textbf{3 tuần} làm việc của nhóm 5 thành viên. Do đó, thiết kế hệ thống phải tập trung cao độ vào tính khả thi, hạn chế thiết kế dư thừa (over-engineering), ưu tiên hoàn thiện xuất sắc 100\% các tính năng cốt lõi (Must-have).
+    \item \textbf{Quy chuẩn làm việc nhóm:} Quản lý mã nguồn tập trung trên GitHub; 100\% commit phải tuân thủ chuẩn Conventional Commits; bắt buộc tạo Pull Request và trải qua quy trình Peer Review (ít nhất 1 thành viên kiểm tra chéo) trước khi tích hợp vào nhánh chính (\texttt{main}).
+  \end{itemize}
+\end{enumerate}
