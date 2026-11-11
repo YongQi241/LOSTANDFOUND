@@ -1,0 +1,52 @@
+@startuml c4-component
+!include <C4/C4_Component>
+LAYOUT_TOP_DOWN()
+title API Server - Sơ đồ thành phần
+
+Container(spa, "Web App (SPA)", "React")
+ContainerDb(db, "Database", "PostgreSQL")
+Container(auth, "Auth Service", "Supabase Auth")
+ContainerDb(storage, "File Storage", "Supabase Storage")
+System_Ext(brevo, "Brevo SMTP")
+
+Container_Boundary(api, "API Server (Express.js)") {
+  Component(mw, "CMP-10 Middleware", "Express middleware", "authenticate, requireRole, validate, upload, errorHandler")
+  Component(authm, "CMP-01 Auth & Account", "Module", "UC-01, UC-02, BR-01")
+  Component(post, "CMP-02 Post", "Module", "UC-05, UC-06")
+  Component(search, "CMP-03 Search", "Module", "UC-03, UC-04")
+  Component(claim, "CMP-04 Claim", "Module", "UC-07, UC-08")
+  Component(contact, "CMP-05 Contact Access", "Module", "BR-02, NFR-02")
+  Component(mod, "CMP-06 Report & Moderation", "Module", "UC-09, UC-10, BR-03")
+  Component(cat, "CMP-07 Catalog & School", "Module", "UC-11, UC-12, UC-13")
+  Component(noti, "CMP-08 Notification", "Module", "UC-14")
+  Component(ocr, "CMP-09 OCR (Could)", "tesseract.js", "UC-15")
+  Component(dal, "CMP-11 Data Access", "pg, repositories", "Pool kết nối, transaction")
+  Component(adp, "CMP-12 Adapters", "supabase-js, Nodemailer", "Auth, Storage, Mail")
+}
+
+note right of mw : Mọi request đi qua CMP-10\ntrước khi đến module CMP-01..CMP-09
+note right of dal : Mọi module truy cập CSDL qua CMP-11.\nChỉ CMP-05 đọc bảng thông tin liên hệ.
+
+Rel(spa, mw, "REST/JSON", "HTTPS")
+Rel(authm, cat, "Kiểm tra tên miền trường")
+Rel(post, cat, "Kiểm tra danh mục, cơ sở")
+Rel(post, ocr, "Quét ảnh thẻ (tùy chọn)")
+Rel(post, noti, "Báo Claimant khi bài bị xóa")
+Rel(claim, post, "Đọc bài, chuyển Đã giải quyết")
+Rel(claim, noti, "Báo kết quả Claim")
+Rel(mod, post, "Gỡ bài")
+Rel(mod, authm, "Khóa tài khoản")
+Rel(mod, noti, "Báo chủ bài")
+Rel(search, dal, "Truy vấn tìm kiếm")
+Rel(contact, dal, "Đọc liên hệ (duy nhất)")
+Rel(authm, adp, "Gọi Auth")
+Rel(post, adp, "Lưu ảnh")
+Rel(claim, adp, "Ảnh bằng chứng, signed URL")
+Rel(cat, adp, "Email kết quả")
+Rel(dal, db, "SQL", "TLS")
+Rel(adp, auth, "Auth API", "HTTPS")
+Rel(adp, storage, "Storage API", "HTTPS")
+Rel(adp, brevo, "Gửi email", "SMTP")
+
+SHOW_LEGEND()
+@enduml

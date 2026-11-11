@@ -1,0 +1,30 @@
+@startuml c4-container
+!include <C4/C4_Container>
+LAYOUT_TOP_DOWN()
+title US-Recovery - Sơ đồ container (C4 mức 2)
+
+Person(user, "Người dùng", "Khách, Sinh viên, Admin, Đại diện trường")
+System_Ext(brevo, "Brevo SMTP", "Gửi email giao dịch")
+System_Ext(mailbox, "Hộp thư email", "Sinh viên / người liên hệ của trường")
+
+System_Boundary(sys, "US-Recovery") {
+  Container(spa, "Web App (SPA)", "React, Vite, React Router, Tailwind CSS", "SCR-01 đến SCR-15; chặn trang theo vai trò")
+  Container(api, "API Server", "Node.js LTS, Express.js", "REST API; quy tắc nghiệp vụ, phân quyền, kiểm tra dữ liệu")
+  ContainerDb(db, "Database", "PostgreSQL (Supabase, Singapore)", "Tài khoản, bài đăng, liên hệ, Claim, báo cáo, danh mục, trường, thông báo, nhật ký")
+  Container(auth, "Auth Service", "Supabase Auth", "Băm mật khẩu, link xác minh 24 giờ, cấp JWT")
+  ContainerDb(storage, "File Storage", "Supabase Storage", "post-images (công khai), claim-evidence (riêng tư)")
+}
+
+Rel(user, spa, "Sử dụng", "HTTPS")
+Rel(spa, api, "Gọi API", "JSON/HTTPS, Bearer JWT")
+Rel(spa, storage, "Tải ảnh", "HTTPS, URL công khai / signed URL")
+Rel(api, db, "Đọc, ghi, transaction", "SQL/TLS (pg)")
+Rel(api, auth, "Đăng ký, đăng nhập, khóa tài khoản", "HTTPS")
+Rel(api, storage, "Tải ảnh lên, tạo signed URL", "HTTPS")
+Rel(auth, brevo, "Email xác minh", "SMTP")
+Rel(api, brevo, "Email kết quả xét duyệt trường", "SMTP")
+Rel(brevo, mailbox, "Chuyển thư", "SMTP")
+Rel(user, auth, "Mở link xác minh", "HTTPS")
+
+SHOW_LEGEND()
+@enduml
