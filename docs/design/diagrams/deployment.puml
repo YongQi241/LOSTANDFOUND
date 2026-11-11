@@ -1,0 +1,43 @@
+@startuml deployment
+!include <C4/C4_Deployment>
+LAYOUT_TOP_DOWN()
+title US-Recovery - Sơ đồ triển khai (prod)
+
+Deployment_Node(device, "Thiết bị người dùng", "PC / điện thoại, 360-1920 px") {
+  Deployment_Node(browser, "Trình duyệt", "Chrome, Firefox, Safari") {
+    Container(spa_rt, "Web App (SPA)", "JavaScript", "Chạy trong trình duyệt")
+  }
+}
+Deployment_Node(vercel, "Vercel", "Edge Network / CDN") {
+  Container(static, "Bản build SPA", "HTML, JS, CSS", "Tự deploy khi merge main")
+}
+Deployment_Node(render, "Render Web Service", "Singapore") {
+  Deployment_Node(node, "Node.js LTS", "Runtime") {
+    Container(api, "API Server", "Express.js", "Secret trong biến môi trường")
+  }
+}
+Deployment_Node(supa, "Supabase project prod", "ap-southeast-1 (Singapore)") {
+  ContainerDb(db, "PostgreSQL", "Postgres + connection pooler")
+  Container(auth, "Supabase Auth", "GoTrue", "Link xác minh 24 giờ")
+  ContainerDb(st, "Supabase Storage", "Buckets", "post-images, claim-evidence")
+}
+System_Ext(smtp, "Brevo SMTP relay", "smtp, cổng 587 STARTTLS")
+System_Ext(mail, "Hộp thư người nhận")
+System_Ext(uptime, "UptimeRobot", "Kiểm tra mỗi 5 phút")
+System_Ext(gh, "GitHub", "Repository, Actions (ESLint, test)")
+
+Rel(spa_rt, static, "Tải ứng dụng", "HTTPS 443")
+Rel(spa_rt, api, "REST/JSON, Bearer JWT", "HTTPS 443")
+Rel(spa_rt, st, "Tải ảnh", "HTTPS 443")
+Rel(api, db, "Truy vấn, transaction", "PostgreSQL/TLS")
+Rel(api, auth, "Auth API", "HTTPS")
+Rel(api, st, "Upload, signed URL", "HTTPS")
+Rel(auth, smtp, "Email xác minh", "SMTP 587")
+Rel(api, smtp, "Email kết quả", "SMTP 587")
+Rel(smtp, mail, "Chuyển thư", "SMTP")
+Rel(uptime, api, "GET /health", "HTTPS")
+Rel(gh, static, "Auto-deploy", "Webhook")
+Rel(gh, api, "Auto-deploy", "Webhook")
+
+SHOW_LEGEND()
+@enduml

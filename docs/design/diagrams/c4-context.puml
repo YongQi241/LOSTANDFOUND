@@ -1,0 +1,26 @@
+@startuml c4-context
+!include <C4/C4_Context>
+LAYOUT_TOP_DOWN()
+title US-Recovery - Sơ đồ ngữ cảnh hệ thống (C4 mức 1)
+
+Person(guest, "Khách", "Chưa đăng nhập; xem và tìm bài đăng")
+Person(student, "Sinh viên", "Đã xác minh email trường; đăng bài, gửi và xử lý Claim, báo cáo vi phạm")
+Person(admin, "Admin", "Kiểm duyệt bài bị báo cáo, khóa tài khoản, quản lý danh mục, duyệt trường mới")
+Person(rep, "Đại diện trường", "Gửi đề nghị thêm trường, không cần tài khoản")
+
+System(usr, "US-Recovery", "Nền tảng web tìm đồ thất lạc liên trường đại học")
+
+System_Ext(brevo, "Brevo SMTP", "Dịch vụ gửi email giao dịch")
+System_Ext(mailbox, "Hộp thư email", "Hộp thư trường của sinh viên; hộp thư người liên hệ của trường")
+
+Rel(guest, usr, "Xem, tìm bài; đăng ký", "HTTPS")
+Rel(student, usr, "Đăng bài, gửi/xử lý Claim, báo cáo", "HTTPS")
+Rel(admin, usr, "Kiểm duyệt và quản trị", "HTTPS")
+Rel(rep, usr, "Gửi đề nghị thêm trường", "HTTPS")
+Rel(usr, brevo, "Gửi email xác minh, email kết quả", "SMTP")
+Rel(brevo, mailbox, "Chuyển thư", "SMTP")
+Rel(student, mailbox, "Đọc thư, mở link xác minh")
+Rel(rep, mailbox, "Đọc kết quả xét duyệt")
+
+SHOW_LEGEND()
+@enduml
