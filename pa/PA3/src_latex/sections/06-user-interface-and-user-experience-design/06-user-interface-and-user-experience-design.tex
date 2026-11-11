@@ -1,32 +1,261 @@
+
+\providecommand{\screenimage}[3][0.9\textwidth]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{image/#2.png}%
+      {\includegraphics[width=#1]{image/#2.png}}%
+      {\fbox{\parbox[c][4cm][c]{0.6\textwidth}{\centering Missing image: #2}}}%
+    \caption{#3}\label{fig:#2}
+  \end{figure}}
+\newcommand{\figmaprototype}{https://www.figma.com/design/RIcHWj9dLTwpNBgFgyr4aH/SE-LAB?node-id=115-35}
+
 \section{User Interface and User Experience Design}
 
+Giao diện US-Recovery được thiết kế trên Figma, tiếp nối prototype của PA2 (Mục 8 của SRS). Ở PA3, toàn bộ frame được dựng lại thành layer chỉnh sửa được, thay cho code layer của PA2 vốn không sửa được từng chi tiết. Mỗi màn hình là một frame mang mã SCR-xx. Mã này được dùng thống nhất ở cột ``Design element'' của Ma trận truy vết (Mục 7). File thiết kế: \href{\figmaprototype}{Figma -- US-Recovery}. Link từng frame và kết quả đo tương phản được đính kèm trong pull request của Section 6 để BA Huỳnh Thái Hòa review chéo.
+
+So với PA2, thiết kế PA3 có ba thay đổi:
+\begin{itemize}
+  \item \textbf{Kiểm duyệt theo hướng hậu kiểm.} Bài đăng hiển thị ngay với trạng thái ``Đang mở''. Admin chỉ xử lý những bài bị từ 3 người dùng trở lên báo cáo (BR-03, UC-10). Không có bước duyệt bài trước khi đăng.
+  \item \textbf{Ô ``Thông tin liên hệ'' trong form đăng bài là bắt buộc.} Giá trị phải là số điện thoại 10 chữ số hoặc email hợp lệ. Thông tin này chỉ được mở cho cả hai bên khi Claim được chấp nhận (BR-02, UC-08).
+  \item \textbf{Bổ sung các trạng thái PA2 chưa vẽ:} không có kết quả, bản di động 360\,px, hộp thoại xác nhận chấp nhận Claim, trạng thái focus và lỗi (Bảng~\ref{tab:ui-variants}).
+\end{itemize}
+
+\paragraph{Ngôn ngữ thiết kế.} Giao diện dùng một họ phông Be Vietnam Pro, được thiết kế riêng cho tiếng Việt nên dấu hiển thị rõ ở cỡ chữ nhỏ. Toàn hệ thống chỉ có một màu nhấn \texttt{\#0F5C6E}, dùng cho nút chính, liên kết và vòng focus. Màu đỏ và xanh lá chỉ dùng để truyền tải ý nghĩa: loại bài, lỗi, thành công. Nhãn loại bài ``Mất đồ'' và ``Nhặt được'' có hình thẻ hành lý, gắn với chủ đề tìm đồ thất lạc; logo dùng cùng hình này. Thông tin được gom vào các khối nền trắng trên nền xám nhạt \texttt{\#F4F6F8}, hạn chế đường viền.
+
+% ------------------------------------------------------------
 \subsection{Screen List and Screen Flow}
-\emph{[Draw the screen flow diagram (navigation between screens).]}
 
 \begin{longtable}{|p{0.07\textwidth}|p{0.23\textwidth}|p{0.38\textwidth}|p{0.24\textwidth}|}
 \hline
 \rowcolor{TableBlue}\tableheader{\#} & \tableheader{Screen} & \tableheader{Description} & \tableheader{Related use case} \\ \hline
-& & & \\[0.6cm] \hline
-& & & \\[0.6cm] \hline
-& & & \\[0.6cm] \hline
+\endhead
+SCR-01 & Đăng ký & Form đăng ký bằng email trường. & UC-01 \\ \hline
+SCR-02 & Xác minh email (02a, 02b, 02c) & 02a: báo đã gửi link xác minh, có nút ``Gửi lại''. 02b: xác minh thành công. 02c: link hết hạn hoặc không hợp lệ. & UC-01 \\ \hline
+SCR-03 & Đăng nhập & Đăng nhập bằng email và mật khẩu; chuyển trang theo vai trò. & UC-02 \\ \hline
+SCR-04 & Trang chủ (tìm kiếm và lọc) & Danh sách bài mới nhất, ô tìm kiếm, bộ lọc loại bài, cơ sở, danh mục, thời gian. & UC-03 \\ \hline
+SCR-05 & Chi tiết bài đăng & Ảnh, thông tin, mô tả; liên hệ được ẩn; nút gửi Claim và báo cáo vi phạm. & UC-04, UC-07, UC-09 \\ \hline
+SCR-06 & Form tạo / sửa bài đăng & Nhập loại bài, thông tin vật phẩm, ảnh, câu hỏi xác minh và thông tin liên hệ. & UC-05, UC-06, UC-15 \\ \hline
+SCR-07 & Bài đăng của tôi & Danh sách bài của người dùng kèm trạng thái và số Claim đang chờ. & UC-06, UC-08 \\ \hline
+SCR-08 & Popup gửi Claim & Trả lời câu hỏi xác minh hoặc mô tả nơi nhặt, đính kèm ảnh. & UC-07 \\ \hline
+SCR-09 & Danh sách Claim của bài & Xem câu trả lời, bằng chứng; chấp nhận hoặc từ chối Claim. & UC-08 \\ \hline
+SCR-10 & Popup báo cáo vi phạm & Chọn lý do báo cáo và ghi chú. & UC-09 \\ \hline
+SCR-11 & Thông báo & Danh sách thông báo in-app về Claim và trạng thái bài. & UC-14 \\ \hline
+SCR-12 & Admin: Hàng đợi kiểm duyệt & Bài bị báo cáo từ 3 người trở lên; giữ bài, gỡ bài, khóa tài khoản. & UC-02, UC-10 \\ \hline
+SCR-13 & Admin: Quản lý danh mục & Thêm, sửa, ẩn, hiện danh mục vật phẩm. & UC-11 \\ \hline
+SCR-14 & Đề nghị thêm trường & Form công khai cho đại diện trường, không cần tài khoản. & UC-12 \\ \hline
+SCR-15 & Admin: Yêu cầu thêm trường & Duyệt hoặc từ chối yêu cầu thêm trường. & UC-13 \\ \hline
 \end{longtable}
 
-\subsection{Screen Specifications}
-\emph{[Specify the 5--6 most important screens: design image, controls, events and validation. For the other screens, the design image is enough.]}
+Các frame bổ sung ở PA3 không phải màn hình mới. Chúng thể hiện trạng thái hoặc kích thước khác của màn hình đã có (Bảng~\ref{tab:ui-variants}).
 
-\subsubsection{Screen ``A''}
+\begin{longtable}{|p{0.07\textwidth}|p{0.23\textwidth}|p{0.38\textwidth}|p{0.24\textwidth}|}
+\caption{Các frame trạng thái bổ sung ở PA3}\label{tab:ui-variants}\\
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Frame} & \tableheader{Description} & \tableheader{Related item} \\ \hline
+\endhead
+1 & SCR-04b & Trang chủ khi không có kết quả. & UC-03 E1 \\ \hline
+2 & SCR-04m & Trang chủ trên di động 360\,px. & UC-03, NFR-04 \\ \hline
+3 & SCR-05m & Chi tiết bài đăng trên di động 360\,px. & UC-04, NFR-04 \\ \hline
+4 & SCR-06 (PA3) & Form đăng bài chia ba khối, ô liên hệ bắt buộc. & UC-05, BR-02 \\ \hline
+5 & SCR-06m & Form đăng bài trên di động, đang hiện lỗi ô liên hệ. & UC-05 E1, NFR-04 \\ \hline
+6 & SCR-09b & Hộp thoại xác nhận chấp nhận Claim. & UC-08 bước 5 \\ \hline
+7 & SCR-09c & Bài sau khi chấp nhận Claim: liên hệ mở cho hai bên. & UC-08 bước 7--8 \\ \hline
+8 & Mẫu trạng thái & Nút và ô nhập ở các trạng thái mặc định, focus, lỗi, không dùng được; các loại nhãn. & Mục 6.3 \\ \hline
+\end{longtable}
+
+\screenimage[\textwidth]{screen-flow}{Sơ đồ điều hướng giữa các màn hình US-Recovery}
+
+Sơ đồ chia màn hình thành bốn nhóm theo thứ tự sử dụng: xác thực, tìm và xem, tương tác của người dùng đã đăng nhập, và quản trị. Mũi tên nét liền là luồng chính; mũi tên hai đầu thể hiện cặp đi và quay lại, ví dụ mở chi tiết bài rồi quay lại kết quả. Mũi tên nét đứt màu xám là luồng phụ: link xác minh hết hạn, chuyển qua lại giữa đăng ký và đăng nhập, liên kết ở chân trang, và chuyển hướng khách sang đăng nhập. Ô viền nét đứt là popup mở trên màn hình hiện tại. Hai ô ``Thanh điều hướng'' và ``Menu Admin'' không phải màn hình riêng; chúng đại diện cho thanh điều hướng có trên mọi trang.
+
+Khách chưa đăng nhập vẫn xem được SCR-04 và SCR-05. Khi khách bấm một thao tác cần đăng nhập (đăng bài, gửi Claim, báo cáo vi phạm), hệ thống chuyển sang SCR-03 và quay lại màn hình cũ sau khi đăng nhập (UC-07 A1, UC-09 A1).
+
+% ------------------------------------------------------------
+\subsection{Screen Specifications}
+
+Mục này đặc tả sáu màn hình chính. Mỗi feature Must-have F01--F05 và quy tắc BR-02 đều được phủ bởi ít nhất một màn hình. Mỗi bảng liệt kê các control (thành phần người dùng thao tác được như ô nhập, nút, liên kết), quy tắc kiểm tra dữ liệu và phản hồi của hệ thống. Mã E, A trong bảng là luồng ngoại lệ và luồng thay thế của use case tương ứng trong SRS. Các màn hình còn lại được trình bày bằng ảnh thiết kế ở cuối mục.
+
+Quy ước chung cho mọi form: ô không ghi gì thêm là ô bắt buộc; ô tùy chọn ghi rõ ``(không bắt buộc)'' cạnh nhãn. Lỗi hiện ngay dưới ô, gồm biểu tượng ``!'' và một câu nói rõ cách sửa.
+
+% ---------------- SCR-01 ----------------
+\subsubsection{SCR-01 -- Đăng ký}
+\screenimage[0.75\textwidth]{SCR-01}{SCR-01 -- Đăng ký (UC-01)}
+
+Màn hình hiện thực F01 và BR-01: chỉ email thuộc tên miền của trường đã có trong hệ thống mới đăng ký được. Mỗi ô được kiểm tra khi người dùng rời khỏi ô, và cả form được kiểm tra lại khi bấm ``Đăng ký''.
+
 \begin{longtable}{|p{0.05\textwidth}|p{0.17\textwidth}|p{0.14\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|}
 \hline
 \rowcolor{TableBlue}\tableheader{\#} & \tableheader{Control} & \tableheader{Type} & \tableheader{Description / validation} & \tableheader{Event handling} \\ \hline
-& & & & \\[0.6cm] \hline
-& & & & \\[0.6cm] \hline
-& & & & \\[0.6cm] \hline
+\endhead
+1 & Họ tên & Text field & Bắt buộc. & Để trống: ``Nhập họ tên'' dưới ô. \\ \hline
+2 & Email trường & Text field (email) & Bắt buộc. Tên miền phải thuộc một trường đã có trong hệ thống (BR-01). Email chưa từng đăng ký. & Sai tên miền: ``Chỉ chấp nhận email của các trường đại học tham gia'' (E1). Đã đăng ký: báo lỗi kèm liên kết Đăng nhập (E2). \\ \hline
+3 & Mật khẩu & Password field & Bắt buộc, tối thiểu 8 ký tự. Dòng gợi ý ``Tối thiểu 8 ký tự''. & Không đủ 8 ký tự: lỗi tại ô (E3). \\ \hline
+4 & Xác nhận mật khẩu & Password field & Bắt buộc, phải trùng ô 3. & ``Mật khẩu xác nhận không khớp'' tại ô (E3). \\ \hline
+5 & Đăng ký & Button (Primary) & Bị vô hiệu trong lúc đang gửi để tránh gửi hai lần. & Có lỗi: chuyển con trỏ đến ô lỗi đầu tiên. Hợp lệ: tạo tài khoản ``Chưa xác minh'', gửi email xác minh, chuyển SCR-02a. Dịch vụ email lỗi: ``Không gửi được email. Thử lại sau ít phút'' (E5). \\ \hline
+6 & Đã có tài khoản? Đăng nhập & Link & -- & Chuyển SCR-03. \\ \hline
 \end{longtable}
 
+% ---------------- SCR-04 ----------------
+\subsubsection{SCR-04 -- Trang chủ (tìm kiếm và lọc)}
+\screenimage{SCR-04}{SCR-04 -- Trang chủ: tìm kiếm và lọc (UC-03)}
+
+Màn hình hiện thực F03. Trang mở đầu bằng câu hỏi ``Bạn đang tìm gì?'' và một ô tìm kiếm lớn, vì tìm đồ là việc người dùng làm nhiều nhất. Bộ lọc được gom thành một hàng chip (nút nhỏ bo tròn, bấm để chọn) thay cho nhiều ô chọn riêng, giúp màn hình gọn hơn. Thẻ bài đăng chỉ có ảnh, nhãn loại bài, tiêu đề, cơ sở và thời gian; không có thông tin liên hệ (BR-02). Trên di động, bố cục chuyển thành một cột (SCR-04m). Khi không có kết quả, màn hình hiển thị SCR-04b.
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.17\textwidth}|p{0.14\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Control} & \tableheader{Type} & \tableheader{Description / validation} & \tableheader{Event handling} \\ \hline
+\endhead
+1 & Ô tìm kiếm & Text field (search) & Không bắt buộc. Tìm trong tiêu đề, mô tả và vị trí. Gợi ý: ``Ví đen, thẻ sinh viên, tai nghe''. & Enter tương đương bấm ``Tìm''. \\ \hline
+2 & Tìm & Button (Primary) & -- & Tìm theo từ khóa kết hợp bộ lọc đang chọn. Bỏ bài ``Đã gỡ'' và bài bị ẩn do tài khoản bị khóa. Bài mới nhất xếp trước. \\ \hline
+3 & Loại bài & Chip group (chọn một) & Tất cả / Mất đồ / Nhặt được. Mặc định ``Tất cả''. & Bấm chip: lọc lại danh sách ngay. \\ \hline
+4 & Cơ sở & Filter chip + dropdown & Mặc định tất cả. Gồm cơ sở của các trường đã được duyệt (UC-13). & Chọn xong: lọc lại ngay; chip hiện giá trị đã chọn. \\ \hline
+5 & Danh mục & Filter chip + dropdown & Mặc định tất cả. Chỉ gồm danh mục đang hiện (UC-11). & Như trên. \\ \hline
+6 & Thời gian & Filter chip + date range picker & Không bắt buộc. Từ ngày phải trước hoặc bằng Đến ngày. & Sai thứ tự: báo lỗi trong hộp chọn ngày, không áp dụng bộ lọc (E2). \\ \hline
+7 & Xóa bộ lọc & Link button & -- & Đặt lại từ khóa và bộ lọc, hiển thị bài mới nhất (A1). \\ \hline
+8 & Thẻ bài đăng & Card (danh sách) & Ảnh, nhãn ``Mất đồ'' hoặc ``Nhặt được'', tiêu đề, cơ sở, thời gian. Bài đã giải quyết có thêm nhãn ``Đã giải quyết''. & Bấm vào thẻ: chuyển SCR-05 (A2). \\ \hline
+9 & Phân trang & Pagination & 20 bài mỗi trang. & Chuyển trang, giữ nguyên từ khóa và bộ lọc. \\ \hline
+10 & Trạng thái rỗng & Empty state & ``Chưa có bài nào khớp'' kèm gợi ý bỏ bớt bộ lọc hoặc dùng từ khóa ngắn hơn (SCR-04b). & Nút ``Xóa bộ lọc'' như control 7 (E1). \\ \hline
+11 & Thanh điều hướng & Header & Logo, ``Tìm đồ'', ``Bài đăng của tôi'', chuông thông báo, nút ``Đăng bài'', ảnh đại diện. Khách chỉ thấy logo và nút ``Đăng nhập''. & ``Đăng bài'': chưa đăng nhập thì chuyển SCR-03, đã đăng nhập thì chuyển SCR-06. ``Bài đăng của tôi'': chuyển SCR-07. \\ \hline
+12 & Chuông thông báo & Icon button & Hiện số thông báo chưa đọc; có nhãn cho trình đọc màn hình. & Chuyển SCR-11. \\ \hline
+13 & Đề nghị thêm trường & Link (chân trang) & -- & Chuyển SCR-14. \\ \hline
+\end{longtable}
+
+% ---------------- SCR-05 ----------------
+\subsubsection{SCR-05 -- Chi tiết bài đăng}
+\screenimage{SCR-05}{SCR-05 -- Chi tiết bài đăng (UC-04)}
+
+Màn hình là điểm bắt đầu của F04 (gửi Claim) và UC-09 (báo cáo). Theo BR-02 và NFR-02, thông tin liên hệ không được trả về trong API khi người xem chưa có Claim được chấp nhận. Nhờ vậy, dù có mở công cụ của trình duyệt cũng không đọc được liên hệ. Giao diện chỉ hiện một hộp có biểu tượng ổ khóa, báo rằng liên hệ đang được ẩn. Bản di động: SCR-05m.
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.17\textwidth}|p{0.14\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Control} & \tableheader{Type} & \tableheader{Description / validation} & \tableheader{Event handling} \\ \hline
+\endhead
+1 & $\leftarrow$ Kết quả tìm kiếm & Link & -- & Về SCR-04, giữ nguyên từ khóa và bộ lọc. \\ \hline
+2 & Ảnh chính và ảnh nhỏ & Image gallery & Tối đa 5 ảnh. Ảnh nhỏ đang chọn có viền màu nhấn. Mỗi ảnh có văn bản thay thế (alt) cho trình đọc màn hình. & Bấm ảnh nhỏ: đổi ảnh chính. \\ \hline
+3 & Loại bài, trạng thái & Badge & ``Nhặt được'' hoặc ``Mất đồ''; ``Đang mở'' hoặc ``Đã giải quyết''. Nhãn luôn có chữ, không chỉ dựa vào màu. & -- \\ \hline
+4 & Tiêu đề, danh mục, cơ sở, thời gian, vị trí, mô tả & Text & Chỉ đọc. & -- \\ \hline
+5 & Hộp liên hệ & Info box & Mặc định: ``Thông tin liên hệ đang ẩn. Hai bên thấy liên hệ của nhau khi yêu cầu nhận đồ được chấp nhận.'' & Người xem là chủ bài hoặc có Claim đã được chấp nhận: hiện thông tin liên hệ (A4). \\ \hline
+6 & Đây là đồ của tôi / Tôi đã nhặt được & Button (Primary) & Chỉ hiện khi người xem không phải chủ bài và bài chưa giải quyết. Nhãn đổi theo loại bài. & Chưa đăng nhập: chuyển SCR-03 rồi quay lại. Đã có Claim đang chờ: ``Bạn đã gửi yêu cầu cho bài này'' (UC-07 E2). Còn lại: mở SCR-08. \\ \hline
+7 & Báo cáo vi phạm & Button (Secondary) & Chỉ hiện khi người xem không phải chủ bài. & Chưa đăng nhập: chuyển SCR-03 rồi quay lại. Đã báo cáo: ``Bạn đã báo cáo bài này'' (UC-09 E1). Còn lại: mở SCR-10. \\ \hline
+8 & Sửa, Xóa & Button (Secondary, Danger) & Chỉ hiện với chủ bài; ``Sửa'' ẩn khi bài đã giải quyết (UC-06 E2). & Sửa: chuyển SCR-06 ở chế độ sửa. Xóa: hỏi xác nhận rồi xóa bài; các Claim đang chờ chuyển ``Đã hủy'' (UC-06 A1). \\ \hline
+9 & Bài không tồn tại & Empty state & Bài đã bị xóa hoặc đã gỡ. & ``Bài đăng không còn tồn tại'' kèm liên kết về Trang chủ (E1). \\ \hline
+\end{longtable}
+
+% ---------------- SCR-06 ----------------
+\subsubsection{SCR-06 -- Form tạo / sửa bài đăng}
+\screenimage[0.75\textwidth]{SCR-06}{SCR-06 -- Form tạo / sửa bài đăng, bản PA3 (UC-05, UC-06)}
+
+Màn hình hiện thực F02. Form được chia thành ba khối: ``Đồ vật'', ``Ảnh'' và ``Xác minh và liên hệ''. Mỗi khối là một nhóm thông tin người dùng dễ hình dung, nên điền nhanh hơn một form dài liền mạch. Bài đăng thành công được lưu với trạng thái ``Đang mở'' và xuất hiện ngay trong kết quả tìm kiếm, không qua bước duyệt. Chế độ sửa dùng cùng form và cùng quy tắc kiểm tra (UC-06 bước 6). Bản di động đang hiện lỗi: SCR-06m.
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.17\textwidth}|p{0.14\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Control} & \tableheader{Type} & \tableheader{Description / validation} & \tableheader{Event handling} \\ \hline
+\endhead
+1 & Loại bài & Segmented control & Bắt buộc: ``Tôi mất đồ'' / ``Tôi nhặt được''. & Chọn ``Tôi nhặt được'': hiện ô câu hỏi xác minh. Chọn ``Tôi mất đồ'': ẩn ô này (A1). \\ \hline
+2 & Tiêu đề & Text field & Bắt buộc. & Để trống: lỗi tại ô (E1). \\ \hline
+3 & Danh mục & Select & Bắt buộc. Chỉ gồm danh mục đang hiện. & Như trên. \\ \hline
+4 & Cơ sở & Select & Bắt buộc. & Như trên. \\ \hline
+5 & Thời gian & Date-time picker & Bắt buộc, không được ở tương lai. & Thời gian tương lai: lỗi tại ô (E3). \\ \hline
+6 & Vị trí & Text field & Không bắt buộc. Mô tả nơi mất hoặc nhặt. & -- \\ \hline
+7 & Mô tả & Text area & Không bắt buộc. Gợi ý: ``Màu sắc, đặc điểm dễ nhận biết''. & -- \\ \hline
+8 & Ảnh & File upload & Không bắt buộc. Tối đa 5 ảnh JPG/PNG, mỗi ảnh $\leq$ 5\,MB. Chọn ảnh hoặc kéo thả; ảnh đã chọn hiện xem trước, có nút gỡ. & Sai định dạng, quá dung lượng hoặc quá 5 ảnh: lỗi tại ô (E2). Ảnh thẻ sinh viên có thể kích hoạt OCR (UC-15, Could). \\ \hline
+9 & Câu hỏi xác minh & Text field & Bắt buộc với bài ``Tôi nhặt được''. Ví dụ: ``Dây đeo thẻ màu gì?''. Dòng gợi ý giải thích người nhận đồ phải trả lời đúng câu này. & Để trống: lỗi tại ô (E1). Chế độ sửa khi bài đã có Claim đang chờ: ô bị khóa, dòng gợi ý nêu lý do (UC-06 E4). \\ \hline
+10 & Thông tin liên hệ & Text field & Bắt buộc. Số điện thoại đúng 10 chữ số hoặc email hợp lệ. Bên dưới có hộp ổ khóa: liên hệ chỉ mở cho cả hai bên khi chấp nhận một yêu cầu. & Để trống hoặc sai: ``Nhập số điện thoại 10 chữ số hoặc email hợp lệ'' tại ô. \\ \hline
+11 & Đăng bài / Lưu & Button (Primary) & Nhãn ``Đăng bài'' khi tạo, ``Lưu'' khi sửa. & Có lỗi: đánh dấu mọi ô lỗi, hiện thông báo ``Còn n ô cần sửa'' ở đầu form, chuyển con trỏ đến ô lỗi đầu tiên. Tạo thành công: lưu ``Đang mở'', chuyển SCR-05 của bài vừa đăng. Sửa thành công: ``Đã cập nhật''. \\ \hline
+12 & Hủy & Button (Secondary) & -- & Không lưu gì, quay lại màn hình trước (A3). \\ \hline
+\end{longtable}
+
+% ---------------- SCR-09 ----------------
+\subsubsection{SCR-09 -- Danh sách Claim của bài đăng}
+\screenimage{SCR-09}{SCR-09 -- Xử lý yêu cầu nhận đồ (UC-08)}
+
+Màn hình hoàn tất F04. Trước khi Claim được chấp nhận, cả chủ bài và người gửi Claim (Claimant) đều chưa thấy liên hệ của nhau. Chấp nhận Claim là thao tác không hoàn tác được, nên hệ thống hỏi xác nhận trước (SCR-09b). Sau khi xác nhận, liên hệ được mở cho cả hai bên và bài chuyển sang ``Đã giải quyết'' (SCR-09c). Với bài Mất đồ, Claim gồm mô tả nơi nhặt và ảnh vật phẩm thay cho câu trả lời xác minh (UC-07 A3).
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.17\textwidth}|p{0.14\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Control} & \tableheader{Type} & \tableheader{Description / validation} & \tableheader{Event handling} \\ \hline
+\endhead
+1 & $\leftarrow$ Bài đăng của tôi & Link & -- & Về SCR-07. \\ \hline
+2 & Thông tin bài & Text & Tiêu đề bài và câu hỏi xác minh. & -- \\ \hline
+3 & Thẻ Claim & Card (danh sách) & Tên Claimant, thời gian gửi, câu trả lời hoặc mô tả, ảnh bằng chứng (nếu có). & Bấm ảnh: phóng to. \\ \hline
+4 & Chấp nhận & Button (Primary) & Ẩn nếu tài khoản Claimant đã bị khóa (E2). & Mở hộp thoại SCR-09b. \\ \hline
+5 & Hộp thoại xác nhận (SCR-09b) & Modal dialog & Liệt kê hệ quả: liên hệ mở cho hai bên, bài chuyển ``Đã giải quyết'', các Claim khác bị từ chối; ghi rõ không thể hoàn tác. Nút ``Chấp nhận'' và ``Hủy''. Khi hộp thoại mở, phím Tab chỉ di chuyển bên trong hộp thoại; phím Esc đóng hộp thoại. & Chấp nhận: Claim ``Đã chấp nhận'', bài ``Đã giải quyết'', các Claim khác ``Bị từ chối'', gửi thông báo cho mọi Claimant, hiển thị SCR-09c. Hủy: đóng hộp thoại, con trỏ quay về nút ``Chấp nhận''. \\ \hline
+6 & Từ chối & Button (Secondary) & Có ô lý do, không bắt buộc. & Claim ``Bị từ chối'', thông báo cho Claimant; bài vẫn ``Đang mở'' (A1). \\ \hline
+7 & Liên hệ hai bên (SCR-09c) & Info box & Chỉ hiện sau khi chấp nhận. Gồm số điện thoại hoặc email của người nhận đồ. & -- \\ \hline
+8 & Trạng thái rỗng & Empty state & ``Chưa có yêu cầu nào'' (E1). & -- \\ \hline
+\end{longtable}
+
+% ---------------- SCR-12 ----------------
+\subsubsection{SCR-12 -- Admin: Hàng đợi kiểm duyệt}
+\screenimage{SCR-12}{SCR-12 -- Kiểm duyệt bài đăng (UC-10)}
+
+Màn hình hiện thực F05 theo hướng hậu kiểm: bài được đăng trước, Admin chỉ xem lại khi có nhiều người báo cáo. Hàng đợi chỉ chứa bài bị từ 3 người dùng khác nhau trở lên báo cáo (BR-03); bài chưa đủ ngưỡng vẫn hiển thị bình thường. Chỉ tài khoản Admin vào được màn hình này; người dùng thường mở trực tiếp đường dẫn sẽ bị từ chối (AC-F05-07). Các nút có hậu quả nặng (gỡ bài, khóa tài khoản) dùng màu đỏ để Admin không bấm nhầm.
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.17\textwidth}|p{0.14\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Control} & \tableheader{Type} & \tableheader{Description / validation} & \tableheader{Event handling} \\ \hline
+\endhead
+1 & Menu quản trị & Sidebar navigation & Kiểm duyệt (kèm số bài đang chờ), Danh mục, Yêu cầu thêm trường, Đăng xuất. Mục hiện tại được tô màu nhấn. & Chuyển SCR-13, SCR-15 hoặc đăng xuất. \\ \hline
+2 & Bảng hàng đợi & Table & Cột: bài đăng, lý do chính, số lượt báo cáo, ngày. Sắp theo số lượt báo cáo giảm dần. & Chọn dòng: dòng được tô nền, mở panel chi tiết bên dưới. \\ \hline
+3 & Panel chi tiết & Panel & Tiêu đề bài, email chủ bài, thống kê lý do báo cáo. & -- \\ \hline
+4 & Lý do xử lý & Text field & Bắt buộc khi gỡ bài hoặc khóa tài khoản. & Để trống: ``Nhập lý do xử lý'' (E1). \\ \hline
+5 & Giữ bài & Button (Secondary) & -- & Đưa bài ra khỏi hàng đợi, các báo cáo chuyển ``Đã xử lý'' (A1). \\ \hline
+6 & Gỡ bài & Button (Danger) & Cần lý do. & Bài ``Đã gỡ'', ẩn khỏi tìm kiếm; Claim đang chờ ``Đã hủy''; gửi lý do cho chủ bài; ghi lịch sử thao tác. \\ \hline
+7 & Khóa tài khoản & Button (Danger, viền) & Cần lý do và xác nhận. Không áp dụng cho tài khoản Admin khác (E2). & Khóa tài khoản, kết thúc phiên đăng nhập, ẩn các bài đang mở (không đổi trạng thái bài), Claim chờ do tài khoản gửi chuyển ``Đã hủy'', gửi thông báo (A2). \\ \hline
+8 & Trạng thái rỗng & Empty state & ``Không có bài cần xử lý'' (E3). & -- \\ \hline
+\end{longtable}
+
+% ---------------- Các màn hình còn lại ----------------
+\subsubsection{Các màn hình và trạng thái còn lại}
+
+\screenimage{SCR-02}{SCR-02a, 02b, 02c -- Kiểm tra hộp thư, xác minh thành công, link hết hạn (UC-01)}
+\screenimage[0.75\textwidth]{SCR-03}{SCR-03 -- Đăng nhập (UC-02)}
+\screenimage{SCR-04b}{SCR-04b -- Trang chủ khi không có kết quả (UC-03 E1)}
+\screenimage[0.32\textwidth]{SCR-04m}{SCR-04m -- Trang chủ trên di động 360\,px}
+\screenimage[0.32\textwidth]{SCR-05m}{SCR-05m -- Chi tiết bài đăng trên di động 360\,px}
+\screenimage[0.32\textwidth]{SCR-06m}{SCR-06m -- Form đăng bài trên di động, lỗi ô liên hệ}
+\screenimage{SCR-07}{SCR-07 -- Bài đăng của tôi (UC-06)}
+\screenimage{SCR-08}{SCR-08 -- Popup gửi yêu cầu nhận đồ (UC-07)}
+\screenimage{SCR-09b}{SCR-09b -- Xác nhận chấp nhận Claim (UC-08)}
+\screenimage{SCR-09c}{SCR-09c -- Sau khi chấp nhận Claim (UC-08)}
+\screenimage{SCR-10}{SCR-10 -- Popup báo cáo vi phạm (UC-09)}
+\screenimage{SCR-11}{SCR-11 -- Thông báo (UC-14)}
+\screenimage{SCR-13}{SCR-13 -- Admin: Quản lý danh mục (UC-11)}
+\screenimage{SCR-14}{SCR-14 -- Đề nghị thêm trường (UC-12)}
+\screenimage{SCR-15}{SCR-15 -- Admin: Xét duyệt yêu cầu thêm trường (UC-13)}
+\screenimage{Mau-Trang-Thai}{Mẫu trạng thái của nút, ô nhập và nhãn}
+
+% ------------------------------------------------------------
 \subsection{Accessibility Checklist}
-\begin{itemize}
-\item Text contrast $\geq 4.5{:}1$; colour is not the only way to convey information
-\item All functions usable with the keyboard; visible focus
-\item Form fields have labels; error messages explain how to fix the problem
-\item Layout works on mobile and desktop (responsive)
-\end{itemize}
+
+Accessibility (khả năng tiếp cận) là việc thiết kế để mọi người đều dùng được, kể cả người nhìn kém, người mù màu hay người chỉ dùng bàn phím. Nhóm lấy chuẩn WCAG 2.1 mức AA làm mục tiêu. WCAG là bộ hướng dẫn quốc tế về khả năng tiếp cận nội dung web; mức AA là mức thường được yêu cầu với website công cộng. Các tiêu chí kiểm tra được trên Figma (màu, cỡ chữ, kích thước vùng chạm) đã được kiểm tra trên file thiết kế. Các tiêu chí phụ thuộc hành vi thật của trang web (bàn phím, trình đọc màn hình) sẽ được chuyển thành test case ở PA4 và kiểm thử lại ở PA5.
+
+\begin{longtable}{|p{0.18\textwidth}|p{0.46\textwidth}|p{0.28\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{Criterion} & \tableheader{How the design meets it} & \tableheader{Evidence / result} \\ \hline
+\endhead
+Độ tương phản & Chữ thường đạt tối thiểu 4.5:1; viền ô nhập và vòng focus đạt tối thiểu 3:1. Toàn bộ giao diện chỉ dùng một bộ mã màu cố định, nên mỗi cặp màu chỉ cần đo một lần. & Bảng~\ref{tab:contrast}: mọi cặp đều đạt. \\ \hline
+Màu không phải tín hiệu duy nhất & Người mù màu vẫn phân biệt được trạng thái: nhãn luôn có chữ (``Mất đồ'', ``Nhặt được'', ``Đang mở''); ô lỗi có viền đỏ dày 2\,px kèm biểu tượng ``!'' và câu báo lỗi; ô tùy chọn ghi rõ ``(không bắt buộc)''; ảnh nhỏ đang chọn có viền dày hơn. & SCR-05m, SCR-06m, Hình~\ref{fig:Mau-Trang-Thai}. \\ \hline
+Bàn phím và focus & Focus là trạng thái cho biết ô hoặc nút nào đang được chọn khi người dùng di chuyển bằng phím Tab. Thứ tự Tab đi theo thứ tự đọc từ trên xuống. Vòng focus là viền 2\,px màu \texttt{\#0F5C6E} kèm quầng sáng nhạt. Enter gửi form; Esc đóng popup SCR-08, SCR-10, SCR-09b. Khi popup mở, Tab chỉ di chuyển trong popup; khi đóng, con trỏ trở về nút đã mở popup. & Hình~\ref{fig:Mau-Trang-Thai}. Hành vi thực tế kiểm thử ở PA4/PA5. \\ \hline
+Nhãn và thông báo lỗi & Nhãn luôn nằm phía trên ô, không dùng chữ gợi ý (placeholder) thay cho nhãn, vì chữ gợi ý biến mất khi bắt đầu gõ. Lỗi nằm ngay dưới ô và nói cách sửa (ví dụ ``Nhập số điện thoại 10 chữ số hoặc email hợp lệ''). Khi gửi form có lỗi, đầu form hiện số ô cần sửa và con trỏ chuyển đến ô lỗi đầu tiên. & SCR-01, SCR-06, SCR-06m. \\ \hline
+Responsive và vùng chạm & Responsive nghĩa là bố cục tự co giãn theo kích thước màn hình. Giao diện dùng được từ 360\,px đến 1920\,px, không phải cuộn ngang (NFR-04). Trên di động, nút chính rộng hết khung và cao 46\,px; mọi vùng chạm tối thiểu 44$\times$44\,px, cao hơn mức 24$\times$24\,px của WCAG 2.2 AA. & SCR-04m, SCR-05m, SCR-06m. \\ \hline
+\end{longtable}
+
+Tỉ lệ tương phản được tính theo công thức của WCAG, dựa trên độ sáng tương đối của hai màu. Tỉ lệ càng cao thì chữ càng dễ đọc; 1:1 là hai màu giống nhau, 21:1 là đen trên trắng. Có thể kiểm tra lại các số dưới đây bằng công cụ WebAIM Contrast Checker.
+
+\begin{longtable}{|p{0.30\textwidth}|p{0.26\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
+\caption{Kết quả đo tương phản các cặp màu}\label{tab:contrast}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Colour pair} & \tableheader{Used for} & \tableheader{Ratio} & \tableheader{Target} & \tableheader{Result} \\ \hline
+\endhead
+Chữ chính \texttt{\#1E2A3B} / trắng & Tiêu đề, nội dung & 14.5:1 & 4.5:1 & Đạt \\ \hline
+Chữ phụ \texttt{\#5B6474} / trắng & Dòng gợi ý, thông tin phụ, nhãn ``Đang mở'' & 6.0:1 & 4.5:1 & Đạt \\ \hline
+Chữ phụ \texttt{\#5B6474} / nền \texttt{\#F4F6F8} & Chữ trong hộp ``liên hệ đang ẩn'' & 5.5:1 & 4.5:1 & Đạt \\ \hline
+Chữ gợi ý \texttt{\#6B7483} / trắng & Placeholder trong ô nhập & 4.7:1 & 4.5:1 & Đạt \\ \hline
+Trắng / màu nhấn \texttt{\#0F5C6E} & Chữ trên nút chính & 7.6:1 & 4.5:1 & Đạt \\ \hline
+Màu nhấn \texttt{\#0F5C6E} / trắng & Liên kết & 7.6:1 & 4.5:1 & Đạt \\ \hline
+Đỏ \texttt{\#B42318} / trắng & Chữ báo lỗi & 6.6:1 & 4.5:1 & Đạt \\ \hline
+Đỏ \texttt{\#B42318} / \texttt{\#FEF3F2} & Nhãn ``Mất đồ'', ``Bị từ chối'' & 6.0:1 & 4.5:1 & Đạt \\ \hline
+Xanh lá \texttt{\#067647} / \texttt{\#ECFDF3} & Nhãn ``Nhặt được'', ``Đã chấp nhận'' & 5.4:1 & 4.5:1 & Đạt \\ \hline
+Viền \texttt{\#8A94A3} / trắng & Viền ô nhập & 3.1:1 & 3:1 & Đạt \\ \hline
+Màu nhấn \texttt{\#0F5C6E} / trắng & Vòng focus & 7.6:1 & 3:1 & Đạt \\ \hline
+\end{longtable}
