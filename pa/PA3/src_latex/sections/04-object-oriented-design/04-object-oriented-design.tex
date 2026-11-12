@@ -246,40 +246,24 @@ Bốn quy tắc nghiệp vụ then chốt từ PA2 được ánh xạ và xác m
   \item \textbf{Moderation Threshold (BR-03 / FR-07):} Quan hệ kết tập \texttt{Post} (1) -- (0..*) \texttt{Report} ghi nhận các khiếu nại từ cộng đồng. Bất biến nghiệp vụ quy định: nếu $\sum \text{Report} \ge 3$, bài đăng vi phạm sẽ tự động kích hoạt chuyển trạng thái \texttt{Post.status = REPORTED}, tạm thời thu hồi quyền hiển thị công khai trên thanh tìm kiếm và đưa vào danh sách kiểm duyệt ưu tiên của Quản trị viên; bài chỉ hiển thị lại nếu Admin quyết định giữ.
 \end{enumerate}
 
-\subsection{Class Diagram}
-\emph{[Design-level class diagram: class names, relationships (type, multiplicity). Include attributes and operations if the diagram is not too large; split by package if needed.]}
+\subsection{Class Diagram}\label{ood-class-diagram}
 
-\subsection{Class Specifications}
-\emph{[Specify the 6--8 most important classes.]}
+\input{sections/04-object-oriented-design/ood-diagram-styles.tex}
 
-\subsubsection{Class C1}
-\emph{[Superclass (if any), responsibility of the class.]}
+\input{sections/04-object-oriented-design/04.2-class-diagram.tex}
 
-\begin{longtable}{|p{0.05\textwidth}|p{0.19\textwidth}|p{0.14\textwidth}|p{0.13\textwidth}|p{0.16\textwidth}|p{0.20\textwidth}|}
-\hline
-\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline
-& & & & & \\[0.6cm] \hline
-& & & & & \\[0.6cm] \hline
-\end{longtable}
+\subsection{Class Specifications}\label{ood-class-specifications}
 
-\begin{longtable}{|p{0.06\textwidth}|p{0.20\textwidth}|p{0.24\textwidth}|p{0.15\textwidth}|p{0.23\textwidth}|}
-\hline
-\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Description} \\ \hline
-& & & & \\[0.6cm] \hline
-& & & & \\[0.6cm] \hline
-\end{longtable}
+\input{sections/04-object-oriented-design/04.3-class-specifications.tex}
 
-\subsection{Sequence Diagrams}
-\emph{[Draw a sequence diagram for the main flow of 3--5 key use cases (include at least one alt fragment). Every message should correspond to an operation in the class diagram.]}
+\subsection{Sequence Diagrams}\label{ood-sequence-diagrams}
 
-\subsection{State Machine Diagrams}
-\emph{[For objects whose behaviour depends on their status (order, booking, account, \ldots), draw a state machine diagram.]}
+\input{sections/04-object-oriented-design/04.4-sequence-diagrams.tex}
 
-\subsection{Design Principles and Patterns}
-\begin{longtable}{|p{0.29\textwidth}|p{0.31\textwidth}|p{0.32\textwidth}|}
-\hline
-\rowcolor{TableBlue}\tableheader{Principle / pattern} & \tableheader{Where it is applied} & \tableheader{Why} \\ \hline
-\textless e.g., Strategy\textgreater & \textless ticket pricing\textgreater & \textless different discount rules\textgreater \\ \hline
-& & \\[0.6cm] \hline
-& & \\[0.6cm] \hline
-\end{longtable}
+\subsection{State Machine Diagrams}\label{ood-state-machines}
+
+\input{sections/04-object-oriented-design/04.5-state-machines.tex}
+
+\subsection{Design Principles and Patterns}\label{ood-patterns}
+
+\input{sections/04-object-oriented-design/04.6-design-principles.tex}

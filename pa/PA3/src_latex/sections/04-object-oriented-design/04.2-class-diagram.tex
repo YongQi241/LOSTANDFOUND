@@ -1,0 +1,122 @@
+Thiết kế chi tiết kế thừa các thực thể ở Mục~4.1 và quy tắc đã thống nhất ở Mục~2: Claim nhận bởi cả LostPost và FoundPost; chủ bài quyết định; đủ ba người báo cáo khác nhau thì bài tự động bị ẩn. Các lớp được chia thành domain, application service và infrastructure. Express controller chuyển HTTP request thành lời gọi service; controller không truy cập repository trực tiếp. Các hình dưới đây là các phần của cùng một class diagram, dùng chung tên lớp và kiểu dữ liệu.
+
+Ký hiệu UML: dấu $-$ là private, $+$ là public, $\#$ là protected; đường liền biểu diễn association, tam giác rỗng là kế thừa/hiện thực interface, đường đứt có mũi tên là dependency. Thuộc tính private được đọc qua getter; thay đổi trạng thái phải qua operation có kiểm tra điều kiện. \texttt{UUID}, \texttt{Instant}, \texttt{String?}, \texttt{List<T>} lần lượt là định danh, thời điểm UTC, chuỗi tùy chọn và danh sách. DTO là cấu trúc dữ liệu vào/ra, không phải entity được xuất trực tiếp thành JSON.
+
+\subsubsection*{Quyết định chi tiết hóa từ mô hình lĩnh vực}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.21\linewidth}|>{\raggedright\arraybackslash}p{0.72\linewidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{Điểm thiết kế} & \tableheader{Quyết định áp dụng cho 4.2--4.6} \\ \hline
+\endhead
+Vòng đời Post & Giữ ACTIVE, RESOLVED, REPORTED và CLOSED. Chủ bài chỉ sửa/xóa/tự hoàn tất khi ACTIVE; RESOLVED chỉ đọc theo UC-06 E2; REPORTED chờ Admin xử lý. CLOSED biểu diễn xóa mềm bởi chủ bài hoặc gỡ bởi Admin; \texttt{closeReason} phân biệt hai trường hợp. PENDING\_VERIFICATION trong 4.1 là giá trị dự phòng, không có phép chuyển trong phạm vi hiện tại: tạo bài hợp lệ đi thẳng vào ACTIVE. \\ \hline
+Giữ bài sau kiểm duyệt & \texttt{previousStatus} lưu ACTIVE hoặc RESOLVED trước khi chuyển REPORTED. Admin giữ bài thì khôi phục giá trị này; các báo cáo đang chờ chuyển DISMISSED. Chỉ báo cáo PENDING mới tính vào ngưỡng, mỗi người vẫn chỉ được báo cáo một bài một lần trong toàn bộ lịch sử. \\ \hline
+User và xác thực & Tách \texttt{isVerified} khỏi \texttt{status = ACTIVE/BANNED}; tài khoản chưa xác minh vẫn tồn tại. Guest là ngữ cảnh truy cập, không tạo bản ghi User. Mật khẩu, link xác minh và token do Supabase Auth quản lý; application không lưu bản sao mật khẩu. \\ \hline
+Trường và cơ sở & Thêm Campus thuộc University; mỗi Post chọn một Campus, từ đó xác định University. Đây là phân rã của quan hệ University--Post ở 4.1, phục vụ UC-03, UC-05 và UC-13. \\ \hline
+Ảnh bài đăng & Thiết kế này giữ mức tối thiểu một ảnh của 4.1, kết hợp giới hạn UC-05: 1--5 ảnh JPG/PNG, mỗi ảnh không quá 5 MB. Đây là quy tắc của bản thiết kế hiện tại, cần cập nhật đồng bộ nếu nhóm đổi sang ảnh tùy chọn. \\ \hline
+Liên hệ hai bên & \texttt{ContactDetails} là value object riêng, không nằm trong PostDTO/ClaimDTO. Liên hệ chủ bài gắn với từng bài; liên hệ Claimant dùng email trường đã xác minh của User. Chủ bài được đọc liên hệ của chính bài mình; chỉ hai bên của Claim ACCEPTED được đọc liên hệ của đối phương. \\ \hline
+Thuộc tính mở rộng & rewardAmount, privateIdentifier, storageLocation và studentId giữ là dữ liệu tùy chọn của 4.1; không tạo use case bắt buộc mới. privateIdentifier, storageLocation và liên hệ không được xuất ra DTO công khai. \\ \hline
+\end{longtable}
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\oodclass{user}{0,0}{User}{- userId: UUID\\- role: UserRole\\- status: UserStatus\\- isVerified: Boolean}{+ canInteract(): Boolean\\+ ban(reason): void}
+\oodclass{post}{6.2,0}{\textit{Post} (abstract)}{\# postId, ownerId: UUID\\\# status: PostStatus\\\# previousStatus: PostStatus?}{+ validateClaim(data): void (abstract)\\+ resolve(): void\\+ flag(), restore(), close(reason): void}
+\oodclass{claim}{12.4,0}{Claim}{- claimId, postId, claimantId: UUID\\- securityAnswer, claimMessage: String?\\- status: ClaimStatus}{+ accept(): void\\+ reject(reason): void\\+ cancel(reason): void}
+\oodclass{lost}{3.1,-5.3}{LostPost}{- rewardAmount: Decimal?\\- privateIdentifier: String?}{+ validateClaim(data): void}
+\oodclass{found}{9.3,-5.3}{FoundPost}{- securityQuestion: String\\- storageLocation: String?}{+ validateClaim(data): void}
+\oodclass{media}{0,-10}{ItemMedia}{- mediaId: UUID\\- objectKey, mimeType: String\\- sizeBytes: Integer}{+ validate(): void}
+\oodclass{report}{6.2,-10}{Report}{- reportId, reporterId: UUID\\- reason: ReportReason\\- status: ReportStatus}{+ settle(decision): void}
+\oodclass{contact}{12.4,-10}{ContactDetails (value object)}{- kind: PHONE / EMAIL\\- value: String}{+ validate(): void}
+\draw[oodassoc] (user.east) -- node[oodlabel,above,pos=.12]{1} node[oodlabel,above,pos=.88]{0..*} (post.west);
+\draw[oodassoc] (post.east) -- node[oodlabel,above,pos=.12]{1} node[oodlabel,above,pos=.88]{0..*} (claim.west);
+\draw[oodinherit] (lost.north) -- ++(0,0.7) -| ([xshift=-.7cm]post.south);
+\draw[oodinherit] (found.north) -- ++(0,.7) -| ([xshift=.7cm]post.south);
+\draw[oodassoc] (media.west) -- ++(-.6,0) |- node[oodlabel,pos=.15,left]{1..5} (post.north west);
+\draw[oodassoc] (post.south) -- (report.north) node[oodlabel,pos=.68,right]{1 : 0..*};
+\draw[oodassoc] (post.north) -- ++(0,1.9) -| node[oodlabel,pos=.5,above]{1 : 1; liên hệ riêng của bài} (contact.east);
+\end{tikzpicture}}
+\caption{\bodyfont Các lớp domain cốt lõi và operation chuyển trạng thái}
+\label{fig:ood-domain}
+\end{figure}
+
+Hình~\ref{fig:ood-domain} lược bỏ đường User--Claim và User--Report để tránh giao cắt: mỗi Claim/Report vẫn có đúng một người gửi; một User có thể gửi nhiều bản ghi như 4.1. Post và ảnh dùng association, không áp đặt xóa dây chuyền: xóa mềm bài vẫn giữ lịch sử Claim, Report và audit.
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\oodclass{univ}{0,0}{University}{- universityId: UUID\\- name, code: String\\- emailDomains: List<String>}{+ acceptsDomain(domain): Boolean}
+\oodclass{campus}{6.2,0}{Campus}{- campusId, universityId: UUID\\- name, address: String\\- isActive: Boolean}{+ isSelectable(): Boolean}
+\oodclass{category}{12.4,0}{ItemCategory}{- categoryId: UUID\\- name: String\\- isActive: Boolean}{+ hide(), show(): void}
+\oodclass{notification}{0,-4.9}{Notification}{- notificationId, recipientId: UUID\\- type, message: String\\- readAt: Instant?}{+ markRead(): void}
+\oodclass{auth}{6.2,-4.9}{AuthService}{- users: IUserRepository\\- catalog: ICatalogRepository\\- provider: IAuthProvider}{+ register(input): UUID\\+ login(input): SessionDTO\\+ logout(sessionId): void\\+ resendVerification(email): void\\+ confirmEmail(token): void\\+ requireActor(id, role?): User}
+\oodclass{postservice}{12.4,-4.9}{PostService}{- uow: IUnitOfWork\\- storage: IStorageAdapter}{+ listMine(actorId, page): List<PostDTO>\\+ readMine(actorId, id): PostDTO\\+ create(actorId, input): PostDTO\\+ update(actorId, id, input): PostDTO\\+ resolve(actorId, id): PostDTO\\+ delete(actorId, id): void}
+\oodclass{claimservice}{0,-12.0}{ClaimService}{- uow: IUnitOfWork\\- storage: IStorageAdapter}{+ listForPost(actorId, id): List<ClaimReviewDTO>\\+ readEvidence(actorId, id): EvidenceDTO\\+ submit(actorId, id, input): ClaimDTO\\+ decide(actorId, id, decision): ClaimDTO}
+\oodclass{contactservice}{6.2,-12.0}{ContactAccessService}{- contacts: IContactRepository\\- users: IUserRepository\\- posts: IPostRepository\\- claims: IClaimRepository\\- uow: IUnitOfWork}{+ readPostContact(viewerId, id): ContactDTO\\+ readClaimantContact(viewerId, id): ContactDTO}
+\oodclass{moderation}{12.4,-12.0}{ModerationService}{- uow: IUnitOfWork\\- provider: IAuthProvider}{+ listQueue(adminId, page): List<ModerationDTO>\\+ readCase(adminId, id): ModerationDTO\\+ report(actorId, id, input): UUID\\+ review(adminId, id, decision): void\\+ banUser(adminId, id, reason): void}
+\draw[oodassoc] (univ.east) -- node[oodlabel,above]{1 : 0..*} (campus.west);
+\draw[ooddep] (postservice.west) -- node[oodlabel,above]{kiểm tra actor} (auth.east);
+\draw[ooddep] (claimservice.east) -- ++(.3,0) |- (auth.west);
+\draw[ooddep] (contactservice.north) -- node[oodlabel,right]{kiểm tra viewer} (auth.south);
+\draw[ooddep] (moderation.west) -- ++(-.4,0) |- (auth.south east);
+\end{tikzpicture}}
+\caption{\bodyfont Các lớp hỗ trợ và application services; Campus và ItemCategory phân loại Post}
+\label{fig:ood-services}
+\end{figure}
+
+PostService, ClaimService và ModerationService phụ thuộc NotificationService, AuthService và IUnitOfWork qua constructor injection. ContactAccessService chỉ đọc dữ liệu nhạy cảm qua IContactRepository; các service khác chỉ ghi liên hệ qua \texttt{IContactRepository.savePost()} và không đưa liên hệ vào DTO công khai. Notification thuộc đúng một User; mỗi Campus/ItemCategory liên kết với nhiều Post, mỗi Post chọn đúng một Campus và ItemCategory.
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\oodclass{uow}{0,0}{\textless\textless interface\textgreater\textgreater\\ IUnitOfWork}{Repositories cùng connection/transaction}{+ begin(options?): TxContext\\+ commit(tx): void\\+ rollback(tx): void}
+\oodclass{pr}{6.2,0}{\textless\textless interface\textgreater\textgreater\\ IPostRepository}{Post aggregate và Campus/Category}{+ get(id, tx?): Post\\+ listByOwner(actorId, page): List<Post>\\+ lock(id, tx): Post\\+ save(post, tx): void\\+ validateCatalog(input, tx): void}
+\oodclass{cr}{12.4,0}{\textless\textless interface\textgreater\textgreater\\ IClaimRepository}{Lịch sử Claim}{+ get(id, tx?): Claim\\+ listForPost(postId, tx): List<Claim>\\+ hasPending(postId, userId, tx): Boolean\\+ save(claim, tx): void\\+ rejectOthers(postId, exceptId?, tx): List<Claim>\\+ cancelPending(scope, tx): List<Claim>}
+\oodclass{ur}{0,-7.0}{\textless\textless interface\textgreater\textgreater\\ IUserRepository}{Profile, xác minh, khóa đăng nhập}{+ get(id, tx?): User\\+ findByEmail(email): User?\\+ lock(ids, tx): List<User>\\+ save(user, tx?): void}
+\oodclass{rr}{6.2,-7.0}{\textless\textless interface\textgreater\textgreater\\ IReportRepository}{Reports và nhật ký kiểm duyệt}{+ listQueue(page, tx): List<ModerationDTO>\\+ getCase(postId, tx): ModerationDTO\\+ add(postId, actorId, input, tx): UUID\\+ countPending(postId, tx): Integer\\+ settle(postId, decision, tx): void\\+ audit(actorId, target, action, tx): void}
+\oodclass{cor}{12.4,-7.0}{\textless\textless interface\textgreater\textgreater\\ IContactRepository}{Dữ liệu liên hệ riêng}{+ savePost(postId, contact, tx): void\\+ readPost(postId, tx): ContactDetails\\+ readUser(userId, tx): ContactDetails}
+\oodclass{noti}{0,-13.0}{NotificationService}{- notifications: INotificationRepository}{+ enqueue(recipientId, event, tx): void}
+\oodclass{nr}{6.2,-13.0}{\textless\textless interface\textgreater\textgreater\\ INotificationRepository}{Thông báo in-app bền vững}{+ add(recipientId, event, tx): void\\+ list(userId, page): List<Notification>\\+ markRead(userId, id): void}
+\oodclass{storage}{12.4,-13.0}{\textless\textless interface\textgreater\textgreater\\ IStorageAdapter}{Ảnh bài công khai; bằng chứng riêng tư}{+ upload(files, scope): List<ItemMedia>\\+ remove(keys): void\\+ signedUrl(key): SignedUrl}
+\draw[ooddep] (noti.east) -- (nr.west);
+\end{tikzpicture}}
+\caption{\bodyfont Các interface persistence, transaction, thông báo và storage}
+\label{fig:ood-ports}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.94\linewidth}{!}{\begin{tikzpicture}
+\oodclass{provider}{0,0}{\textless\textless interface\textgreater\textgreater\\ IAuthProvider}{Xác thực ngoài application}{+ register(input): UUID\\+ login(input): SessionDTO\\+ logout(sessionId): void\\+ resendVerification(email): void\\+ confirmEmail(token): Identity\\+ verify(token): Identity\\+ revokeUser(userId): void}
+\oodclass{supabase}{6.5,0}{SupabaseAuthAdapter}{- authClient: SupabaseClient}{+ register(input): UUID\\+ login(input): SessionDTO\\+ logout(sessionId): void\\+ resendVerification(email): void\\+ confirmEmail(token): Identity\\+ verify(token): Identity\\+ revokeUser(userId): void}
+\oodclass{postgres}{0,-6}{PgUnitOfWork}{- pool: PgPool}{+ begin(options?): TxContext\\+ commit(tx): void\\+ rollback(tx): void}
+\oodclass{pgrepos}{6.5,-6}{Pg repositories}{- connection: PgClient}{Hiện thực các operation của\\IPostRepository, IClaimRepository,\\IUserRepository, IReportRepository,\\IContactRepository,\\INotificationRepository}
+\draw[oodinherit,dashed] (supabase.west) -- (provider.east);
+\draw[ooddep] (postgres.east) -- node[oodlabel,above]{cấp cùng TxContext} (pgrepos.west);
+\end{tikzpicture}}
+\caption{\bodyfont Hiện thực interface; SupabaseStorageAdapter hiện thực IStorageAdapter tương tự}
+\label{fig:ood-adapters}
+\end{figure}
+
+PgUnitOfWork hiện thực IUnitOfWork; mỗi Pg repository hiện thực interface cùng tên nghiệp vụ (ví dụ PgClaimRepository hiện thực IClaimRepository). SupabaseStorageAdapter hiện thực toàn bộ operation của IStorageAdapter. Middleware gọi \texttt{IAuthProvider.verify(token)} để lấy identity, sau đó \texttt{AuthService.requireActor()} đọc lại profile hiện tại; role/status không được tin cậy chỉ từ payload phía client.
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\oodclass{catalog}{0,0}{CatalogService}{- catalog: ICatalogRepository\\- auth: AuthService\\- uow: IUnitOfWork}{+ saveCategory(adminId, input): UUID\\+ setCategoryActive(adminId, id, active): void\\+ requestSchool(input): UUID\\+ decideSchool(adminId, id, decision): void}
+\oodclass{catrepo}{6.2,0}{\textless\textless interface\textgreater\textgreater\\ ICatalogRepository}{University, Campus, Category và yêu cầu}{+ acceptsDomain(domain): Boolean\\+ saveCategory(input, tx): UUID\\+ setCategoryActive(id, active, tx): void\\+ saveRequest(input, tx): UUID\\+ getRequest(id, tx): SchoolRequest\\+ saveDecision(request, tx): void\\+ addUniversity(request, tx): UUID}
+\oodclass{request}{12.4,0}{SchoolRequest}{- requestId: UUID\\- universityName, emailDomain: String\\- campuses: List<String>\\- contactName, contactEmail: String\\- status: RequestStatus}{+ approve(): void\\+ reject(reason): void}
+\oodclass{search}{0,-5.7}{SearchService}{- posts: ISearchRepository}{+ search(filters, page): List<PostDTO>\\+ detail(id): PostDTO}
+\oodclass{searchrepo}{6.2,-5.7}{\textless\textless interface\textgreater\textgreater\\ ISearchRepository}{Chỉ projection được công khai}{+ search(filters, page): List<PostDTO>\\+ detail(id): PostDTO}
+\oodclass{mail}{12.4,-5.7}{\textless\textless interface\textgreater\textgreater\\ IMailAdapter}{Email kết quả duyệt trường}{+ sendSchoolDecision(requestId): void}
+\draw[ooddep] (catalog.east) -- (catrepo.west);
+\draw[oodassoc] (catrepo.east) -- (request.west);
+\draw[ooddep] (search.east) -- (searchrepo.west);
+\draw[ooddep] (catalog.south) -- ++(0,-.5) -| node[oodlabel,pos=.55,below]{gửi kết quả sau commit} (mail.west);
+\end{tikzpicture}}
+\caption{\bodyfont Các lớp bổ trợ cho tìm kiếm và quản lý danh mục/trường}
+\label{fig:ood-catalog}
+\end{figure}
+
+Các lớp bổ trợ phủ FR-04/FR-08, không thuộc tám lớp đặc tả sâu. SearchService giới hạn 20 bài/trang, kết hợp bộ lọc bằng AND và dùng điều kiện công khai ở Mục~\ref{ood-state-machines}. CatalogService kiểm tra ADMIN khi quản lý danh mục/duyệt trường; requestSchool công khai không cần User. CatalogService.decideSchool đọc getRequest, kiểm tra trạng thái PENDING, gọi SchoolRequest.approve/reject rồi lưu qua saveDecision; nhánh duyệt gọi addUniversity để tạo University, Campus và tên miền trong cùng transaction. Không chấp nhận tên miền trùng; email gửi sau commit qua IMailAdapter, lỗi thư không đảo kết quả và được phép gửi lại (UC-13 E4). Quyết định nghiệp vụ thuộc service/entity; repository chỉ truy vấn/lưu dữ liệu. Dữ liệu liên hệ đại diện trường chỉ thuộc luồng quản trị. AuthService đọc danh sách tên miền hiện tại qua ICatalogRepository.acceptsDomain, không dùng danh sách cố định trong SPA. PgCatalogRepository và PgSearchRepository hiện thực hai interface tương ứng.
+
+\textbf{Hợp đồng lỗi chung.} Service kiểm tra actor và quyền sở hữu; dữ liệu sai trả ValidationError (HTTP 422), không có identity trả 401, không đủ quyền trả 403, đối tượng không tồn tại hoặc không được công khai trả 404, xung đột trạng thái/Claim trùng trả 409. Controller ánh xạ lỗi thành JSON và không trả stack trace hay dữ liệu riêng tư. Các DTO chỉ chứa danh sách trường cho phép: PostDTO không chứa liên hệ/privateIdentifier/storageLocation; ClaimDTO không chứa liên hệ, câu trả lời/bằng chứng chỉ xuất cho chủ bài hoặc chính người gửi. Signed URL chỉ cấp sau kiểm tra quyền, không lưu URL có thời hạn trong entity.

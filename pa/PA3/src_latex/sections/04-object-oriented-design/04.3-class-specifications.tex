@@ -1,0 +1,155 @@
+Tám lớp dưới đây là hợp đồng thiết kế cho các use case Must-have. Các getter/constructor được lược bỏ. Các service không có lớp cha; dependency là private, được truyền qua constructor và không đổi trong vòng đời service. Mọi định danh đầu vào phải được kiểm tra quyền, không coi biết UUID là được phép thao tác.
+
+\subsubsection{C1 -- User}
+\textbf{Trách nhiệm:} biểu diễn tài khoản và điều kiện tham gia nghiệp vụ (FR-01, FR-02, BR-01). Không có lớp cha. ACTIVE chưa có nghĩa là email đã xác minh: phải kiểm tra đồng thời \texttt{isVerified}.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+userId & UUID & private & Bắt buộc, duy nhất & Cùng identity với nhà cung cấp Auth. \\ \hline
+fullName; universityEmail & String & private & Không rỗng; email chuẩn hóa và thuộc trường tham gia & Email định danh, không đưa vào DTO công khai. \\ \hline
+role; status & UserRole; UserStatus & private & STUDENT/ADMIN; ACTIVE/BANNED & Guest không được lưu thành User. \\ \hline
+isVerified & Boolean & private & Mặc định false; đồng bộ từ kết quả xác minh đáng tin cậy & Tách khỏi khóa tài khoản. \\ \hline
+failedLoginCount; loginLockedUntil & Integer; Instant? & private & Đếm lần sai liên tiếp; lần thứ 5 khóa đăng nhập 15 phút & Hết hạn hoặc đăng nhập thành công thì đặt lại bộ đếm. \\ \hline
+banReason; phoneNumber; studentId & String? & private & Lý do bắt buộc khi BANNED; số điện thoại nếu có phải hợp lệ & Không công khai dữ liệu liên hệ/định danh. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+canInteract & Không tham số; Boolean & public & True khi ACTIVE và isVerified. Khóa đăng nhập tạm thời chỉ kiểm tra ở login, không tự đổi tài khoản sang BANNED. \\ \hline
+ban & reason: String; void & public & Lý do không rỗng, User đích không phải ADMIN; chuyển BANNED. Điều kiện người gọi là Admin được kiểm tra ở service. \\ \hline
+\end{longtable}
+
+\subsubsection{C2 -- Post (abstract)}
+\textbf{Trách nhiệm:} giữ bất biến của bài và chuyển trạng thái; LostPost/FoundPost kế thừa và override \texttt{validateClaim}. Service kiểm tra quyền trước khi gọi operation của entity (FR-03--FR-06).
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+postId; ownerId; campusId; categoryId & UUID & protected & Bắt buộc; tham chiếu tồn tại & Không lưu thêm universityId khi đã suy ra từ Campus. \\ \hline
+title; description; locationDetail & String; String?; String? & protected & Tiêu đề không rỗng & Nội dung tìm kiếm, không chứa liên hệ có cấu trúc. \\ \hline
+incidentDate; createdAt & Instant & protected & incidentDate không ở tương lai tại thời điểm lưu & API kiểm tra lại khi tạo/sửa. \\ \hline
+status; previousStatus & PostStatus; PostStatus? & protected & previousStatus chỉ ACTIVE/RESOLVED khi REPORTED & Không mất trạng thái giải quyết khi bị báo cáo. \\ \hline
+closeReason; closedAt & String?; Instant? & protected & Bắt buộc khi CLOSED & OWNER\_DELETED hoặc ADMIN\_REMOVED, kèm lý do nghiệp vụ. \\ \hline
+images & List<ItemMedia> & protected & 1--5 ảnh; JPG/PNG, mỗi ảnh $\leq$ 5 MB & Chỉ lưu metadata/objectKey. \\ \hline
+securityQuestion (FoundPost) & String & private & Không rỗng; không được đổi nếu có Claim PENDING & LostPost không có câu hỏi bắt buộc. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+validateClaim & data: ClaimInput; void & public, abstract & FoundPost yêu cầu securityAnswer không rỗng; LostPost yêu cầu claimMessage hoặc proofImage. File nếu có phải hợp lệ. Chỉ ACTIVE nhận Claim mới. \\ \hline
+resolve & Không tham số; void & public & ACTIVE $\rightarrow$ RESOLVED. Không mở liên hệ nếu không có Claim ACCEPTED. \\ \hline
+flag & Không tham số; void & public & ACTIVE/RESOLVED $\rightarrow$ REPORTED; chụp previousStatus đúng một lần. Ngưỡng báo cáo được service tính. \\ \hline
+restore & Không tham số; void & public & Chỉ từ REPORTED; phục hồi previousStatus rồi xóa giá trị dự phòng. Việc công khai còn phụ thuộc trạng thái chủ bài. \\ \hline
+close & reason: CloseReason; void & public & ACTIVE $\rightarrow$ CLOSED khi chủ bài xóa; REPORTED $\rightarrow$ CLOSED khi Admin gỡ. Không có phép chủ bài xóa từ RESOLVED; lưu lý do và thời điểm, không hard-delete lịch sử. \\ \hline
+\end{longtable}
+
+\subsubsection{C3 -- Claim}
+\textbf{Trách nhiệm:} ghi nhận yêu cầu kết nối và quyết định xử lý; không có lớp cha (FR-05, FR-06). Claim thuộc một Post bất kể loại bài; trạng thái đầu cuối không chuyển ngược về PENDING.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+claimId; postId; claimantId & UUID & private & Bắt buộc; claimant khác owner của Post & Mỗi cặp Post/User tối đa một PENDING; mỗi Post tối đa một ACCEPTED. \\ \hline
+securityAnswer; claimMessage & String? & private & Điều kiện phụ thuộc Post.validateClaim & Câu trả lời chỉ đọc bởi người gửi và chủ bài. \\ \hline
+proofImage & ItemMedia? & private & Tối đa một ảnh JPG/PNG $\leq$ 5 MB trong phạm vi này & ObjectKey ở bucket riêng tư, không phải URL công khai. \\ \hline
+status; submittedAt & ClaimStatus; Instant & private & PENDING / ACCEPTED / REJECTED / CANCELLED & Mặc định PENDING. \\ \hline
+decisionReason; decidedAt & String?; Instant? & private & Thời điểm có khi đã quyết định; lý do từ chối tùy chọn & Hủy do hệ thống có mã nguyên nhân. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+accept & Không tham số; void & public & PENDING $\rightarrow$ ACCEPTED. Service phải kiểm tra chủ bài, bài ACTIVE và Claimant đang hoạt động trước khi gọi. \\ \hline
+reject & reason: String?; void & public & PENDING $\rightarrow$ REJECTED; cũng dùng khi một Claim khác được chấp nhận hoặc chủ bài tự đánh dấu đã trả đồ. \\ \hline
+cancel & reason: String; void & public & PENDING $\rightarrow$ CANCELLED khi bài bị xóa/gỡ hoặc người gửi bị khóa. Không thu hồi ACCEPTED bằng operation này. \\ \hline
+\end{longtable}
+
+\subsubsection{C4 -- AuthService}
+\textbf{Trách nhiệm:} điều phối Supabase Auth, đồng bộ User và xác thực actor cho service (UC-01, UC-02). Không có lớp cha.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+users & IUserRepository & private & Constructor injection & Profile, bộ đếm đăng nhập và trạng thái hiện tại. \\ \hline
+provider & IAuthProvider & private & Không lộ credential nhà cung cấp ra client & Xác minh link, session và mật khẩu ở adapter. \\ \hline
+catalog & ICatalog\allowbreak Repository & private & Đọc danh sách tên miền đã được duyệt tại thời điểm đăng ký & Trường mới được duyệt có hiệu lực mà không sửa SPA. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+register & input: RegisterInput; UUID & public & Kiểm tra tên miền trường đã tham gia, tên và mật khẩu tối thiểu 8 ký tự; tạo User chưa xác minh, gửi link hạn 24 giờ theo UC-01. Lỗi gửi thư giữ tài khoản để gửi lại. \\ \hline
+login & input: LoginInput; SessionDTO & public & Kiểm tra khóa 15 phút trước khi gọi provider; từ chối chưa xác minh/BANNED. Năm lần sai liên tiếp kích hoạt khóa; không tiết lộ email hay mật khẩu sai. \\ \hline
+logout & sessionId: UUID; void & public & sessionId lấy từ phiên đã xác thực của người gọi, không nhận ID phiên tùy ý từ body. Thu hồi phiên hiện tại; adapter duy trì trạng thái thu hồi đến khi token hết hạn, verify kiểm tra cả trạng thái này. \\ \hline
+resendVerification & email: String; void & public & Theo UC-01 A1/E4/E6: gửi link mới, hạn 24 giờ, vô hiệu hóa link cũ; giới hạn tần suất. Lỗi gửi thư không đổi trạng thái tài khoản. \\ \hline
+confirmEmail & token: String; void & public & Gọi provider.confirmEmail để kiểm tra link đúng loại, chưa dùng, còn hạn. Đồng bộ isVerified bằng identity đáng tin cậy; không dùng userId/email do client khai và không đổi BANNED thành ACTIVE. \\ \hline
+requireActor & id: UUID, role?: UserRole; User & public & id lấy từ identity đã xác thực ở middleware; đọc User mới nhất, kiểm tra canInteract và role nếu có. Không dùng actorId do request body tự khai. \\ \hline
+\end{longtable}
+confirmEmail xử lý token xác minh một lần; IAuthProvider.verify chỉ xử lý access token của request API. Không trộn hai loại token. Khi đăng ký thành công ở provider nhưng ghi profile thất bại, đồng bộ lại theo cùng auth UUID bằng thao tác lưu idempotent; profile chưa tồn tại/đồng bộ chưa xong thì từ chối quyền nghiệp vụ. Đăng ký lại bằng email đã có vẫn xử lý theo UC-01 E2, không tạo hai User.
+
+\subsubsection{C5 -- PostService}
+\textbf{Trách nhiệm:} điều phối UC-05/UC-06, bảo toàn Post aggregate và liên hệ riêng. Không có lớp cha.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+auth; uow & AuthService; IUnitOfWork & private & Constructor injection & Kiểm tra actor; cung cấp repositories dùng chung transaction. \\ \hline
+storage; notifications & IStorageAdapter; NotificationService & private & Không gọi dịch vụ mạng trong transaction CSDL & Ảnh và thông báo in-app. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+listMine & actorId: UUID, page: PageInput; List<PostDTO> & public & Chỉ lấy bài có ownerId bằng actor đã xác thực, gồm trạng thái để quản lý lịch sử; mỗi trang tối đa 20 bài, mới nhất trước. Không dùng điều kiện công khai của SearchService. \\ \hline
+readMine & actorId, id: UUID; PostDTO & public & Chỉ chủ bài; được đọc bài của mình để quản lý lịch sử kể cả RESOLVED/REPORTED/CLOSED. Quyền đọc riêng không cấp quyền sửa/xóa; không trả liên hệ trong PostDTO. \\ \hline
+create & actorId: UUID, input: PostInput; PostDTO & public & Actor đã xác minh; Campus/Category được chọn; kiểm tra dữ liệu và ảnh. Chọn subtype theo loại bài; lưu Post ACTIVE, metadata và liên hệ trong một transaction. DTO không chứa liên hệ. \\ \hline
+update & actorId, id: UUID, input: PostInput; PostDTO & public & Chỉ chủ bài, trạng thái ACTIVE; áp dụng validation như tạo. Giữ nguyên loại bài và ownerId; khóa câu hỏi xác minh khi có Claim PENDING. \\ \hline
+resolve & actorId, id: UUID; PostDTO & public & Chỉ chủ bài ACTIVE. Gọi Post.resolve; từ chối Claim PENDING trong cùng transaction, thông báo người gửi. Áp dụng cho cả tự tìm lại đồ và tự trả đồ; không mở liên hệ. \\ \hline
+delete & actorId, id: UUID; void & public & Chỉ chủ bài khi Post ACTIVE; xóa mềm bằng Post.close(OWNER\_DELETED), hủy Claim PENDING và thông báo. RESOLVED chỉ đọc theo UC-06 E2; REPORTED chờ kiểm duyệt. Không xóa Claim đã kết thúc. \\ \hline
+\end{longtable}
+
+\subsubsection{C6 -- ClaimService}
+\textbf{Trách nhiệm:} điều phối UC-07/UC-08 và giữ tính nguyên tử khi duyệt Claim. Không có lớp cha.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+auth; uow & AuthService; IUnitOfWork & private & Constructor injection & Quyền, repositories và transaction. \\ \hline
+storage; notifications & IStorageAdapter; NotificationService & private & Bằng chứng riêng tư; notification cùng transaction & Không gửi liên hệ trong thông báo. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+listForPost & actorId, id: UUID; List<ClaimReviewDTO> & public & Chỉ chủ Post được xem danh sách Claim, câu trả lời và metadata bằng chứng (UC-08 bước 1--3). Trả danh sách rỗng khi chưa có Claim; không cấp URL bằng chứng công khai hoặc liên hệ. \\ \hline
+readEvidence & actorId, id: UUID; EvidenceDTO & public & id là claimId; chỉ chủ Post hoặc chính Claimant đang có tài khoản hợp lệ. Kiểm tra quan hệ trước khi gọi storage.signedUrl. Không có ảnh trả 404; có ảnh trả URL ngắn hạn và expiresAt, không lưu URL vào Claim. \\ \hline
+submit & actorId, id: UUID, input: ClaimInput; ClaimDTO & public & Bài ACTIVE; actor khác chủ bài; hai tài khoản hoạt động. Kiểm tra bằng chứng theo subtype, không có PENDING trùng. Lưu PENDING và thông báo chủ bài nguyên tử. \\ \hline
+decide & actorId, id: UUID, decision: ClaimDecision; ClaimDTO & public & Chỉ chủ bài, Claim PENDING, Post ACTIVE. ACCEPT: Claimant hợp lệ; chấp nhận một, Post.resolve, rejectOthers và thông báo tất cả trong một transaction. REJECT: chỉ từ chối Claim đích, bài vẫn ACTIVE. \\ \hline
+\end{longtable}
+ClaimDecision gồm action ACCEPT/REJECT và reason tùy chọn khi REJECT. Lặp lại hoặc hai request duyệt đồng thời không tạo quyết định mới: request mất quyền chuyển trạng thái nhận 409. Không gửi liên hệ trong ClaimDTO; sau commit, UI gọi ContactAccessService để đọc theo quyền hiện tại.
+
+\subsubsection{C7 -- ContactAccessService}
+\textbf{Trách nhiệm:} cổng đọc liên hệ được bảo vệ theo BR-02/NFR-02. Không có lớp cha. Kiểm tra cả actor, đối tượng và quan hệ; không có quyền đọc mặc định cho Admin.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+auth; contacts & AuthService; IContactRepository & private & Constructor injection & Xác thực viewer và truy cập dữ liệu riêng. \\ \hline
+users; posts; claims & IUserRepository; IPostRepository; IClaimRepository & private & Đọc trạng thái hiện tại trong cùng snapshot & Không ra quyết định theo dữ liệu cache cũ. \\ \hline
+uow & IUnitOfWork & private & Transaction chỉ đọc, cùng snapshot cho kiểm tra và lấy liên hệ & Kết thúc transaction trước khi trả ContactDTO. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+readPostContact & viewerId, id: UUID; ContactDTO & public & Chủ bài đọc liên hệ của chính bài; viewer khác chỉ được đọc nếu là Claimant ACCEPTED của đúng Post, hai tài khoản ACTIVE và bài RESOLVED. Còn lại 403/404. \\ \hline
+readClaimantContact & viewerId, id: UUID; ContactDTO & public & id là claimId; viewer phải là chủ Post, Claim ACCEPTED, Post RESOLVED, hai tài khoản ACTIVE. Trả email trường đã xác minh của Claimant; không trả toàn bộ hồ sơ. \\ \hline
+\end{longtable}
+Hai endpoint đề xuất là \texttt{GET /posts/:id/contact} và \texttt{GET /claims/:id/contact}. Không thể mở liên hệ chỉ bằng việc chủ bài tự đánh dấu đã tìm/trả đồ, hoặc chỉ vì một Claim khác trên bài đã được chấp nhận. Response liên hệ đặt \texttt{Cache-Control: no-store}; log và notification không ghi giá trị liên hệ.
+
+\subsubsection{C8 -- ModerationService}
+\textbf{Trách nhiệm:} UC-09/UC-10, ngưỡng báo cáo và nhật ký Admin. Không có lớp cha.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.18\linewidth}|>{\raggedright\arraybackslash}p{.15\linewidth}|>{\raggedright\arraybackslash}p{.10\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.23\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Attribute} & \tableheader{Type} & \tableheader{Visibility} & \tableheader{Constraint} & \tableheader{Description} \\ \hline\endhead
+auth; uow & AuthService; IUnitOfWork & private & Constructor injection & Phân quyền, reports, posts, users và audit. \\ \hline
+provider; notifications & IAuthProvider; NotificationService & private & Thu hồi phiên sau commit; thông báo trong transaction & BANNED có hiệu lực ở middleware ngay cả khi provider lỗi. \\ \hline
+\end{longtable}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|>{\raggedright\arraybackslash}p{.09\linewidth}|>{\raggedright\arraybackslash}p{.35\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Operation} & \tableheader{Parameters / return} & \tableheader{Visibility} & \tableheader{Contract} \\ \hline\endhead
+listQueue & adminId: UUID, page: PageInput; List<ModerationDTO> & public & Chỉ ADMIN; danh sách Post REPORTED kèm số reporter PENDING và lý do, số báo cáo giảm dần; danh sách rỗng là kết quả hợp lệ (UC-10 E3). Không lọc bằng quy tắc tìm kiếm công khai. \\ \hline
+readCase & adminId, id: UUID; ModerationDTO & public & Chỉ ADMIN; đọc bài REPORTED và các báo cáo để đánh giá trước khi review. DTO không chứa liên hệ cá nhân hay bằng chứng riêng của Claim; không cấp quyền sửa bài trực tiếp. \\ \hline
+report & actorId, id: UUID, input: ReportInput; UUID & public & Không báo cáo bài mình/CLOSED; một lần cho mỗi cặp Post/User. OTHER cần ghi chú. Thêm PENDING; đếm người báo cáo PENDING, đủ 3 gọi Post.flag và thông báo chủ bài. Tất cả cùng transaction. \\ \hline
+review & adminId, id: UUID, decision: ReviewDecision; void & public & Chỉ ADMIN, bài REPORTED. KEEP: restore và settle DISMISSED. REMOVE: bắt buộc lý do, close ADMIN\_REMOVED, settle APPROVED và cancel Claim PENDING. Ghi audit; thông báo các bên chịu tác động trong cùng transaction. \\ \hline
+banUser & adminId, id: UUID, reason: String; void & public & Không khóa Admin; lý do bắt buộc. User.ban, hủy Claim PENDING do User gửi, ghi audit/thông báo và commit. Ẩn bài đang mở bằng điều kiện trên User, không đổi Post.status. Sau commit gọi revokeUser; lỗi được ghi để thử lại. \\ \hline
+\end{longtable}
+
+\textbf{Hợp đồng repository bổ trợ.} IPostRepository.listByOwner dùng cho listMine, còn get và kiểm tra ownerId dùng cho readMine. IClaimRepository.listForPost đọc Claim trong transaction chỉ đọc sau khi service đã kiểm tra quyền chủ bài. rejectOthers nhận exceptId tùy chọn: bỏ qua Claim được chấp nhận, hoặc null khi chủ bài tự hoàn tất. rejectOthers và cancelPending trả \texttt{List<Claim>} thực sự vừa đổi trạng thái; service lấy claimantId từ danh sách này để tạo đúng notification. cancelPending nhận ClaimScope gồm bộ lọc postId hoặc claimantId và mã lý do hủy. Không gửi thông báo lại cho Claim đã kết thúc trước đó. IReportRepository.listQueue/getCase chỉ cung cấp projection cho service quản trị, không mở endpoint đọc trực tiếp repository.
+
+\textbf{Snapshot khi đọc liên hệ.} ContactAccessService bắt đầu transaction chỉ đọc với mức REPEATABLE\_READ qua IUnitOfWork.begin(options). Các lệnh IUserRepository.get, IPostRepository.get, IClaimRepository.get/listForPost và IContactRepository.readPost/readUser đều nhận cùng TxContext cho việc kiểm tra quan hệ và lấy giá trị liên hệ; kết thúc transaction trước khi trả response. Các transaction ghi dùng READ\_COMMITTED kết hợp khóa và kiểm tra lại trạng thái. Actor đã xác thực từ middleware vẫn phải được kiểm tra trạng thái hiện tại trong snapshot này.
+
+\textbf{Transaction và xử lý đồng thời.} TxContext cung cấp cùng một PgClient cho mọi repository trong transaction; notification in-app được thêm qua NotificationService.enqueue trước commit. Thao tác gửi/duyệt Claim, sửa/đóng bài, report và review khóa cùng bản ghi Post trước khi kiểm tra trạng thái; việc kiểm tra số Claim PENDING cũng nằm sau khóa này. Các thao tác cần trạng thái User phối hợp khóa User liên quan theo UUID tăng dần trước khi khóa Post; banUser dùng cùng quy ước. Vì vậy khóa User và duyệt Claim không thể vượt qua nhau bằng kết quả kiểm tra cũ. Khóa ngoại và unique index ở section 5 sẽ bảo vệ bổ sung: một PENDING cho mỗi cặp Post/User, một ACCEPTED cho mỗi Post, một Report cho mỗi cặp Post/User.
+
+\textbf{Ranh giới tài nguyên ngoài CSDL.} Upload ảnh diễn ra trước transaction; khi kiểm tra lại hoặc lưu thất bại, rollback rồi xóa các object mới đã upload. Storage adapter phải dọn cả phần upload thành công nếu một batch bị lỗi; object dọn thất bại được ghi nhận để thử lại. Không coi rollback PostgreSQL là rollback Storage/Auth. Khóa tài khoản được commit trước khi gọi provider thu hồi phiên; kiểm tra User tại mỗi request vẫn chặn được tài khoản ngay lập tức. Callback xác minh chỉ đồng bộ isVerified sau khi adapter đã xác thực bằng chứng của provider.

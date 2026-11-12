@@ -1,0 +1,30 @@
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\node[oodparticipant] (p0) at (0.0,0) {UI / HTTP\\boundary};
+\draw[oodlife] (p0.south) -- (0.0,-8.84);
+\node[oodparticipant] (p1) at (2.7,0) {Post\\Service};
+\draw[oodlife] (p1.south) -- (2.7,-8.84);
+\node[oodparticipant] (p2) at (5.4,0) {Auth\\Service};
+\draw[oodlife] (p2.south) -- (5.4,-8.84);
+\node[oodparticipant] (p3) at (8.100000000000001,0) {IStorage\\Adapter};
+\draw[oodlife] (p3.south) -- (8.100000000000001,-8.84);
+\node[oodparticipant] (p4) at (10.8,0) {IPost\\Repository};
+\draw[oodlife] (p4.south) -- (10.8,-8.84);
+\node[oodparticipant] (p5) at (13.5,0) {IContact\\Repository};
+\draw[oodlife] (p5.south) -- (13.5,-8.84);
+\draw[oodcall] (0.0,-0.68) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{create}} (2.7,-0.68);
+\draw[oodcall] (2.7,-1.36) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{require\allowbreak{}Actor}} (5.4,-1.36);
+\draw[oodreturn] (5.4,-2.04) -- node[oodmsg,above,text width=2.4000000000000004cm] {User hợp lệ} (2.7,-2.04);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-2.72) {Kiểm tra input, subtype, ContactDetails và 1--5 ảnh};
+\draw[oodcall] (2.7,-3.4000000000000004) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{upload}} (8.100000000000001,-3.4000000000000004);
+\draw[oodreturn] (8.100000000000001,-4.08) -- node[oodmsg,above,text width=5.100000000000001cm] {Metadata / objectKey} (2.7,-4.08);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-4.760000000000001) {critical: bắt đầu transaction; khóa và kiểm tra lại User};
+\draw[oodcall] (2.7,-5.44) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{validate\allowbreak{}Catalog}} (10.8,-5.44);
+\draw[oodcall] (2.7,-6.12) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{save}} (10.8,-6.12);
+\draw[oodcall] (2.7,-6.800000000000001) -- node[oodmsg,above,text width=10.5cm] {\texttt{save\allowbreak{}Post}} (13.5,-6.800000000000001);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-7.48) {commit; lỗi bất kỳ: rollback rồi remove(objectKey) mới upload};
+\draw[oodreturn] (2.7,-8.16) -- node[oodmsg,above,text width=2.4000000000000004cm] {201 PostDTO; không chứa liên hệ} (0.0,-8.16);
+\end{tikzpicture}}
+\caption{\bodyfont UC-05 -- Tạo bài và liên hệ riêng, không có bước duyệt trước}\label{fig:seq-uc05}
+\end{figure}

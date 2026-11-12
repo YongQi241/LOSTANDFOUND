@@ -1,0 +1,23 @@
+% Native TikZ diagrams; no external renderer or shell escape is required.
+\tikzset{
+  oodclass/.style={draw=PrimaryBlue,thick,rectangle split,
+    rectangle split parts=3,rectangle split part fill={LightBlue,white,white},
+    text width=4.7cm,align=left,inner sep=5pt,
+    font=\bodyfont\fontsize{8.5}{11}\selectfont},
+  oodassoc/.style={draw=black!75,thick},
+  ooddep/.style={draw=black!65,dashed,-{Stealth[length=5pt]}},
+  oodinherit/.style={thick,-{Triangle[open,length=7pt,width=7pt]}},
+  oodlabel/.style={fill=white,inner sep=2pt,font=\bodyfont\scriptsize,align=center},
+  oodlife/.style={draw=black!40,dashed},
+  oodparticipant/.style={draw=PrimaryBlue,fill=LightBlue,
+    minimum height=0.85cm,text width=2.2cm,align=center,
+    font=\bodyfont\fontsize{8}{10}\selectfont},
+  oodcall/.style={thick,-{Stealth[length=5pt]}},
+  oodreturn/.style={dashed,-{Stealth[length=5pt]}},
+  oodmsg/.style={fill=white,inner sep=2pt,align=center,
+    font=\bodyfont\fontsize{8}{10}\selectfont},
+  oodstate/.style={draw=PrimaryBlue,thick,rounded corners=5pt,fill=LightBlue!45,
+    text width=3.5cm,minimum height=1cm,align=center,font=\bodyfont\small}
+}
+\newcommand{\oodclass}[5]{%
+  \node[oodclass] (#1) at (#2) {\textbf{#3}\nodepart{second}#4\nodepart{third}#5};}

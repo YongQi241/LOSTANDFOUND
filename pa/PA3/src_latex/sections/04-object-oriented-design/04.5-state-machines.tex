@@ -1,0 +1,77 @@
+Máy trạng thái dùng các operation domain ở Mục~\ref{ood-class-diagram}. Nhãn chuyển trạng thái có dạng \textit{sự kiện [điều kiện] / tác động}; service thực thi kiểm tra quyền và transaction. Enum được encapsulate trong entity, không có setter trạng thái tùy ý. Đây là mô hình hành vi; chưa yêu cầu tạo một lớp cho từng trạng thái.
+
+\subsubsection{Vòng đời Post}
+\begin{figure}[H]
+\centering
+\resizebox{.96\linewidth}{!}{\begin{tikzpicture}
+\node[circle,fill=black,inner sep=3pt] (start) at (-4,0) {};
+\node[oodstate] (active) at (0,0) {ACTIVE\\Đang mở};
+\node[oodstate] (resolved) at (8,0) {RESOLVED\\Đã giải quyết};
+\node[oodstate] (reported) at (4,-4) {REPORTED\\Ẩn; chờ kiểm duyệt};
+\node[oodstate] (closed) at (4,-8) {CLOSED\\Xóa mềm / đã gỡ};
+\draw[oodcall] (start) -- node[oodlabel,above]{create hợp lệ} (active);
+\draw[oodcall] (active) -- node[oodlabel,above,text width=3.8cm]{resolve [chủ bài tự hoàn tất\\hoặc chấp nhận Claim]} (resolved);
+\draw[oodcall] (active.south) -- node[oodlabel,left,text width=3.5cm]{flag [3 reporter PENDING]\\/ previousStatus := ACTIVE} (reported.west);
+\draw[oodcall] (resolved.south) -- node[oodlabel,right,text width=3.6cm]{flag [3 reporter PENDING]\\/ previousStatus := RESOLVED} (reported.east);
+\draw[oodcall] (reported.north west) to[bend left=28] node[oodlabel,above,sloped]{restore [Admin KEEP; trước là ACTIVE]} (active.south east);
+\draw[oodcall] (reported.north east) to[bend right=28] node[oodlabel,above,sloped]{restore [Admin KEEP; trước là RESOLVED]} (resolved.south west);
+\draw[oodcall] (reported) -- node[oodlabel,right,text width=4cm]{close [Admin REMOVE + lý do]\\/ hủy Claim PENDING} (closed);
+\draw[oodcall] (active.west) -- ++(-2,0) |- node[oodlabel,pos=.72,above]{close [chủ bài xóa] / hủy Claim PENDING} (closed.west);
+\end{tikzpicture}}
+\caption{\bodyfont Post: khôi phục đúng trạng thái trước khi vào hàng đợi}
+\label{fig:state-post}
+\end{figure}
+
+PENDING\_VERIFICATION không phải trạng thái khởi tạo trong phạm vi hậu kiểm hiện tại; giá trị này của 4.1 được dự phòng, không persist bằng luồng tạo bài. CLOSED là trạng thái kết thúc; không có operation mở lại. Chủ bài chỉ sửa/xóa/tự hoàn tất khi ACTIVE. RESOLVED chỉ được xem theo UC-06 E2; REPORTED chờ Admin giữ/gỡ, chủ bài không sửa/xóa để vượt qua hàng đợi. Một bài RESOLVED vẫn có thể bị báo cáo, chuyển REPORTED và sau đó bị Admin gỡ. Phân biệt nhãn ``Đã xóa'' và ``Đã gỡ'' bằng closeReason.
+
+\textbf{Hiển thị công khai:} chỉ ACTIVE/RESOLVED, chủ bài không BANNED; REPORTED/CLOSED bị loại khỏi danh sách và chi tiết công khai. Điều kiện gửi/duyệt Claim chặt hơn: chỉ ACTIVE và các tài khoản liên quan hợp lệ. Khi ACTIVE được chủ bài tự hoàn tất, Claim PENDING chuyển REJECTED; không có ACCEPTED nên không mở liên hệ. Việc giữ bài đã RESOLVED khôi phục trạng thái và các quyền đọc liên hệ chỉ nếu Claim ACCEPTED cùng tài khoản vẫn hợp lệ.
+
+\subsubsection{Vòng đời Claim}
+\begin{figure}[H]
+\centering
+\resizebox{.94\linewidth}{!}{\begin{tikzpicture}
+\node[circle,fill=black,inner sep=3pt] (start) at (-5,0) {};
+\node[oodstate] (pending) at (0,0) {PENDING\\Chờ xử lý};
+\node[oodstate] (accepted) at (-5,-4.5) {ACCEPTED\\Đã chấp nhận};
+\node[oodstate] (rejected) at (0,-4.5) {REJECTED\\Bị từ chối};
+\node[oodstate] (cancelled) at (5,-4.5) {CANCELLED\\Đã hủy};
+\draw[oodcall] (start) -- node[oodlabel,above]{submit hợp lệ} (pending);
+\draw[oodcall] (pending.south west) -- node[oodlabel,left,text width=3.2cm]{accept [chủ bài; Post ACTIVE;\\Claimant hợp lệ]\\/ Post.resolve; rejectOthers} (accepted.north);
+\draw[oodcall] (pending) -- node[oodlabel,right,text width=3.1cm]{reject [chủ bài]\\hoặc bài được giải quyết\\bằng cách khác} (rejected);
+\draw[oodcall] (pending.south east) -- node[oodlabel,right,text width=3.2cm]{cancel [xóa/gỡ bài\\hoặc khóa Claimant]\\/ thông báo người gửi} (cancelled.north);
+\end{tikzpicture}}
+\caption{\bodyfont Claim: ba kết quả cuối cùng, không quay về PENDING}
+\label{fig:state-claim}
+\end{figure}
+
+Chỉ Claim PENDING mới được đổi trạng thái. Giữ nguyên ACCEPTED/REJECTED/CANCELLED khi xử lý hàng loạt; không xóa lịch sử để gửi lại. Người gửi có thể tạo Claim mới sau REJECTED nếu bài vẫn ACTIVE và chưa có PENDING; không thể tạo thêm sau ACCEPTED vì bài đã RESOLVED. Nút ``Hủy'' trong form UC-07 đóng form trước submit, không phải operation hủy một Claim đã lưu. Không bổ sung use case rút Claim sau submit trong phạm vi này.
+
+\subsubsection{Vòng đời User và khóa đăng nhập}
+\begin{figure}[H]
+\centering
+\resizebox{.96\linewidth}{!}{\begin{tikzpicture}
+\node[circle,fill=black,inner sep=3pt] (start) at (-4.5,0) {};
+\node[oodstate] (unverified) at (0,0) {ACTIVE\\isVerified = false};
+\node[oodstate] (verified) at (8,0) {ACTIVE\\isVerified = true};
+\node[oodstate] (banned) at (4,-4) {BANNED\\Giữ cờ xác minh hiện có};
+\draw[oodcall] (start) -- node[oodlabel,above]{register} (unverified);
+\draw[oodcall] (unverified) -- node[oodlabel,above,text width=4cm]{link hợp lệ, chưa dùng, hạn 24 giờ\\/ đồng bộ từ Auth provider} (verified);
+\draw[oodcall] (unverified) -- node[oodlabel,left,text width=3.1cm]{ban [Admin + lý do]\\/ cấm tương tác} (banned.west);
+\draw[oodcall] (verified) -- node[oodlabel,right,text width=3.3cm]{ban [Admin + lý do]\\/ hủy Claim PENDING;\\thu hồi phiên} (banned.east);
+\path (unverified.north) edge[oodcall,loop above] node[oodlabel,above,text width=3.2cm]{link hết hạn/sai hoặc gửi lại\\/ chưa xác minh} (unverified.north);
+\end{tikzpicture}}
+\caption{\bodyfont User: trạng thái tài khoản độc lập với xác minh email}
+\label{fig:state-user}
+\end{figure}
+
+Khóa đăng nhập 15 phút là bộ đếm và thời điểm \texttt{loginLockedUntil}, không phải BANNED. Sau năm lần sai liên tiếp, mọi login bị từ chối đến hạn; sau hạn đặt lại bộ đếm, đăng nhập thành công cũng đặt lại. Trạng thái xác minh không bị mất. BANNED không có phép mở khóa trong UC-10 hiện tại; không tự thêm operation unban. Role ADMIN do quản trị hệ thống cấp, không do form đăng ký tự chọn.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.26\linewidth}|>{\raggedright\arraybackslash}p{.40\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Invariant} & \tableheader{Nơi thực thi} & \tableheader{Tình huống kiểm tra ở PA4/PA5} \\ \hline\endhead
+Một ACCEPTED trên một Post & ClaimService.decide + khóa Post + unique index & Hai request chấp nhận đồng thời: chỉ một thành công. \\ \hline
+Một PENDING cho mỗi cặp Post/User & ClaimService.submit + khóa Post + unique index có điều kiện & Gửi trùng bị 409; lịch sử REJECTED không cấm gửi lại khi bài còn ACTIVE. \\ \hline
+Liên hệ đối phương cần Claim ACCEPTED & ContactAccessService và DTO theo danh sách trường & Khách, sinh viên khác, Claim PENDING/REJECTED không đọc được bằng API. \\ \hline
+Ngưỡng ba người khác nhau & Report unique theo Post/User; countPending trong transaction & Người báo cáo thứ ba ẩn bài; giữ bài xong không bị báo cáo cũ tự ẩn lại. \\ \hline
+Chuyển trạng thái nguyên tử & IUnitOfWork; notification chung transaction & Gây lỗi giữa cập nhật Claim/Post: rollback, không mở liên hệ/thông báo sai. \\ \hline
+Khóa tài khoản có hiệu lực ngay & User BANNED được kiểm tra trên mỗi request & Token còn hạn vẫn bị từ chối; không duyệt Claim của User vừa bị khóa. \\ \hline
+\end{longtable}
