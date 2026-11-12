@@ -165,8 +165,8 @@ Mô hình lĩnh vực (Domain Model) biểu diễn các thực thể khái niệ
 % 3. Post - User
 \draw[assoc] (post.east) -- node[near start, above, card] {0..*} node[midway, above, lbl] {created by} (user.west) node[near end, above, card] {1};
 
-% 4. FoundPost - Claim (straight vertical down)
-\draw[assoc] (found.south) -- node[near start, right, card] {1} node[midway, right, lbl] {receives} (claim.north) node[near end, right, card] {0..*};
+% 4. Post - Claim (routed around the specialized post nodes)
+\draw[assoc] (post.east) -- ++(3.2, 0) |- node[pos=0.65, right, lbl] {receives} (claim.east) node[near end, above, card] {0..*} node[pos=0.08, above, card] {1};
 
 % 5. Post - Report (routed through empty corridor between FoundPost and Report)
 \draw[assoc] ([yshift=-0.8cm]post.east) -- ++(2.65, 0) |- node[near start, above, card] {1} node[pos=0.65, right, lbl] {flagged on} (report.west) node[near end, above, card] {0..*};
@@ -204,7 +204,7 @@ Post & Thực thể trừu tượng đại diện cho một tin báo cáo vật 
 LostPost & Chuyên biệt hóa của Post cho trường hợp sinh viên thông báo tài sản cá nhân bị thất lạc. & Kế thừa từ Post, bổ sung: rewardAmount (khoản hậu tạ tự nguyện), privateIdentifier (đặc điểm nhận dạng kín). & Chỉ chủ sở hữu bài đăng mới có thể cập nhật trạng thái bài đăng sang Resolved khi tìm lại được đồ. \\ \hline
 FoundPost & Chuyên biệt hóa của Post cho trường hợp nhặt được vật phẩm và muốn tìm chủ sở hữu. & Kế thừa từ Post, bổ sung: storageLocation (nơi lưu giữ hiện tại: Bảo vệ/Tự giữ), securityQuestion (câu hỏi bảo mật). & Cung cấp câu hỏi bảo mật để người nhận (Claimant) chứng minh quyền sở hữu trước khi mở khóa thông tin liên hệ (BR-02). \\ \hline
 ItemMedia & Hình ảnh thực tế của vật phẩm thất lạc hoặc khu vực xảy ra vụ việc. & mediaId, mediaUrl, fileType, uploadedAt & Mỗi bài đăng có thể đính kèm nhiều ảnh (1..*); ảnh thẻ sinh viên có thể che mờ thông tin riêng tư (FR-10). \\ \hline
-Claim & Yêu cầu nhận lại vật phẩm do một sinh viên gửi tới một bài đăng nhặt đồ (FoundPost). & claimId, claimMessage, proofImage, securityAnswer, status (PENDING, ACCEPTED, REJECTED, CANCELLED), submittedAt & Người gửi Claim phải trả lời câu hỏi xác minh hoặc cung cấp ảnh chứng minh; người nhặt có quyền duyệt hoặc từ chối (FR-05, FR-06). \\ \hline
+Claim & Yêu cầu nhận lại vật phẩm do một sinh viên gửi tới một bài đăng Mất đồ hoặc Nhặt đồ. & claimId, claimMessage, proofImage, securityAnswer, status (PENDING, ACCEPTED, REJECTED, CANCELLED), submittedAt & Với FoundPost, Claim bắt buộc có câu trả lời cho câu hỏi xác minh, ảnh là tùy chọn. Với LostPost, Claim bắt buộc có mô tả nơi nhặt hoặc ảnh vật phẩm; chủ bài có quyền duyệt hoặc từ chối (FR-05, FR-06). \\ \hline
 Report & Báo cáo phản ánh bài đăng có dấu hiệu vi phạm quy định (lừa đảo, thông tin sai sự thật, spam). & reportId, reason, detailMessage, status (PENDING, APPROVED, DISMISSED), reportedAt & Sinh viên chỉ được báo cáo 1 lần cho mỗi bài đăng; bài viết có $\ge 3$ báo cáo tự động chuyển vào hàng đợi kiểm duyệt (BR-03). \\ \hline
 Notification & Thông báo hệ thống gửi tới sinh viên nhằm cập nhật tiến trình nhận đồ hoặc tương tác tài khoản. & notificationId, title, messageBody, type (CLAIM\_RECEIVED, CLAIM\_DECIDED, POST\_MODERATED), isRead, createdAt & Gửi tự động cho người dùng đích khi có sự kiện tương tác Claim hoặc thay đổi trạng thái bài đăng (FR-09). \\ \hline
 \end{longtable}
@@ -227,7 +227,7 @@ ItemCategory & Post & classifies & 1 : 0..* & Một danh mục chứa nhiều b�
 Post & ItemMedia & contains & 1 : 1..* & Một bài đăng chứa ít nhất 1 ảnh minh họa thực tế; mỗi ảnh đính kèm thuộc về đúng 1 bài đăng. \\\\ \hline
 User & Post & creates & 1 : 0..* & Một người dùng có thể tạo nhiều bài đăng theo thời gian; mỗi bài đăng do đúng 1 người dùng sở hữu. \\\\ \hline
 Post & LostPost / FoundPost & generalizes & 1 : 1 & Post là lớp cha trừu tượng khái niệm hóa các đặc tính chung của bài đăng mất đồ (LostPost) và nhặt đồ (FoundPost). \\\\ \hline
-FoundPost & Claim & receives & 1 : 0..* & Một bài đăng nhặt đồ có thể nhận nhiều yêu cầu nhận đồ từ nhiều sinh viên khác nhau; mỗi Claim gửi đến đúng 1 FoundPost. \\\\ \hline
+Post & Claim & receives & 1 : 0..* & Một bài đăng Mất đồ hoặc Nhặt đồ có thể nhận nhiều yêu cầu nhận đồ từ nhiều sinh viên khác nhau; mỗi Claim gửi đến đúng 1 Post. \\\\ \hline
 User & Claim & submits & 1 : 0..* & Một sinh viên có thể nộp nhiều yêu cầu Claim cho các tài sản thất lạc khác nhau; mỗi Claim do đúng 1 sinh viên gửi. \\\\ \hline
 Post & Report & flagged\_on & 1 : 0..* & Một bài đăng có thể bị khiếu nại/báo cáo bởi nhiều người dùng khác nhau; mỗi Report trỏ tới đúng 1 bài đăng. \\\\ \hline
 User & Report & files & 1 : 0..* & Một người dùng có thể gửi báo cáo vi phạm đối với các bài đăng nghi vấn; mỗi Report do đúng 1 người gửi. \\\\ \hline
@@ -242,8 +242,8 @@ Bốn quy tắc nghiệp vụ then chốt từ PA2 được ánh xạ và xác m
 \begin{enumerate}[label=\arabic*.,leftmargin=1.5em,itemsep=5pt]
   \item \textbf{Verified School Email (BR-01):} Thực thể \texttt{User} quản lý thuộc tính \texttt{universityEmail} (bắt buộc đuôi tên miền giáo dục hợp lệ) và trạng thái \texttt{status = ACTIVE} sau khi hoàn tất xác thực OTP/link. Các mối quan hệ tạo bài (\texttt{creates}) và gửi yêu cầu nhận đồ (\texttt{submits}) chỉ hợp lệ đối với \texttt{User} đã qua kiểm tra chính danh này.
   \item \textbf{Protected Contact Details (BR-02):} Thuộc tính liên hệ riêng tư (\texttt{phoneNumber}, email cá nhân) được mô hình hóa gắn liền với \texttt{User}, nhưng độc lập với thực thể \texttt{Post}. Không có liên kết trực tiếp nào bộc lộ thông tin liên hệ của chủ bài đăng cho các sinh viên khác; thông tin này chỉ được chia sẻ theo ngữ cảnh cho một \texttt{User} đóng vai trò Claimant khi thực thể \texttt{Claim} chuyển sang trạng thái \texttt{ACCEPTED}.
-  \item \textbf{Claim Approval Workflow (BR-04 / FR-05, FR-06):} Quan hệ giữa \texttt{FoundPost} và \texttt{Claim} cho phép một bài đăng nhận nhiều yêu cầu đối chất. Trạng thái của thực thể \texttt{Claim} tuân thủ vòng đời nghiêm ngặt: \texttt{PENDING} $\rightarrow$ \texttt{ACCEPTED} / \texttt{REJECTED}. Khi một \texttt{Claim} được chấp thuận bởi chủ bài đăng, một liên kết trạng thái đồng thời kích hoạt chuyển \texttt{Post.status} sang \texttt{RESOLVED}, khép lại bài toán tìm đồ.
-  \item \textbf{Moderation Threshold (BR-03 / FR-07):} Quan hệ kết tập \texttt{Post} (1) -- (0..*) \texttt{Report} ghi nhận các khiếu nại từ cộng đồng. Bất biến nghiệp vụ quy định: nếu $\sum \text{Report} \ge 3$, bài đăng vi phạm sẽ tự động kích hoạt chuyển trạng thái \texttt{Post.status = REPORTED}, tạm thời thu hồi quyền hiển thị công khai trên thanh tìm kiếm và đưa vào danh sách kiểm duyệt ưu tiên của Quản trị viên.
+  \item \textbf{Claim Approval Workflow (BR-04 / FR-05, FR-06):} Quan hệ giữa \texttt{Post} và \texttt{Claim} cho phép cả bài Mất đồ và bài Nhặt đồ nhận nhiều yêu cầu đối chất. Trạng thái của thực thể \texttt{Claim} tuân thủ vòng đời nghiêm ngặt: \texttt{PENDING} $\rightarrow$ \texttt{ACCEPTED} / \texttt{REJECTED}. Khi một \texttt{Claim} được chấp thuận bởi chủ bài đăng, một liên kết trạng thái đồng thời kích hoạt chuyển \texttt{Post.status} sang \texttt{RESOLVED}, khép lại bài toán tìm đồ.
+  \item \textbf{Moderation Threshold (BR-03 / FR-07):} Quan hệ kết tập \texttt{Post} (1) -- (0..*) \texttt{Report} ghi nhận các khiếu nại từ cộng đồng. Bất biến nghiệp vụ quy định: nếu $\sum \text{Report} \ge 3$, bài đăng vi phạm sẽ tự động kích hoạt chuyển trạng thái \texttt{Post.status = REPORTED}, tạm thời thu hồi quyền hiển thị công khai trên thanh tìm kiếm và đưa vào danh sách kiểm duyệt ưu tiên của Quản trị viên; bài chỉ hiển thị lại nếu Admin quyết định giữ.
 \end{enumerate}
 
 \subsection{Class Diagram}
