@@ -1,0 +1,38 @@
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\node[oodparticipant] (p0) at (0.0,0) {UI / HTTP\\boundary};
+\draw[oodlife] (p0.south) -- (0.0,-13.600000000000001);
+\node[oodparticipant] (p1) at (2.7,0) {Moderation\\Service};
+\draw[oodlife] (p1.south) -- (2.7,-13.600000000000001);
+\node[oodparticipant] (p2) at (5.4,0) {Auth\\Service};
+\draw[oodlife] (p2.south) -- (5.4,-13.600000000000001);
+\node[oodparticipant] (p3) at (8.100000000000001,0) {IPost\\Repository};
+\draw[oodlife] (p3.south) -- (8.100000000000001,-13.600000000000001);
+\node[oodparticipant] (p4) at (10.8,0) {IReport\\Repository};
+\draw[oodlife] (p4.south) -- (10.8,-13.600000000000001);
+\node[oodparticipant] (p5) at (13.5,0) {Notification\\Service};
+\draw[oodlife] (p5.south) -- (13.5,-13.600000000000001);
+\draw[draw=PrimaryBlue!65] (2.35,-6.784000000000001) rectangle (13.85,-11.56);
+\node[oodmsg,anchor=west,text=PrimaryBlue] at (2.4000000000000004,-6.784000000000001) {alt};
+\draw[oodcall] (0.0,-0.8) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{report}} (2.7,-0.8);
+\draw[oodcall] (2.7,-1.6) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{require\allowbreak{}Actor}} (5.4,-1.6);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-2.4000000000000004) {begin; khóa User rồi Post; kiểm tra không phải chủ bài/CLOSED};
+\draw[oodcall] (2.7,-3.2) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{lock}} (8.100000000000001,-3.2);
+\draw[oodcall] (2.7,-4.0) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{add}} (10.8,-4.0);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-4.800000000000001) {Unique(Post, reporter): báo cáo lặp bị rollback và trả 409};
+\draw[oodcall] (2.7,-5.6000000000000005) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{count\allowbreak{}Pending}} (10.8,-5.6000000000000005);
+\draw[oodreturn] (10.8,-6.4) -- node[oodmsg,above,text width=7.800000000000002cm] {n người báo cáo chưa xử lý} (2.7,-6.4);
+\draw[dashed,black!55] (2.4000000000000004,-7.2) -- (13.8,-7.2);
+\node[oodmsg,anchor=west] at (2.5,-7.2) {alt [n lớn hơn hoặc bằng 3 và Post chưa REPORTED]};
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-8.0) {Post.flag(): lưu previousStatus; chuyển REPORTED};
+\draw[oodcall] (2.7,-8.8) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{save}} (8.100000000000001,-8.8);
+\draw[oodcall] (2.7,-9.600000000000001) -- node[oodmsg,above,text width=10.5cm] {\texttt{enqueue}} (13.5,-9.600000000000001);
+\draw[dashed,black!55] (2.4000000000000004,-10.4) -- (13.8,-10.4);
+\node[oodmsg,anchor=west] at (2.5,-10.4) {else [chưa đủ ngưỡng hoặc đã REPORTED]};
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-11.200000000000001) {Không đổi trạng thái/không thông báo lặp};
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-12.0) {end alt; commit; truy vấn công khai loại bài REPORTED};
+\draw[oodreturn] (2.7,-12.8) -- node[oodmsg,above,text width=2.4000000000000004cm] {201 reportId} (0.0,-12.8);
+\end{tikzpicture}}
+\caption{\bodyfont UC-09 -- Đếm người báo cáo khác nhau và tự động ẩn tại ngưỡng ba}\label{fig:seq-uc09}
+\end{figure}

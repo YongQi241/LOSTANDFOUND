@@ -1,0 +1,30 @@
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.28\linewidth}|>{\raggedright\arraybackslash}p{.29\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.21\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Parent key} & \tableheader{Child FK} & \tableheader{Parent:child} & \tableheader{Child to parent / delete} \\ \hline\endhead
+\texttt{app.universities.university\_\allowbreak{}id} & \texttt{app.university\_\allowbreak{}domains.university\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.universities.university\_\allowbreak{}id} & \texttt{app.campuses.university\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{auth.users.id} & \texttt{app.users.user\_\allowbreak{}id} & 1 : 0..1 & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{private.user\_\allowbreak{}contacts.user\_\allowbreak{}id} & 1 : 1 & 1; RESTRICT \\ \hline
+\texttt{app.university\_\allowbreak{}domains.domain} & \texttt{private.user\_\allowbreak{}contacts.email\_\allowbreak{}domain} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.sessions.user\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.posts.owner\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.campuses.campus\_\allowbreak{}id} & \texttt{app.posts.campus\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.categories.category\_\allowbreak{}id} & \texttt{app.posts.category\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.posts.post\_\allowbreak{}id} & \texttt{private.post\_\allowbreak{}details.post\_\allowbreak{}id} & 1 : 1 & 1; RESTRICT \\ \hline
+\texttt{app.posts.post\_\allowbreak{}id} & \texttt{app.post\_\allowbreak{}images.post\_\allowbreak{}id} & 1 : 1..5 & 1; RESTRICT \\ \hline
+\texttt{app.posts.post\_\allowbreak{}id} & \texttt{app.claims.post\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.claims.claimant\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.moderation\_\allowbreak{}actions.admin\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.posts.post\_\allowbreak{}id} & \texttt{app.moderation\_\allowbreak{}actions.post\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.moderation\_\allowbreak{}actions.target\_\allowbreak{}user\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{app.posts.post\_\allowbreak{}id} & \texttt{app.reports.post\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.reports.reporter\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.moderation\_\allowbreak{}actions.action\_\allowbreak{}id} & \texttt{app.reports.action\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.notifications.recipient\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.posts.post\_\allowbreak{}id} & \texttt{app.notifications.post\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{app.claims.claim\_\allowbreak{}id} & \texttt{app.notifications.claim\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{private.school\_\allowbreak{}requests.reviewer\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{app.universities.university\_\allowbreak{}id} & \texttt{private.school\_\allowbreak{}requests.university\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{private.school\_\allowbreak{}requests.request\_\allowbreak{}id} & \texttt{private.school\_\allowbreak{}request\_\allowbreak{}campuses.request\_\allowbreak{}id} & 1 : 0..* & 1; RESTRICT \\ \hline
+\texttt{app.users.user\_\allowbreak{}id} & \texttt{app.integration\_\allowbreak{}tasks.target\_\allowbreak{}user\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\texttt{private.school\_\allowbreak{}requests.request\_\allowbreak{}id} & \texttt{app.integration\_\allowbreak{}tasks.request\_\allowbreak{}id} & 1 : 0..* & 0..1; RESTRICT \\ \hline
+\end{longtable}

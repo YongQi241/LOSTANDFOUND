@@ -1,0 +1,234 @@
+// Generated diagram source; auth.users is external/managed.
+
+Table auth.users { id uuid [pk] }
+
+Table app.universities {
+  university_id uuid [pk, not null]
+  code varchar [not null, unique]
+  name varchar [not null]
+  status varchar [not null]
+  created_at timestamptz [not null]
+}
+
+Table app.university_domains {
+  domain varchar [pk, not null]
+  university_id uuid [not null]
+}
+
+Table app.campuses {
+  campus_id uuid [pk, not null]
+  university_id uuid [not null]
+  name varchar [not null]
+  address text [not null]
+  is_active boolean [not null]
+}
+
+Table app.categories {
+  category_id uuid [pk, not null]
+  name varchar [not null]
+  is_active boolean [not null]
+}
+
+Table app.users {
+  user_id uuid [pk, not null]
+  full_name varchar [not null]
+  role varchar [not null]
+  status varchar [not null]
+  is_verified boolean [not null]
+  student_id varchar
+  failed_login_count smallint [not null]
+  login_locked_until timestamptz
+  ban_reason text
+  created_at timestamptz [not null]
+}
+
+Table private.user_contacts {
+  user_id uuid [pk, not null]
+  university_email varchar [not null, unique]
+  email_domain varchar [not null]
+  phone_number varchar
+}
+
+Table app.sessions {
+  session_id uuid [pk, not null]
+  user_id uuid [not null]
+  created_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  revoked_at timestamptz
+}
+
+Table app.posts {
+  post_id uuid [pk, not null]
+  owner_id uuid [not null]
+  campus_id uuid [not null]
+  category_id uuid [not null]
+  post_type varchar [not null]
+  title varchar [not null]
+  description text
+  location_detail text
+  incident_at timestamptz [not null]
+  verification_question text
+  reward_amount decimal
+  status varchar [not null]
+  previous_status varchar
+  close_reason varchar
+  closure_note text
+  closed_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  search_vector tsvector [not null]
+}
+
+Table private.post_details {
+  post_id uuid [pk, not null]
+  contact_kind varchar [not null]
+  contact_value varchar [not null]
+  private_identifier text
+  storage_location text
+}
+
+Table app.post_images {
+  image_id uuid [pk, not null]
+  post_id uuid [not null]
+  position smallint [not null]
+  object_key text [not null, unique]
+  mime_type varchar [not null]
+  size_bytes integer [not null]
+  created_at timestamptz [not null]
+}
+
+Table app.claims {
+  claim_id uuid [pk, not null]
+  post_id uuid [not null]
+  claimant_id uuid [not null]
+  security_answer text
+  claim_message text
+  proof_object_key text [unique]
+  proof_mime_type varchar
+  proof_size_bytes integer
+  status varchar [not null]
+  decision_reason text
+  decided_at timestamptz
+  submitted_at timestamptz [not null]
+}
+
+Table app.moderation_actions {
+  action_id uuid [pk, not null]
+  admin_id uuid [not null]
+  post_id uuid
+  target_user_id uuid
+  action varchar [not null]
+  reason text
+  created_at timestamptz [not null]
+}
+
+Table app.reports {
+  report_id uuid [pk, not null]
+  post_id uuid [not null]
+  reporter_id uuid [not null]
+  reason varchar [not null]
+  detail_message text
+  status varchar [not null]
+  action_id uuid
+  reported_at timestamptz [not null]
+}
+
+Table app.notifications {
+  notification_id uuid [pk, not null]
+  recipient_id uuid [not null]
+  post_id uuid
+  claim_id uuid
+  event_type varchar [not null]
+  message_code varchar [not null]
+  read_at timestamptz
+  created_at timestamptz [not null]
+}
+
+Table private.school_requests {
+  request_id uuid [pk, not null]
+  university_name varchar [not null]
+  email_domain varchar [not null]
+  contact_name varchar [not null]
+  contact_email varchar [not null]
+  notes text
+  status varchar [not null]
+  reviewer_id uuid
+  university_id uuid
+  rejection_reason text
+  reviewed_at timestamptz
+  created_at timestamptz [not null]
+}
+
+Table private.school_request_campuses {
+  request_campus_id uuid [pk, not null]
+  request_id uuid [not null]
+  name varchar [not null]
+  address text [not null]
+}
+
+Table app.integration_tasks {
+  task_id uuid [pk, not null]
+  kind varchar [not null]
+  target_user_id uuid
+  request_id uuid
+  object_key text
+  status varchar [not null]
+  attempt_count integer [not null]
+  last_error_code varchar
+  next_attempt_at timestamptz [not null]
+  created_at timestamptz [not null]
+}
+
+Ref: app.university_domains.university_id > app.universities.university_id
+
+Ref: app.campuses.university_id > app.universities.university_id
+
+Ref: app.users.user_id - auth.users.id
+
+Ref: private.user_contacts.user_id - app.users.user_id
+
+Ref: private.user_contacts.email_domain > app.university_domains.domain
+
+Ref: app.sessions.user_id > app.users.user_id
+
+Ref: app.posts.owner_id > app.users.user_id
+
+Ref: app.posts.campus_id > app.campuses.campus_id
+
+Ref: app.posts.category_id > app.categories.category_id
+
+Ref: private.post_details.post_id - app.posts.post_id
+
+Ref: app.post_images.post_id > app.posts.post_id
+
+Ref: app.claims.post_id > app.posts.post_id
+
+Ref: app.claims.claimant_id > app.users.user_id
+
+Ref: app.moderation_actions.admin_id > app.users.user_id
+
+Ref: app.moderation_actions.post_id > app.posts.post_id
+
+Ref: app.moderation_actions.target_user_id > app.users.user_id
+
+Ref: app.reports.post_id > app.posts.post_id
+
+Ref: app.reports.reporter_id > app.users.user_id
+
+Ref: app.reports.action_id > app.moderation_actions.action_id
+
+Ref: app.notifications.recipient_id > app.users.user_id
+
+Ref: app.notifications.post_id > app.posts.post_id
+
+Ref: app.notifications.claim_id > app.claims.claim_id
+
+Ref: private.school_requests.reviewer_id > app.users.user_id
+
+Ref: private.school_requests.university_id > app.universities.university_id
+
+Ref: private.school_request_campuses.request_id > private.school_requests.request_id
+
+Ref: app.integration_tasks.target_user_id > app.users.user_id
+
+Ref: app.integration_tasks.request_id > private.school_requests.request_id

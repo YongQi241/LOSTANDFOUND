@@ -1,0 +1,39 @@
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\node[oodparticipant] (p0) at (0.0,0) {UI / HTTP\\boundary};
+\draw[oodlife] (p0.south) -- (0.0,-12.8);
+\node[oodparticipant] (p1) at (2.7,0) {Claim\\Service};
+\draw[oodlife] (p1.south) -- (2.7,-12.8);
+\node[oodparticipant] (p2) at (5.4,0) {Auth\\Service};
+\draw[oodlife] (p2.south) -- (5.4,-12.8);
+\node[oodparticipant] (p3) at (8.100000000000001,0) {IPost\\Repository};
+\draw[oodlife] (p3.south) -- (8.100000000000001,-12.8);
+\node[oodparticipant] (p4) at (10.8,0) {IClaim\\Repository};
+\draw[oodlife] (p4.south) -- (10.8,-12.8);
+\node[oodparticipant] (p5) at (13.5,0) {IStorage\\Adapter};
+\draw[oodlife] (p5.south) -- (13.5,-12.8);
+\node[oodparticipant] (p6) at (16.200000000000003,0) {Notification\\Service};
+\draw[oodlife] (p6.south) -- (16.200000000000003,-12.8);
+\draw[draw=PrimaryBlue!65] (2.35,-6.784000000000001) rectangle (16.550000000000004,-11.56);
+\node[oodmsg,anchor=west,text=PrimaryBlue] at (2.4000000000000004,-6.784000000000001) {alt};
+\draw[oodcall] (0.0,-0.8) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{submit}} (2.7,-0.8);
+\draw[oodcall] (2.7,-1.6) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{require\allowbreak{}Actor}} (5.4,-1.6);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-2.4000000000000004) {validate dữ liệu; upload bằng chứng nếu có vào scope CLAIM};
+\draw[oodcall] (2.7,-3.2) -- node[oodmsg,above,text width=10.5cm] {\texttt{upload}} (13.5,-3.2);
+\node[oodmsg,text width=14.900000000000004cm] at (9.450000000000001,-4.0) {critical: begin; khóa các User liên quan trước Post};
+\draw[oodcall] (2.7,-4.800000000000001) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{lock}} (8.100000000000001,-4.800000000000001);
+\node[oodmsg,text width=9.500000000000002cm] at (6.75,-5.6000000000000005) {Post.validateClaim(input); actor khác owner; hai User hợp lệ};
+\draw[oodcall] (2.7,-6.4) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{has\allowbreak{}Pending}} (10.8,-6.4);
+\draw[dashed,black!55] (2.4000000000000004,-7.2) -- (16.500000000000004,-7.2);
+\node[oodmsg,anchor=west] at (2.5,-7.2) {alt [đã có PENDING hoặc Post không còn ACTIVE]};
+\node[oodmsg,text width=14.900000000000004cm] at (9.450000000000001,-8.0) {rollback; dọn ảnh mới; trả 409, không thêm Claim/thông báo};
+\draw[dashed,black!55] (2.4000000000000004,-8.8) -- (16.500000000000004,-8.8);
+\node[oodmsg,anchor=west] at (2.5,-8.8) {else [hợp lệ]};
+\draw[oodcall] (2.7,-9.600000000000001) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{save}} (10.8,-9.600000000000001);
+\draw[oodcall] (2.7,-10.4) -- node[oodmsg,above,text width=13.200000000000003cm] {\texttt{enqueue}} (16.200000000000003,-10.4);
+\node[oodmsg,text width=14.900000000000004cm] at (9.450000000000001,-11.200000000000001) {commit; kết thúc alt};
+\draw[oodreturn] (2.7,-12.0) -- node[oodmsg,above,text width=2.4000000000000004cm] {201 ClaimDTO; liên hệ vẫn đóng} (0.0,-12.0);
+\end{tikzpicture}}
+\caption{\bodyfont UC-07 -- Gửi Claim cho hai loại bài; chặn Claim đang chờ trùng}\label{fig:seq-uc07}
+\end{figure}

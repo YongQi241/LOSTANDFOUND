@@ -1,0 +1,57 @@
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\node[oodparticipant] (p0) at (0.0,0) {UI / HTTP\\boundary};
+\draw[oodlife] (p0.south) -- (0.0,-19.84);
+\node[oodparticipant] (p1) at (2.7,0) {Claim\\Service};
+\draw[oodlife] (p1.south) -- (2.7,-19.84);
+\node[oodparticipant] (p2) at (5.4,0) {Auth\\Service};
+\draw[oodlife] (p2.south) -- (5.4,-19.84);
+\node[oodparticipant] (p3) at (8.100000000000001,0) {IPost\\Repository};
+\draw[oodlife] (p3.south) -- (8.100000000000001,-19.84);
+\node[oodparticipant] (p4) at (10.8,0) {IClaim\\Repository};
+\draw[oodlife] (p4.south) -- (10.8,-19.84);
+\node[oodparticipant] (p5) at (13.5,0) {Notification\\Service};
+\draw[oodlife] (p5.south) -- (13.5,-19.84);
+\node[oodparticipant] (p6) at (16.200000000000003,0) {ContactAccess\\Service};
+\draw[oodlife] (p6.south) -- (16.200000000000003,-19.84);
+\draw[draw=PrimaryBlue!65] (2.35,-7.9872000000000005) rectangle (13.85,-15.008);
+\node[oodmsg,anchor=west,text=PrimaryBlue] at (2.4000000000000004,-7.9872000000000005) {alt};
+\draw[draw=PrimaryBlue!65] (-0.35,-16.3072) rectangle (16.550000000000004,-19.488);
+\node[oodmsg,anchor=west,text=PrimaryBlue] at (-0.3,-16.3072) {opt};
+\draw[oodcall] (0.0,-0.64) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{list\allowbreak{}For\allowbreak{}Post}} (2.7,-0.64);
+\draw[oodcall] (2.7,-1.28) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{require\allowbreak{}Actor}} (5.4,-1.28);
+\draw[oodcall] (2.7,-1.92) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{get}} (8.100000000000001,-1.92);
+\draw[oodcall] (2.7,-2.56) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{list\allowbreak{}For\allowbreak{}Post}} (10.8,-2.56);
+\draw[oodreturn] (2.7,-3.2) -- node[oodmsg,above,text width=2.4000000000000004cm] {ClaimReviewDTO; bằng chứng đọc qua readEvidence} (0.0,-3.2);
+\draw[oodcall] (0.0,-3.84) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{decide}} (2.7,-3.84);
+\draw[oodcall] (2.7,-4.48) -- node[oodmsg,above,text width=2.4000000000000004cm] {\texttt{require\allowbreak{}Actor}} (5.4,-4.48);
+\draw[oodcall] (2.7,-5.12) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{get}} (10.8,-5.12);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-5.76) {begin; khóa User trước Post; kiểm tra lại trong tx};
+\draw[oodcall] (2.7,-6.4) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{lock}} (8.100000000000001,-6.4);
+\draw[oodcall] (2.7,-7.04) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{get}} (10.8,-7.04);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-7.68) {Guard: đúng chủ bài; Post ACTIVE; Claim PENDING};
+\draw[dashed,black!55] (2.4000000000000004,-8.32) -- (13.8,-8.32);
+\node[oodmsg,anchor=west] at (2.5,-8.32) {alt [ACCEPT; Claimant ACTIVE và đã xác minh]};
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-8.96) {Claim.accept(); Post.resolve()};
+\draw[oodcall] (2.7,-9.6) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{save}} (10.8,-9.6);
+\draw[oodcall] (2.7,-10.24) -- node[oodmsg,above,text width=5.100000000000001cm] {\texttt{save}} (8.100000000000001,-10.24);
+\draw[oodcall] (2.7,-10.88) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{reject\allowbreak{}Others}} (10.8,-10.88);
+\draw[oodreturn] (10.8,-11.52) -- node[oodmsg,above,text width=7.800000000000002cm] {Danh sách Claim vừa chuyển REJECTED} (2.7,-11.52);
+\draw[oodcall] (2.7,-12.16) -- node[oodmsg,above,text width=10.5cm] {\texttt{enqueue}} (13.5,-12.16);
+\draw[dashed,black!55] (2.4000000000000004,-12.8) -- (13.8,-12.8);
+\node[oodmsg,anchor=west] at (2.5,-12.8) {else [REJECT]};
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-13.44) {Claim.reject(reason); Post giữ ACTIVE};
+\draw[oodcall] (2.7,-14.08) -- node[oodmsg,above,text width=7.800000000000002cm] {\texttt{save}} (10.8,-14.08);
+\draw[oodcall] (2.7,-14.72) -- node[oodmsg,above,text width=10.5cm] {\texttt{enqueue}} (13.5,-14.72);
+\node[oodmsg,text width=12.200000000000001cm] at (8.1,-15.36) {end alt; commit; lỗi/guard sai: rollback, không mở liên hệ};
+\draw[oodreturn] (2.7,-16.0) -- node[oodmsg,above,text width=2.4000000000000004cm] {200 ClaimDTO; không kèm liên hệ} (0.0,-16.0);
+\draw[dashed,black!55] (-0.3,-16.64) -- (16.500000000000004,-16.64);
+\node[oodmsg,anchor=west] at (-0.2,-16.64) {opt [ACCEPT đã commit; request riêng của hai bên]};
+\draw[oodcall] (0.0,-17.28) -- node[oodmsg,above,text width=15.900000000000002cm] {\texttt{read\allowbreak{}Post\allowbreak{}Contact}} (16.200000000000003,-17.28);
+\draw[oodreturn] (16.200000000000003,-17.92) -- node[oodmsg,above,text width=15.900000000000002cm] {Liên hệ chủ bài nếu còn đủ quyền} (0.0,-17.92);
+\draw[oodcall] (0.0,-18.56) -- node[oodmsg,above,text width=15.900000000000002cm] {\texttt{read\allowbreak{}Claimant\allowbreak{}Contact}} (16.200000000000003,-18.56);
+\draw[oodreturn] (16.200000000000003,-19.2) -- node[oodmsg,above,text width=15.900000000000002cm] {Liên hệ Claimant nếu còn đủ quyền} (0.0,-19.2);
+\end{tikzpicture}}
+\caption{\bodyfont UC-08 -- Xem, quyết định Claim và đọc liên hệ sau commit}\label{fig:seq-uc08}
+\end{figure}

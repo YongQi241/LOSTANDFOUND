@@ -1,0 +1,25 @@
+Các nguyên tắc và pattern dưới đây gắn với lớp và operation đã thể hiện ở 4.2--4.5. Mục tiêu là giữ quy tắc tập trung, kiểm thử được với thời hạn coding ba tuần; không triển khai thêm microservice hoặc hệ thống message broker.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.22\linewidth}|>{\raggedright\arraybackslash}p{.32\linewidth}|>{\raggedright\arraybackslash}p{.39\linewidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{Principle / pattern} & \tableheader{Where it is applied} & \tableheader{Why} \\ \hline
+\endhead
+Single Responsibility (SRP) & Post/Claim giữ bất biến; PostService/ClaimService điều phối; repository lưu dữ liệu; controller ánh xạ HTTP & Đổi giao thức API không làm đổi quy tắc duyệt Claim; thay truy vấn SQL không làm controller chứa nghiệp vụ. \\ \hline
+Encapsulation & Thuộc tính trạng thái private/protected; Post.resolve/flag/restore/close và Claim.accept/reject/cancel & Chặn setter tùy ý đưa Claim đã từ chối thành ACCEPTED hoặc phục hồi bài CLOSED. Guard và hậu điều kiện có một nơi định nghĩa. \\ \hline
+Polymorphism; Open/Closed & Post.validateClaim được LostPost/FoundPost override & Quy tắc bằng chứng khác nhau nằm trong subtype tương ứng. ClaimService.submit dùng Post chung, tránh chỉ nhận FoundPost hoặc rải kiểm tra loại bài khắp controller. \\ \hline
+Service Layer & AuthService, PostService, ClaimService, ContactAccessService, ModerationService & Đặt phân quyền, transaction và phối hợp entity ở ranh giới use case; mọi đường gọi HTTP dùng cùng hợp đồng nghiệp vụ. \\ \hline
+Repository; Dependency Inversion & Service phụ thuộc IPostRepository, IClaimRepository và các interface khác; Pg repositories hiện thực & Domain không phụ thuộc pg/SQL. Có thể thay bằng fake repository để kiểm thử điều kiện và lỗi, dùng PostgreSQL thật để kiểm thử transaction/unique. \\ \hline
+Constructor Dependency Injection & Truyền AuthService, IUnitOfWork, IStorageAdapter và NotificationService khi khởi tạo service & Không new SupabaseClient trong mỗi use case; dễ thay adapter bằng fake để tạo lỗi upload, thu hồi phiên hoặc rollback trong kiểm thử. \\ \hline
+Adapter & SupabaseAuthAdapter và SupabaseStorageAdapter & Đóng gói token/link/Storage SDK, tách credential hạ tầng khỏi domain. Auth và Storage không bị giả định tham gia transaction PostgreSQL. \\ \hline
+Unit of Work & IUnitOfWork/PgUnitOfWork và TxContext; ClaimService.decide, ModerationService.review & Các repository và thông báo cùng dùng một transaction. Không có trường hợp Claim ACCEPTED nhưng Post chưa RESOLVED hoặc notification đã báo khi rollback. \\ \hline
+State machine với transition guard & Enum PostStatus, ClaimStatus, UserStatus và các operation domain ở Mục~\ref{ood-state-machines} & Hiện thực ý định State Pattern nêu ở section 2 bằng enum và operation có guard cho quy mô hiện tại. Chưa tạo một lớp concrete state cho mỗi giá trị vì chưa cần thêm hành vi phức tạp. \\ \hline
+Least privilege; DTO theo allowlist & ContactAccessService đọc liên hệ; PostDTO/ClaimDTO không chứa liên hệ; bằng chứng chỉ có signed URL sau kiểm tra quyền & Không phụ thuộc vào việc giao diện che một ô dữ liệu; người gọi API trực tiếp cũng không được đọc thông tin chưa được cấp quyền (BR-02, NFR-02). \\ \hline
+DRY; validation nhiều tầng & DTO kiểm tra hình thức; entity kiểm tra quy tắc theo loại Post; database giữ FK/unique/check & UI phản hồi sớm, API không tin dữ liệu client, CSDL chặn tranh chấp đồng thời. Mỗi tầng có trách nhiệm khác nhau, không chép một bộ quy tắc nghiệp vụ vào mọi controller. \\ \hline
+\end{longtable}
+
+Các lựa chọn này cần được phản ánh trong section 5 khi thiết kế bảng, index và transaction; các trường hợp kiểm tra ở Mục~\ref{ood-state-machines} là đầu vào kế hoạch PA4, chưa phải kết quả kiểm thử ứng dụng. Các quyết định chi tiết hóa ở đầu 4.2 phải được đưa vào truy vết/thay đổi yêu cầu của PA3 khi nhóm tích hợp báo cáo, đặc biệt quy tắc tối thiểu ảnh và cách biểu diễn CLOSED.
+
+\subsubsection*{Đối chiếu thiết kế và bằng chứng}
+Class diagram tại Hình~\ref{fig:ood-domain}--\ref{fig:ood-catalog} được liên kết với tám đặc tả ở Mục~\ref{ood-class-specifications}. Năm sequence tại Hình~\ref{fig:seq-uc05}--\ref{fig:seq-uc10} dùng các operation trong những lớp/interface này. Các phép chuyển Post/Claim tại Hình~\ref{fig:state-post} và Hình~\ref{fig:state-claim} là hậu điều kiện của các luồng tạo, duyệt và kiểm duyệt tương ứng.
+
+\textbf{Trạng thái review: đã đối chiếu OOD--ERD, còn thiếu components.} Section 5 hiện có ERD tại Hình~\ref{fig:data-identity}--\ref{fig:data-admin}, đặc tả bảng, ràng buộc và index ánh xạ các lớp/repository ở trên; bằng chứng tại \href{run:../../../docs/design/database/evidence.md}{database/evidence.md}. Section 3 vẫn chưa có Component Diagram nên chưa xác nhận ranh giới component hoàn chỉnh. Bảng truy vết nguồn và trạng thái tích hợp được cập nhật tại \href{run:../../../docs/design/pa3-ood-traceability-review.md}{docs/design/pa3-ood-traceability-review.md}.

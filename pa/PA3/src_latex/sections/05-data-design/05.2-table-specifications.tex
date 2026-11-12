@@ -1,0 +1,533 @@
+\subsubsection*{\texttt{app.universities}}
+
+Trường đại học tham gia; yêu cầu chưa duyệt nằm ở bảng riêng.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{university\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh trường. \\ \hline
+
+\texttt{code} & \texttt{varchar(30)} & NN; UQ; CHECK code = upper(btrim(code)) AND code <> '' & Mã trường chuẩn hóa. \\ \hline
+
+\texttt{name} & \texttt{varchar(200)} & NN; CHECK btrim(name) <> '' & Tên trường. \\ \hline
+
+\texttt{status} & \texttt{varchar(12)} & NN; DEFAULT 'APPROVED'; CHECK status IN ('PENDING',\allowbreak{}'APPROVED') & Trạng thái trường. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\subsubsection*{\texttt{app.university\_\allowbreak{}domains}}
+
+Tên miền được phép đăng ký; một trường có thể có nhiều tên miền.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{domain} & \texttt{varchar(253)} & PK; NN; CHECK domain = lower(domain) AND domain \textasciitilde{} '\textasciicircum{}[a-z0-9][a-z0-9.-]*[.]edu[.]vn\$' & Tên miền chính xác,\allowbreak{} chữ thường,\allowbreak{} không có @\allowbreak{}. \\ \hline
+
+\texttt{university\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.universities.university\_\allowbreak{}id; DELETE RESTRICT & Trường sở hữu tên miền. \\ \hline
+
+\end{longtable}
+
+\subsubsection*{\texttt{app.campuses}}
+
+Cơ sở của trường dùng để đăng bài và lọc.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{campus\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh cơ sở. \\ \hline
+
+\texttt{university\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.universities.university\_\allowbreak{}id; DELETE RESTRICT & Trường sở hữu. \\ \hline
+
+\texttt{name} & \texttt{varchar(150)} & NN; CHECK btrim(name) <> '' & Tên cơ sở. \\ \hline
+
+\texttt{address} & \texttt{text} & NN; CHECK btrim(address) <> '' & Địa chỉ cơ sở. \\ \hline
+
+\texttt{is\_\allowbreak{}active} & \texttt{boolean} & NN; DEFAULT true & Còn được chọn cho bài mới. \\ \hline
+
+\end{longtable}
+
+\subsubsection*{\texttt{app.categories}}
+
+Danh mục vật phẩm; ẩn danh mục không xóa tham chiếu bài cũ.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{category\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh danh mục. \\ \hline
+
+\texttt{name} & \texttt{varchar(100)} & NN; CHECK btrim(name) <> '' & Tên danh mục. \\ \hline
+
+\texttt{is\_\allowbreak{}active} & \texttt{boolean} & NN; DEFAULT true & Danh mục được hiển thị trong form. \\ \hline
+
+\end{longtable}
+
+\subsubsection*{\texttt{app.users}}
+
+Profile nghiệp vụ; mật khẩu và link xác minh thuộc Supabase Auth.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{user\_\allowbreak{}id} & \texttt{uuid} & PK; NN; FK auth.users.id; DELETE RESTRICT & Cùng UUID với auth.users; không tự sinh identity thứ hai. \\ \hline
+
+\texttt{full\_\allowbreak{}name} & \texttt{varchar(150)} & NN; CHECK btrim(full\_\allowbreak{}name) <> '' & Họ tên. \\ \hline
+
+\texttt{role} & \texttt{varchar(10)} & NN; DEFAULT 'STUDENT'; CHECK role IN ('STUDENT',\allowbreak{}'ADMIN') & Vai trò lưu trong CSDL; Guest không có bản ghi. \\ \hline
+
+\texttt{status} & \texttt{varchar(10)} & NN; DEFAULT 'ACTIVE'; CHECK status IN ('ACTIVE',\allowbreak{}'BANNED') & Trạng thái tài khoản. \\ \hline
+
+\texttt{is\_\allowbreak{}verified} & \texttt{boolean} & NN; DEFAULT false & Bản đồng bộ kết quả xác minh đáng tin cậy. \\ \hline
+
+\texttt{student\_\allowbreak{}id} & \texttt{varchar(30)} & NULL được phép & MSSV tùy chọn,\allowbreak{} không có trong projection công khai. \\ \hline
+
+\texttt{failed\_\allowbreak{}login\_\allowbreak{}count} & \texttt{smallint} & NN; DEFAULT 0; CHECK failed\_\allowbreak{}login\_\allowbreak{}count BETWEEN 0 AND 5 & Số lần sai liên tiếp. \\ \hline
+
+\texttt{login\_\allowbreak{}locked\_\allowbreak{}until} & \texttt{timestamptz} & NULL được phép & Khóa đăng nhập tạm thời 15 phút; khác BANNED. \\ \hline
+
+\texttt{ban\_\allowbreak{}reason} & \texttt{text} & NULL được phép & Lý do khóa bởi Admin. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{users\_\allowbreak{}ban\_\allowbreak{}reason}: CHECK (status <> 'BANNED' OR nullif(btrim(ban\_\allowbreak{}reason),\allowbreak{}'') IS NOT NULL).
+
+\end{itemize}
+
+\subsubsection*{\texttt{private.user\_\allowbreak{}contacts}}
+
+Email trường và số điện thoại được bảo vệ; không join vào kết quả công khai.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{user\_\allowbreak{}id} & \texttt{uuid} & PK; NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Mỗi profile có đúng một bản ghi liên hệ. \\ \hline
+
+\texttt{university\_\allowbreak{}email} & \texttt{varchar(254)} & NN; UQ; CHECK university\_\allowbreak{}email = lower(btrim(university\_\allowbreak{}email)) AND university\_\allowbreak{}email \textasciitilde{} '\textasciicircum{}[\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}@\allowbreak{}[\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}\$' & Email trường chuẩn hóa; nguồn liên hệ Claimant sau ACCEPT. \\ \hline
+
+\texttt{email\_\allowbreak{}domain} & \texttt{varchar(253)} & NN; FK app.university\_\allowbreak{}domains.domain; DELETE RESTRICT & Tên miền trường đã đăng ký. \\ \hline
+
+\texttt{phone\_\allowbreak{}number} & \texttt{varchar(10)} & CHECK phone\_\allowbreak{}number \textasciitilde{} '\textasciicircum{}[0-9]\{10\}\$' & Số điện thoại nếu có. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{user\_\allowbreak{}contact\_\allowbreak{}domain}: CHECK (split\_\allowbreak{}part(university\_\allowbreak{}email,\allowbreak{}'@\allowbreak{}',\allowbreak{}2) = email\_\allowbreak{}domain).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.sessions}}
+
+Định danh phiên để kiểm tra thu hồi; không lưu access/refresh token.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{session\_\allowbreak{}id} & \texttt{uuid} & PK; NN & Session ID từ Auth adapter,\allowbreak{} không sinh ID không khớp token. \\ \hline
+
+\texttt{user\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Chủ phiên. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\texttt{expires\_\allowbreak{}at} & \texttt{timestamptz} & NN & Hạn phiên/token đang theo dõi. \\ \hline
+
+\texttt{revoked\_\allowbreak{}at} & \texttt{timestamptz} & NULL được phép & Có giá trị khi logout hoặc khóa tài khoản. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{sessions\_\allowbreak{}time}: CHECK (expires\_\allowbreak{}at > created\_\allowbreak{}at AND (revoked\_\allowbreak{}at IS NULL OR revoked\_\allowbreak{}at >= created\_\allowbreak{}at)).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.posts}}
+
+Single-table inheritance cho LostPost/FoundPost; dữ liệu riêng được tách.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh bài. \\ \hline
+
+\texttt{owner\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Chủ bài. \\ \hline
+
+\texttt{campus\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.campuses.campus\_\allowbreak{}id; DELETE RESTRICT & Cơ sở xảy ra sự việc. \\ \hline
+
+\texttt{category\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.categories.category\_\allowbreak{}id; DELETE RESTRICT & Danh mục vật phẩm. \\ \hline
+
+\texttt{post\_\allowbreak{}type} & \texttt{varchar(5)} & NN; CHECK post\_\allowbreak{}type IN ('LOST',\allowbreak{}'FOUND') & Loại bài,\allowbreak{} độc lập vòng đời. \\ \hline
+
+\texttt{title} & \texttt{varchar(200)} & NN; CHECK btrim(title) <> '' & Tiêu đề tìm kiếm. \\ \hline
+
+\texttt{description} & \texttt{text} & NULL được phép & Mô tả tùy chọn. \\ \hline
+
+\texttt{location\_\allowbreak{}detail} & \texttt{text} & NULL được phép & Vị trí chi tiết tùy chọn. \\ \hline
+
+\texttt{incident\_\allowbreak{}at} & \texttt{timestamptz} & NN & Thời gian mất/nhặt,\allowbreak{} không được ở tương lai khi ghi. \\ \hline
+
+\texttt{verification\_\allowbreak{}question} & \texttt{text} & NULL được phép & Bắt buộc với FOUND,\allowbreak{} NULL với LOST. \\ \hline
+
+\texttt{reward\_\allowbreak{}amount} & \texttt{numeric(12,\allowbreak{}2)} & CHECK reward\_\allowbreak{}amount >= 0 & Hậu tạ tùy chọn của LOST. \\ \hline
+
+\texttt{status} & \texttt{varchar(10)} & NN; DEFAULT 'ACTIVE'; CHECK status IN ('ACTIVE',\allowbreak{}'RESOLVED',\allowbreak{}'REPORTED',\allowbreak{}'CLOSED') & Vòng đời theo OOD. \\ \hline
+
+\texttt{previous\_\allowbreak{}status} & \texttt{varchar(10)} & NULL được phép & Chỉ có khi REPORTED để khôi phục đúng trạng thái. \\ \hline
+
+\texttt{close\_\allowbreak{}reason} & \texttt{varchar(20)} & NULL được phép & OWNER\_\allowbreak{}DELETED hoặc ADMIN\_\allowbreak{}REMOVED. \\ \hline
+
+\texttt{closure\_\allowbreak{}note} & \texttt{text} & NULL được phép & Lý do gỡ; không đưa vào kết quả công khai. \\ \hline
+
+\texttt{closed\_\allowbreak{}at} & \texttt{timestamptz} & NULL được phép & Thời điểm đóng. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\texttt{updated\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm cập nhật. \\ \hline
+
+\texttt{search\_\allowbreak{}vector} & \texttt{tsvector} & NN; generated STORED & Projection tìm kiếm được tính từ nội dung công khai. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{posts\_\allowbreak{}subtype}: CHECK ((post\_\allowbreak{}type = 'FOUND' AND nullif(btrim(verification\_\allowbreak{}question),\allowbreak{}'') IS NOT NULL AND reward\_\allowbreak{}amount IS NULL) OR (post\_\allowbreak{}type = 'LOST' AND verification\_\allowbreak{}question IS NULL)).
+
+\item \texttt{posts\_\allowbreak{}previous}: CHECK ((status = 'REPORTED' AND previous\_\allowbreak{}status IS NOT NULL AND previous\_\allowbreak{}status IN ('ACTIVE',\allowbreak{}'RESOLVED')) OR (status <> 'REPORTED' AND previous\_\allowbreak{}status IS NULL)).
+
+\item \texttt{posts\_\allowbreak{}closure}: CHECK ((status = 'CLOSED' AND close\_\allowbreak{}reason IS NOT NULL AND close\_\allowbreak{}reason IN ('OWNER\_\allowbreak{}DELETED',\allowbreak{}'ADMIN\_\allowbreak{}REMOVED') AND closed\_\allowbreak{}at IS NOT NULL AND (close\_\allowbreak{}reason <> 'ADMIN\_\allowbreak{}REMOVED' OR nullif(btrim(closure\_\allowbreak{}note),\allowbreak{}'') IS NOT NULL)) OR (status <> 'CLOSED' AND close\_\allowbreak{}reason IS NULL AND closed\_\allowbreak{}at IS NULL AND closure\_\allowbreak{}note IS NULL)).
+
+\end{itemize}
+
+\subsubsection*{\texttt{private.post\_\allowbreak{}details}}
+
+Liên hệ chủ bài theo từng Post và thuộc tính subtype riêng tư.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & PK; NN; FK app.posts.post\_\allowbreak{}id; DELETE RESTRICT & Đúng một bản ghi trên Post tại commit. \\ \hline
+
+\texttt{contact\_\allowbreak{}kind} & \texttt{varchar(5)} & NN; CHECK contact\_\allowbreak{}kind IN ('PHONE',\allowbreak{}'EMAIL') & Loại liên hệ. \\ \hline
+
+\texttt{contact\_\allowbreak{}value} & \texttt{varchar(254)} & NN & Liên hệ hợp lệ,\allowbreak{} không nằm trong public\_\allowbreak{}posts. \\ \hline
+
+\texttt{private\_\allowbreak{}identifier} & \texttt{text} & NULL được phép & Đặc điểm nhận dạng kín của LOST. \\ \hline
+
+\texttt{storage\_\allowbreak{}location} & \texttt{text} & NULL được phép & Nơi giữ đồ của FOUND; không công khai. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{post\_\allowbreak{}contact\_\allowbreak{}value}: CHECK ((contact\_\allowbreak{}kind = 'PHONE' AND contact\_\allowbreak{}value \textasciitilde{} '\textasciicircum{}[0-9]\{10\}\$') OR (contact\_\allowbreak{}kind = 'EMAIL' AND contact\_\allowbreak{}value \textasciitilde{} '\textasciicircum{}[\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}@\allowbreak{}[\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}[.][\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}\$')).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.post\_\allowbreak{}images}}
+
+Metadata ảnh bài; binary nằm ở Supabase Storage.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{image\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh ảnh. \\ \hline
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.posts.post\_\allowbreak{}id; DELETE RESTRICT & Bài chứa ảnh. \\ \hline
+
+\texttt{position} & \texttt{smallint} & NN; CHECK position BETWEEN 1 AND 5 & Vị trí gallery 1–5. \\ \hline
+
+\texttt{object\_\allowbreak{}key} & \texttt{text} & NN; UQ; CHECK btrim(object\_\allowbreak{}key) <> '' & Object key trong post-images; không lưu signed URL. \\ \hline
+
+\texttt{mime\_\allowbreak{}type} & \texttt{varchar(10)} & NN; CHECK mime\_\allowbreak{}type IN ('image/jpeg',\allowbreak{}'image/png') & MIME đã kiểm tra từ nội dung file. \\ \hline
+
+\texttt{size\_\allowbreak{}bytes} & \texttt{integer} & NN; CHECK size\_\allowbreak{}bytes BETWEEN 1 AND 5242880 & Dung lượng thực tế. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{post\_\allowbreak{}images\_\allowbreak{}position}: UNIQUE (post\_\allowbreak{}id,\allowbreak{} position).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.claims}}
+
+Claim đến Post chung,\allowbreak{} hỗ trợ cả LOST và FOUND; câu trả lời/bằng chứng không công khai.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{claim\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh Claim. \\ \hline
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.posts.post\_\allowbreak{}id; DELETE RESTRICT & Bài nhận Claim. \\ \hline
+
+\texttt{claimant\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Người gửi. \\ \hline
+
+\texttt{security\_\allowbreak{}answer} & \texttt{text} & NULL được phép & Bắt buộc với bài FOUND. \\ \hline
+
+\texttt{claim\_\allowbreak{}message} & \texttt{text} & NULL được phép & Mô tả nơi nhặt với LOST. \\ \hline
+
+\texttt{proof\_\allowbreak{}object\_\allowbreak{}key} & \texttt{text} & UQ & Một ảnh trong claim-evidence riêng tư. \\ \hline
+
+\texttt{proof\_\allowbreak{}mime\_\allowbreak{}type} & \texttt{varchar(10)} & NULL được phép & MIME của bằng chứng nếu có. \\ \hline
+
+\texttt{proof\_\allowbreak{}size\_\allowbreak{}bytes} & \texttt{integer} & NULL được phép & Dung lượng bằng chứng nếu có. \\ \hline
+
+\texttt{status} & \texttt{varchar(10)} & NN; DEFAULT 'PENDING'; CHECK status IN ('PENDING',\allowbreak{}'ACCEPTED',\allowbreak{}'REJECTED',\allowbreak{}'CANCELLED') & Máy trạng thái Claim. \\ \hline
+
+\texttt{decision\_\allowbreak{}reason} & \texttt{text} & NULL được phép & Lý do từ chối tùy chọn; hủy có mã nguyên nhân. \\ \hline
+
+\texttt{decided\_\allowbreak{}at} & \texttt{timestamptz} & NULL được phép & Có khi không còn PENDING. \\ \hline
+
+\texttt{submitted\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm gửi. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{claim\_\allowbreak{}proof}: CHECK ((proof\_\allowbreak{}object\_\allowbreak{}key IS NULL AND proof\_\allowbreak{}mime\_\allowbreak{}type IS NULL AND proof\_\allowbreak{}size\_\allowbreak{}bytes IS NULL) OR (proof\_\allowbreak{}object\_\allowbreak{}key IS NOT NULL AND btrim(proof\_\allowbreak{}object\_\allowbreak{}key) <> '' AND proof\_\allowbreak{}mime\_\allowbreak{}type IS NOT NULL AND proof\_\allowbreak{}mime\_\allowbreak{}type IN ('image/jpeg',\allowbreak{}'image/png') AND proof\_\allowbreak{}size\_\allowbreak{}bytes IS NOT NULL AND proof\_\allowbreak{}size\_\allowbreak{}bytes BETWEEN 1 AND 5242880)).
+
+\item \texttt{claim\_\allowbreak{}decision}: CHECK ((status = 'PENDING' AND decided\_\allowbreak{}at IS NULL AND decision\_\allowbreak{}reason IS NULL) OR (status <> 'PENDING' AND decided\_\allowbreak{}at IS NOT NULL AND decided\_\allowbreak{}at >= submitted\_\allowbreak{}at AND (status <> 'CANCELLED' OR nullif(btrim(decision\_\allowbreak{}reason),\allowbreak{}'') IS NOT NULL))).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.moderation\_\allowbreak{}actions}}
+
+Audit append-only cho giữ/gỡ bài và khóa tài khoản.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{action\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh audit. \\ \hline
+
+\texttt{admin\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Admin thực hiện. \\ \hline
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & FK app.posts.post\_\allowbreak{}id; DELETE RESTRICT & Đích là bài khi KEEP/REMOVE. \\ \hline
+
+\texttt{target\_\allowbreak{}user\_\allowbreak{}id} & \texttt{uuid} & FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Đích tài khoản khi BAN\_\allowbreak{}USER. \\ \hline
+
+\texttt{action} & \texttt{varchar(12)} & NN; CHECK action IN ('KEEP\_\allowbreak{}POST',\allowbreak{}'REMOVE\_\allowbreak{}POST',\allowbreak{}'BAN\_\allowbreak{}USER') & Loại thao tác. \\ \hline
+
+\texttt{reason} & \texttt{text} & NULL được phép & Lý do bắt buộc cho gỡ/khóa. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{moderation\_\allowbreak{}target}: CHECK ((action IN ('KEEP\_\allowbreak{}POST',\allowbreak{}'REMOVE\_\allowbreak{}POST') AND post\_\allowbreak{}id IS NOT NULL AND target\_\allowbreak{}user\_\allowbreak{}id IS NULL) OR (action = 'BAN\_\allowbreak{}USER' AND target\_\allowbreak{}user\_\allowbreak{}id IS NOT NULL AND post\_\allowbreak{}id IS NULL)).
+
+\item \texttt{moderation\_\allowbreak{}reason}: CHECK (action = 'KEEP\_\allowbreak{}POST' OR nullif(btrim(reason),\allowbreak{}'') IS NOT NULL).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.reports}}
+
+Mỗi người báo cáo một bài một lần,\allowbreak{} không xóa lịch sử khi Admin giữ bài.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{report\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh báo cáo. \\ \hline
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.posts.post\_\allowbreak{}id; DELETE RESTRICT & Bài bị báo cáo. \\ \hline
+
+\texttt{reporter\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Người báo cáo. \\ \hline
+
+\texttt{reason} & \texttt{varchar(12)} & NN; CHECK reason IN ('SPAM',\allowbreak{}'FALSE\_\allowbreak{}INFO',\allowbreak{}'INAPPROPRIATE',\allowbreak{}'OTHER') & Lý do báo cáo. \\ \hline
+
+\texttt{detail\_\allowbreak{}message} & \texttt{text} & NULL được phép & OTHER bắt buộc có mô tả. \\ \hline
+
+\texttt{status} & \texttt{varchar(10)} & NN; DEFAULT 'PENDING'; CHECK status IN ('PENDING',\allowbreak{}'APPROVED',\allowbreak{}'DISMISSED') & Trạng thái xét báo cáo. \\ \hline
+
+\texttt{action\_\allowbreak{}id} & \texttt{uuid} & FK app.moderation\_\allowbreak{}actions.action\_\allowbreak{}id; DELETE RESTRICT & Audit đã xử lý báo cáo. \\ \hline
+
+\texttt{reported\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm báo cáo. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{report\_\allowbreak{}once}: UNIQUE (post\_\allowbreak{}id,\allowbreak{} reporter\_\allowbreak{}id).
+
+\item \texttt{report\_\allowbreak{}other}: CHECK (reason <> 'OTHER' OR nullif(btrim(detail\_\allowbreak{}message),\allowbreak{}'') IS NOT NULL).
+
+\item \texttt{report\_\allowbreak{}settlement}: CHECK ((status = 'PENDING' AND action\_\allowbreak{}id IS NULL) OR (status <> 'PENDING' AND action\_\allowbreak{}id IS NOT NULL)).
+
+\end{itemize}
+
+\subsubsection*{\texttt{app.notifications}}
+
+Thông báo in-app lưu cùng transaction nghiệp vụ,\allowbreak{} không chứa liên hệ/câu trả lời.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{notification\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh thông báo. \\ \hline
+
+\texttt{recipient\_\allowbreak{}id} & \texttt{uuid} & NN; FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Người nhận. \\ \hline
+
+\texttt{post\_\allowbreak{}id} & \texttt{uuid} & FK app.posts.post\_\allowbreak{}id; DELETE RESTRICT & Ngữ cảnh bài nếu có. \\ \hline
+
+\texttt{claim\_\allowbreak{}id} & \texttt{uuid} & FK app.claims.claim\_\allowbreak{}id; DELETE RESTRICT & Ngữ cảnh Claim nếu có. \\ \hline
+
+\texttt{event\_\allowbreak{}type} & \texttt{varchar(24)} & NN; CHECK event\_\allowbreak{}type IN ('CLAIM\_\allowbreak{}RECEIVED',\allowbreak{}'CLAIM\_\allowbreak{}DECIDED',\allowbreak{}'POST\_\allowbreak{}MODERATED',\allowbreak{}'ACCOUNT\_\allowbreak{}BANNED') & Loại sự kiện. \\ \hline
+
+\texttt{message\_\allowbreak{}code} & \texttt{varchar(50)} & NN; CHECK message\_\allowbreak{}code IN ('CLAIM\_\allowbreak{}RECEIVED',\allowbreak{}'CLAIM\_\allowbreak{}ACCEPTED',\allowbreak{}'CLAIM\_\allowbreak{}REJECTED',\allowbreak{}'CLAIM\_\allowbreak{}CANCELLED',\allowbreak{}'POST\_\allowbreak{}REPORTED',\allowbreak{}'POST\_\allowbreak{}KEPT',\allowbreak{}'POST\_\allowbreak{}REMOVED',\allowbreak{}'ACCOUNT\_\allowbreak{}BANNED') & Mã thông điệp để UI dựng nội dung,\allowbreak{} không lưu payload liên hệ. \\ \hline
+
+\texttt{read\_\allowbreak{}at} & \texttt{timestamptz} & NULL được phép & NULL là chưa đọc. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{notification\_\allowbreak{}time}: CHECK (read\_\allowbreak{}at IS NULL OR read\_\allowbreak{}at >= created\_\allowbreak{}at).
+
+\item \texttt{notification\_\allowbreak{}message\_\allowbreak{}event}: CHECK ((event\_\allowbreak{}type = 'CLAIM\_\allowbreak{}RECEIVED' AND message\_\allowbreak{}code = 'CLAIM\_\allowbreak{}RECEIVED') OR (event\_\allowbreak{}type = 'CLAIM\_\allowbreak{}DECIDED' AND message\_\allowbreak{}code IN ('CLAIM\_\allowbreak{}ACCEPTED',\allowbreak{}'CLAIM\_\allowbreak{}REJECTED',\allowbreak{}'CLAIM\_\allowbreak{}CANCELLED')) OR (event\_\allowbreak{}type = 'POST\_\allowbreak{}MODERATED' AND message\_\allowbreak{}code IN ('POST\_\allowbreak{}REPORTED',\allowbreak{}'POST\_\allowbreak{}KEPT',\allowbreak{}'POST\_\allowbreak{}REMOVED')) OR (event\_\allowbreak{}type = 'ACCOUNT\_\allowbreak{}BANNED' AND message\_\allowbreak{}code = 'ACCOUNT\_\allowbreak{}BANNED')).
+
+\item \texttt{notification\_\allowbreak{}context}: CHECK ((event\_\allowbreak{}type IN ('CLAIM\_\allowbreak{}RECEIVED',\allowbreak{}'CLAIM\_\allowbreak{}DECIDED') AND claim\_\allowbreak{}id IS NOT NULL AND post\_\allowbreak{}id IS NOT NULL) OR (event\_\allowbreak{}type = 'POST\_\allowbreak{}MODERATED' AND post\_\allowbreak{}id IS NOT NULL AND claim\_\allowbreak{}id IS NULL) OR (event\_\allowbreak{}type = 'ACCOUNT\_\allowbreak{}BANNED' AND post\_\allowbreak{}id IS NULL AND claim\_\allowbreak{}id IS NULL)).
+
+\end{itemize}
+
+\subsubsection*{\texttt{private.school\_\allowbreak{}requests}}
+
+Yêu cầu thêm trường do đại diện chưa có tài khoản gửi.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{request\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Mã yêu cầu trả về người gửi. \\ \hline
+
+\texttt{university\_\allowbreak{}name} & \texttt{varchar(200)} & NN; CHECK btrim(university\_\allowbreak{}name) <> '' & Tên trường đề nghị. \\ \hline
+
+\texttt{email\_\allowbreak{}domain} & \texttt{varchar(253)} & NN; CHECK email\_\allowbreak{}domain = lower(email\_\allowbreak{}domain) AND email\_\allowbreak{}domain \textasciitilde{} '\textasciicircum{}[a-z0-9][a-z0-9.-]*[.]edu[.]vn\$' & Tên miền xin tham gia,\allowbreak{} chuẩn hóa. \\ \hline
+
+\texttt{contact\_\allowbreak{}name} & \texttt{varchar(150)} & NN; CHECK btrim(contact\_\allowbreak{}name) <> '' & Người liên hệ của trường. \\ \hline
+
+\texttt{contact\_\allowbreak{}email} & \texttt{varchar(254)} & NN; CHECK contact\_\allowbreak{}email \textasciitilde{} '\textasciicircum{}[\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}@\allowbreak{}[\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}[.][\textasciicircum{}@\allowbreak{}[:space:]]+\allowbreak{}\$' & Email nhận kết quả,\allowbreak{} chỉ Admin/Auth mail adapter đọc. \\ \hline
+
+\texttt{notes} & \texttt{text} & NULL được phép & Ghi chú tùy chọn. \\ \hline
+
+\texttt{status} & \texttt{varchar(10)} & NN; DEFAULT 'PENDING'; CHECK status IN ('PENDING',\allowbreak{}'APPROVED',\allowbreak{}'REJECTED') & Vòng đời yêu cầu. \\ \hline
+
+\texttt{reviewer\_\allowbreak{}id} & \texttt{uuid} & FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Admin quyết định. \\ \hline
+
+\texttt{university\_\allowbreak{}id} & \texttt{uuid} & FK app.universities.university\_\allowbreak{}id; DELETE RESTRICT & Trường được tạo khi APPROVED. \\ \hline
+
+\texttt{rejection\_\allowbreak{}reason} & \texttt{text} & NULL được phép & Bắt buộc khi REJECTED. \\ \hline
+
+\texttt{reviewed\_\allowbreak{}at} & \texttt{timestamptz} & NULL được phép & Thời điểm quyết định. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{school\_\allowbreak{}request\_\allowbreak{}decision}: CHECK ((status = 'PENDING' AND reviewer\_\allowbreak{}id IS NULL AND university\_\allowbreak{}id IS NULL AND reviewed\_\allowbreak{}at IS NULL AND rejection\_\allowbreak{}reason IS NULL) OR (status = 'APPROVED' AND reviewer\_\allowbreak{}id IS NOT NULL AND university\_\allowbreak{}id IS NOT NULL AND reviewed\_\allowbreak{}at IS NOT NULL AND rejection\_\allowbreak{}reason IS NULL) OR (status = 'REJECTED' AND reviewer\_\allowbreak{}id IS NOT NULL AND university\_\allowbreak{}id IS NULL AND reviewed\_\allowbreak{}at IS NOT NULL AND nullif(btrim(rejection\_\allowbreak{}reason),\allowbreak{}'') IS NOT NULL)).
+
+\end{itemize}
+
+\subsubsection*{\texttt{private.school\_\allowbreak{}request\_\allowbreak{}campuses}}
+
+Danh sách cơ sở đề nghị,\allowbreak{} tách khỏi một ô JSON/CSV để đạt 1NF.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{request\_\allowbreak{}campus\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh dòng cơ sở đề nghị. \\ \hline
+
+\texttt{request\_\allowbreak{}id} & \texttt{uuid} & NN; FK private.school\_\allowbreak{}requests.request\_\allowbreak{}id; DELETE RESTRICT & Yêu cầu chứa cơ sở. \\ \hline
+
+\texttt{name} & \texttt{varchar(150)} & NN; CHECK btrim(name) <> '' & Tên cơ sở đề nghị. \\ \hline
+
+\texttt{address} & \texttt{text} & NN; CHECK btrim(address) <> '' & Địa chỉ đề nghị. \\ \hline
+
+\end{longtable}
+
+\subsubsection*{\texttt{app.integration\_\allowbreak{}tasks}}
+
+Ghi bền vững việc cần thử lại với dịch vụ ngoài transaction CSDL.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.20\linewidth}|>{\raggedright\arraybackslash}p{.14\linewidth}|>{\raggedright\arraybackslash}p{.31\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+
+\hline\rowcolor{TableBlue}\tableheader{Column} & \tableheader{Type} & \tableheader{Constraints / default} & \tableheader{Description} \\ \hline\endhead
+
+\texttt{task\_\allowbreak{}id} & \texttt{uuid} & PK; NN; DEFAULT gen\_\allowbreak{}random\_\allowbreak{}uuid() & Định danh tác vụ tích hợp. \\ \hline
+
+\texttt{kind} & \texttt{varchar(24)} & NN; CHECK kind IN ('REVOKE\_\allowbreak{}SESSIONS',\allowbreak{}'DELETE\_\allowbreak{}OBJECT',\allowbreak{}'SCHOOL\_\allowbreak{}DECISION\_\allowbreak{}EMAIL') & Loại thao tác. \\ \hline
+
+\texttt{target\_\allowbreak{}user\_\allowbreak{}id} & \texttt{uuid} & FK app.users.user\_\allowbreak{}id; DELETE RESTRICT & Đích thu hồi phiên. \\ \hline
+
+\texttt{request\_\allowbreak{}id} & \texttt{uuid} & FK private.school\_\allowbreak{}requests.request\_\allowbreak{}id; DELETE RESTRICT & Đích gửi kết quả trường. \\ \hline
+
+\texttt{object\_\allowbreak{}key} & \texttt{text} & NULL được phép & Đích dọn object Storage. \\ \hline
+
+\texttt{status} & \texttt{varchar(8)} & NN; DEFAULT 'PENDING'; CHECK status IN ('PENDING',\allowbreak{}'DONE',\allowbreak{}'FAILED') & Trạng thái thử lại. \\ \hline
+
+\texttt{attempt\_\allowbreak{}count} & \texttt{integer} & NN; DEFAULT 0; CHECK attempt\_\allowbreak{}count >= 0 & Số lần thử. \\ \hline
+
+\texttt{last\_\allowbreak{}error\_\allowbreak{}code} & \texttt{varchar(50)} & NULL được phép & Mã lỗi đã làm sạch,\allowbreak{} không chứa PII. \\ \hline
+
+\texttt{next\_\allowbreak{}attempt\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm được phép thử lại. \\ \hline
+
+\texttt{created\_\allowbreak{}at} & \texttt{timestamptz} & NN; DEFAULT CURRENT\_\allowbreak{}TIMESTAMP & Thời điểm tạo,\allowbreak{} lưu UTC. \\ \hline
+
+\end{longtable}
+
+\textbf{Ràng buộc nhiều cột của bảng:}
+
+\begin{itemize}
+
+\item \texttt{integration\_\allowbreak{}target}: CHECK ((kind = 'REVOKE\_\allowbreak{}SESSIONS' AND target\_\allowbreak{}user\_\allowbreak{}id IS NOT NULL AND request\_\allowbreak{}id IS NULL AND object\_\allowbreak{}key IS NULL) OR (kind = 'SCHOOL\_\allowbreak{}DECISION\_\allowbreak{}EMAIL' AND request\_\allowbreak{}id IS NOT NULL AND target\_\allowbreak{}user\_\allowbreak{}id IS NULL AND object\_\allowbreak{}key IS NULL) OR (kind = 'DELETE\_\allowbreak{}OBJECT' AND object\_\allowbreak{}key IS NOT NULL AND btrim(object\_\allowbreak{}key) <> '' AND target\_\allowbreak{}user\_\allowbreak{}id IS NULL AND request\_\allowbreak{}id IS NULL)).
+
+\end{itemize}

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-12",
+  "engine": "PostgreSQL 18.6 (PGlite 0.5.16) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a), 32-bit",
+  "runner": "PGlite 0.5.16, isolated in-memory PostgreSQL",
+  "passed": 32,
+  "failed": 0,
+  "results": [
+    {
+      "name": "17 tables / 126 columns / 27 foreign keys materialise",
+      "passed": true
+    },
+    {
+      "name": "NOT NULL and foreign keys reject invalid session",
+      "passed": true
+    },
+    {
+      "name": "Case-insensitive category uniqueness",
+      "passed": true
+    },
+    {
+      "name": "BR-01: unverified and banned users cannot create posts",
+      "passed": true
+    },
+    {
+      "name": "Deferred one-contact and minimum-one-image constraints",
+      "passed": true
+    },
+    {
+      "name": "Image slot, MIME, size checks and maximum five images",
+      "passed": true
+    },
+    {
+      "name": "FOUND requires question and answer; answer alone is sufficient",
+      "passed": true
+    },
+    {
+      "name": "LOST accepts message OR image, rejects neither",
+      "passed": true
+    },
+    {
+      "name": "Reject self / unverified / banned Claimants",
+      "passed": true
+    },
+    {
+      "name": "One PENDING per Post/User, resend after REJECTED allowed",
+      "passed": true
+    },
+    {
+      "name": "Only owner decides; null decision is rejected",
+      "passed": true
+    },
+    {
+      "name": "BR-02: Guest/student/PENDING/Admin cannot read foreign contact",
+      "passed": true
+    },
+    {
+      "name": "ACCEPT atomically resolves Post, rejects others and opens both contacts",
+      "passed": true
+    },
+    {
+      "name": "Partial UNIQUE prevents two ACCEPTED even before Post update",
+      "passed": true
+    },
+    {
+      "name": "Deferred invariant rejects accepting without resolving/rejecting others",
+      "passed": true
+    },
+    {
+      "name": "Injected error rolls back Claim, Post and notification",
+      "passed": true
+    },
+    {
+      "name": "Manual resolution does not grant contact access",
+      "passed": true
+    },
+    {
+      "name": "Question locked when pending Claim exists",
+      "passed": true
+    },
+    {
+      "name": "BR-03: third DISTINCT reporter hides Post; duplicate cannot inflate count",
+      "passed": true
+    },
+    {
+      "name": "KEEP restores previous state; handled reports do not re-hide",
+      "passed": true
+    },
+    {
+      "name": "KEEP preserves RESOLVED and accepted contact rights",
+      "passed": true
+    },
+    {
+      "name": "REMOVE requires Admin and reason; cancels pending and preserves audit",
+      "passed": true
+    },
+    {
+      "name": "Public projection has no protected columns",
+      "passed": true
+    },
+    {
+      "name": "anon/authenticated cannot bypass API via schema or RPC",
+      "passed": true
+    },
+    {
+      "name": "Backend API cannot SELECT private contacts; auth column grant excludes phone",
+      "passed": true
+    },
+    {
+      "name": "Soft deletion/history: API has no DELETE and audit cannot be edited",
+      "passed": true
+    },
+    {
+      "name": "Pending school-domain uniqueness; catalog role does not read user contacts",
+      "passed": true
+    },
+    {
+      "name": "All explicit indexes exist; all app tables have RLS",
+      "passed": true
+    },
+    {
+      "name": "RESOLVED cannot be owner-deleted or edited",
+      "passed": true
+    },
+    {
+      "name": "Owner ban hides existing posts and closes foreign contact access without changing Post state",
+      "passed": true
+    },
+    {
+      "name": "Owner-feed query can use its intended index (planner capability, not benchmark)",
+      "passed": true
+    },
+    {
+      "name": "Deliberate context replicas reject mismatched Claim/Post, event code and report audit",
+      "passed": true
+    }
+  ],
+  "limits": [
+    "auth.users is a test stub; Supabase Auth/SMTP/Storage are not exercised",
+    "No HTTP API, live Supabase deployment, parallel-session race test or NFR load benchmark was run",
+    "Actor UUID parameters are trusted backend inputs, not independent authentication"
+  ]
+}

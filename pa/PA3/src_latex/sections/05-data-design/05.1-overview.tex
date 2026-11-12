@@ -1,0 +1,7 @@
+Thiết kế dùng PostgreSQL trên Supabase theo section 2, ánh xạ các lớp tại Mục~\ref{ood-class-diagram} thành 17 bảng nghiệp vụ với 126 cột và 27 khóa ngoại. Schema \texttt{app} chứa dữ liệu nghiệp vụ cho API tin cậy; schema \texttt{private} tách liên hệ, thuộc tính kín và yêu cầu thêm trường có PII. \texttt{auth.users} do Supabase quản lý, không phải bảng application tự tạo. Binary ảnh nằm ở Storage, CSDL chỉ lưu object key và metadata.
+
+ERD được chia ba hình để giữ chữ đọc được. PK là khóa chính, FK là khóa ngoại, UQ là khóa duy nhất. Mũi tên đi từ bảng cha sang bảng con, nhãn ghi bội số cha:con; ô xám là tham chiếu lại bảng đã vẽ, không phải bảng bổ sung. Bảng phía sau liệt kê đầy đủ 27 FK, gồm những liên kết được lược khỏi hình để tránh giao cắt. Tính bắt buộc ở phía bảng con do NOT NULL; các bội số tối thiểu một dòng con dùng constraint trigger trì hoãn đến COMMIT.
+\input{sections/05-data-design/05.1-erd.tex}
+\input{sections/05-data-design/05.1-relationships.tex}
+
+LostPost/FoundPost dùng single-table inheritance với \texttt{posts.post\_type}; không nhân đôi bảng hoặc giới hạn Claim chỉ đến FOUND. \texttt{verification\_question} chỉ bắt buộc cho FOUND; \texttt{reward\_amount} chỉ có ở LOST. Thuộc tính privateIdentifier, storageLocation và liên hệ được tách ở \texttt{private.post\_\allowbreak{}details}. Bài chỉ có campusId, không lưu universityId suy ra từ Campus. Mỗi Post có đúng một bản ghi riêng tư và 1--5 ảnh theo quyết định hiện tại của 4.1/4.2; không ngầm đổi sang ảnh tùy chọn.

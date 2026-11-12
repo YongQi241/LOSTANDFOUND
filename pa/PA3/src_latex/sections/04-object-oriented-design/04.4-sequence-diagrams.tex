@@ -1,0 +1,31 @@
+Năm use case UC-05, UC-07, UC-08, UC-09 và UC-10 được chọn vì bao phủ tạo bài, kết nối nhận đồ và kiểm duyệt. Lifeline UI/HTTP boundary gom thao tác người dùng và controller mỏng; các lifeline còn lại là lớp/interface đã khai báo ở Mục~\ref{ood-class-diagram}. Đường liền là lời gọi operation, đường đứt là kết quả trả về. Vùng alt/else là các nhánh loại trừ nhau; opt chỉ chạy khi điều kiện đúng. Các ghi chú begin/commit/rollback tương ứng operation của IUnitOfWork, không phải lời gọi đến một database ngoài kiến trúc.
+
+Middleware xác thực phiên trước khi service nhận actorId. Guard quyền, kiểm tra trạng thái mới nhất và quy ước khóa ở Mục~\ref{ood-class-specifications} áp dụng cho mọi hình. NotificationService.enqueue gọi INotificationRepository.add trên cùng TxContext; chưa commit thì notification chưa được hiển thị. Các operation repository rejectOthers, cancelPending và settle áp dụng phép chuyển domain tương ứng cho từng bản ghi, chỉ đổi những bản ghi còn PENDING. Hai operation đầu trả danh sách Claim vừa thay đổi để service xác định người cần thông báo. Mỗi use case có đúng một sequence diagram; tổng cộng năm hình, trong đó UC-08 và UC-10 bao gồm cả bước đọc dữ liệu trước khi quyết định.
+
+\subsubsection{UC-05 -- Tạo bài đăng Mất/Nhặt đồ}
+Tiền điều kiện: tài khoản đã xác minh, không BANNED. Service kiểm tra PostInput gồm loại bài, tiêu đề, Campus, Category, thời gian, ảnh và liên hệ; FoundPost cần câu hỏi xác minh. Đây là hậu kiểm: bài hợp lệ được lưu ACTIVE. Dữ liệu không hợp lệ trả 422 trước khi lưu; storage lỗi không tạo bài; lỗi CSDL sau upload kích hoạt dọn ảnh. Kết quả công khai không chứa liên hệ.
+\input{sections/04-object-oriented-design/sequence-uc05.tex}
+
+\subsubsection{UC-07 -- Gửi Claim}
+LostPost.validateClaim yêu cầu mô tả nơi nhặt hoặc ảnh; FoundPost.validateClaim yêu cầu câu trả lời, có thể thêm ảnh. Dù UI đã kiểm tra trước upload, service vẫn kiểm tra lại trạng thái Post/User sau khóa để tránh bài đã đóng hoặc tài khoản vừa bị khóa. Bằng chứng được upload vào scope riêng tư; thiếu ảnh thì bỏ qua upload. Hủy form không gọi submit và không tạo bản ghi. Claim trùng, tự Claim hoặc bài không còn nhận yêu cầu đều không sinh notification.
+\input{sections/04-object-oriented-design/sequence-uc07.tex}
+
+\subsubsection{UC-08 -- Chấp nhận hoặc từ chối Claim}
+Chủ bài mở danh sách qua ClaimService.listForPost; service xác thực actor, đọc Post và kiểm tra ownerId trước khi trả câu trả lời. Danh sách rỗng hiển thị trạng thái chưa có yêu cầu (UC-08 E1). Khi bấm ảnh, readEvidence kiểm tra lại actor và quan hệ với Claim trước khi cấp signed URL ngắn hạn. Không dùng SearchService.detail công khai để đọc bằng chứng, cũng không cấp quyền chỉ vì người gọi biết claimId.
+
+Hộp thoại xác nhận ở UI phải hoàn tất trước khi gửi quyết định ACCEPT. Nhánh ACCEPT chỉ chạy nếu Claimant vẫn hợp lệ. Một Claim được nhận, Post chuyển RESOLVED và các Claim PENDING khác chuyển REJECTED trong cùng transaction. Các Claim đã kết thúc từ trước được giữ nguyên lịch sử. Chỉ sau commit, hai người dùng mới có thể đọc liên hệ qua các request độc lập; service đọc lại quyền nên tài khoản bị khóa hoặc bài bị gỡ sau đó không tiếp tục được cấp liên hệ đối phương.
+\input{sections/04-object-oriented-design/sequence-uc08.tex}
+
+\textbf{Hai lần duyệt đồng thời:} request đầu giữ khóa Post và commit; request sau đọc lại RESOLVED/Claim đã quyết định rồi trả 409. Unique index cho một ACCEPTED/Post là lớp bảo vệ cuối cùng; không chỉ dựa vào việc UI ẩn nút. Nếu bất kỳ update/notification thất bại, rollback toàn bộ và liên hệ vẫn không đủ điều kiện mở.
+
+\subsubsection{UC-09 -- Báo cáo vi phạm}
+Mỗi reporter chỉ tạo một Report cho một Post trong toàn bộ lịch sử. OTHER cần ghi chú. Hình minh họa ngưỡng ba theo quyết định section 2/4.1, bổ sung chi tiết tự động ẩn so với mô tả hàng đợi trong UC-09 PA2. Báo cáo đã settle không còn tính vào countPending; việc Admin giữ bài không xóa lịch sử reporter. Post đã REPORTED không ghi đè previousStatus hoặc phát lại cảnh báo mỗi khi có người báo cáo thêm.
+\input{sections/04-object-oriented-design/sequence-uc09.tex}
+
+\subsubsection{UC-10 -- Kiểm duyệt và khóa tài khoản}
+Admin mở hàng đợi bằng listQueue, rồi đọc bài bị ẩn và các báo cáo qua readCase. Cả hai operation đều kiểm tra role ADMIN; không dùng SearchService.detail vốn loại bài REPORTED. Nếu hàng đợi rỗng, UI hiển thị thông báo UC-10 E3. ModerationDTO chỉ chứa dữ liệu cần kiểm duyệt, không kèm liên hệ riêng hoặc bằng chứng Claim.
+
+Nhánh KEEP khôi phục trạng thái trước khi bị báo cáo; nếu chủ bài BANNED thì bài vẫn không công khai theo điều kiện hiển thị. Nhánh REMOVE yêu cầu lý do, đóng bài, hủy Claim PENDING và lưu audit. Hai Admin xử lý cùng một bài được tuần tự hóa bằng khóa Post; người xử lý sau nhận 409 nếu bài không còn REPORTED.
+\input{sections/04-object-oriented-design/sequence-uc10.tex}
+
+Luồng A2 khóa tài khoản dùng operation \texttt{ModerationService.banUser(adminId, userId, reason)}: AuthService.requireActor kiểm tra ADMIN; IUserRepository.lock/get lấy User đích; từ chối nếu đích là ADMIN hoặc thiếu lý do; User.ban và IUserRepository.save lưu BANNED; IClaimRepository.cancelPending hủy Claim do tài khoản gửi; IReportRepository.audit và NotificationService.enqueue lưu nhật ký/thông báo, rồi commit. Sau đó IAuthProvider.revokeUser thu hồi các phiên ở provider. Nếu provider lỗi, giữ BANNED, ghi nhận lỗi để thử lại; middleware đọc trạng thái tài khoản vẫn chặn mọi request mới. Không thay Post.status chỉ để ẩn bài của tài khoản bị khóa.

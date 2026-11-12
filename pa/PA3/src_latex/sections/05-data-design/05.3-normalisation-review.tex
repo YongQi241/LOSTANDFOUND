@@ -1,0 +1,56 @@
+\subsubsection{Normalisation: 3NF và các ngoại lệ có chủ đích}
+Các quan hệ nghiệp vụ hướng tới 3NF: mọi thuộc tính không khóa phụ thuộc vào khóa ứng viên, toàn bộ khóa và không qua một thuộc tính không khóa khác. Các ngoại lệ có chủ đích được liệt kê riêng bên dưới. UUID là khóa thay thế; việc chọn UUID không tự chứng minh 3NF, nên các phụ thuộc nghiệp vụ cũng được kiểm tra dưới đây.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.25\linewidth}|>{\raggedright\arraybackslash}p{.40\linewidth}|>{\raggedright\arraybackslash}p{.27\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Nhóm quan hệ} & \tableheader{Khóa / functional dependencies} & \tableheader{Kết quả chuẩn hóa} \\ \hline\endhead
+Trường, tên miền, cơ sở & universityId $\to$ code/name/status; domain $\to$ universityId; campusId $\to$ universityId/name/address & Tên trường không lặp ở Post; một trường có nhiều tên miền/cơ sở là nhiều dòng, không CSV/array. \\ \hline
+Category và Post & categoryId $\to$ name/isActive; postId $\to$ owner/campus/category/type/nội dung/trạng thái & Không lưu categoryName, universityName hoặc universityId suy ra từ campusId ở Post. \\ \hline
+User và liên hệ & userId $\to$ profile; userId $\leftrightarrow$ universityEmail là hai khóa ứng viên trong user\_contacts & EmailDomain được kiểm tra khớp phần tên miền; tên trường nằm ở quan hệ được tham chiếu. Tách riêng để kiểm soát quyền, không phải để thay thế chuẩn hóa. \\ \hline
+Ảnh và Claim & imageId $\to$ metadata; (postId, position) là khóa ứng viên; claimId $\to$ post/claimant/bằng chứng/quyết định & Mỗi ảnh là một dòng, không lưu danh sách URL trong Post. Claim hỗ trợ tối đa một tuple bằng chứng trong phạm vi này. \\ \hline
+Report và audit & (postId, reporterId) $\to$ report; actionId $\to$ Admin/đích/quyết định/thời gian & Không lưu reportCount trong Post; count chỉ tính các dòng PENDING. Audit là sự kiện lịch sử riêng, không ghi đè để thay trạng thái hiện tại. \\ \hline
+Yêu cầu thêm trường & requestId $\to$ thông tin đề nghị/đại diện/quyết định; requestCampusId $\to$ request/name/address & Danh sách cơ sở đề nghị được tách thành school\_request\_campuses, bảo đảm 1NF và không phụ thuộc từng phần. \\ \hline
+Notification và session & notificationId $\to$ recipient/event/context/readAt; sessionId $\to$ user/expiry/revocation & isRead suy ra từ readAt; title/messageBody được UI dựng từ messageCode có CHECK allowlist. Không lưu unreadCount dư hoặc mật khẩu/token trong session. \\ \hline
+\end{longtable}
+
+\textbf{Các ngoại lệ/replica kỹ thuật được giải thích:}
+\begin{itemize}
+\item Notification giữ cả claimId và postId để dựng liên kết điều hướng thống nhất cho sự kiện Claim và Post; claimId $\to$ postId là phụ thuộc bắc cầu nên đây là ngoại lệ 3NF. Tương tự, messageCode $\to$ eventType được giữ để phân nhóm thông báo mà không phụ thuộc bảng dịch UI. CHECK ràng buộc đúng cặp mã/loại và loại ngữ cảnh; trigger bắt buộc Post khớp Claim. Claim.postId bất biến nên không phát sinh cập nhật dây chuyền.
+\item Report giữ postId từ lúc PENDING, sau xử lý mới có actionId; khi đã xử lý, actionId $\to$ postId/status. Đây là ngoại lệ nhằm giữ cùng cấu trúc hàng đợi và lịch sử, tránh tách hai bảng Report trước/sau quyết định. Trigger bắt buộc audit cùng Post và đúng kết quả KEEP/DISMISSED hoặc REMOVE/APPROVED; audit append-only giữ giá trị quyết định bất biến. Bộ kiểm tra SQL có ca cố ý ghi sai các replica này.
+\item \texttt{posts.search\_vector} là dữ liệu suy ra, có chủ đích materialize để tạo GIN index. PostgreSQL tính bằng GENERATED STORED từ title/description/locationDetail, không cập nhật thủ công và không đưa liên hệ, câu trả lời hay object key bằng chứng vào vector.
+\item \texttt{users.is\_verified} và universityEmail là bản đồng bộ từ ranh giới Supabase Auth để API kiểm tra/quản lý nghiệp vụ. Auth vẫn là nguồn xác minh; adapter đồng bộ theo cùng auth UUID, không cho client tự đánh dấu đã xác minh. Đây là replica giữa hai subsystem, không phải hai nguồn sự thật độc lập. Schema bên trong vẫn tách đúng phụ thuộc trường/tên miền/cơ sở.
+\item \texttt{previous\_status} là snapshot của sự kiện bị báo cáo, không phải bản sao dư của status hiện tại; bắt buộc có khi REPORTED và bị xóa khi restore/close. Lý do khóa hiện tại của User và reason trong audit biểu diễn trạng thái hiện tại so với sự kiện lịch sử, không giả định chúng luôn bằng nhau.
+\end{itemize}
+
+\subsubsection{Indexes và truy vấn thường gặp}
+PK và UNIQUE đã tự có unique B-tree; không tạo lại index trùng khóa. FK không tự bảo đảm có index phía con, nên các index dưới đây được chọn theo truy vấn thực tế. Không tạo index đơn chỉ trên Boolean hoặc status ít giá trị nếu không có điều kiện/selectivity phù hợp. Chi phí là thêm dung lượng và ghi index khi INSERT/UPDATE; không tuyên bố đã đạt NFR-01 chỉ vì có index.
+\input{sections/05-data-design/05.3-indexes.tex}
+
+Truy vấn tìm kiếm dùng \texttt{public\_posts}, trạng thái ACTIVE/RESOLVED và join trạng thái User; không thể đưa điều kiện User ở bảng khác vào partial index của Post. Khoảng thời gian lọc theo incidentAt, còn thứ tự mới nhất dùng createdAt và postId để phân trang ổn định, 20 bài/trang. Planner có thể kết hợp index lọc và GIN bằng bitmap; không mặc định một composite index phục vụ mọi tổ hợp tùy chọn. Predicate của truy vấn phải phù hợp predicate partial index.
+
+Full-text cấu hình simple giữ token tiếng Việt, hỗ trợ tìm từ và chuẩn hóa hoa/thường; chưa cam kết tìm không dấu/fuzzy, vì cần thêm chính sách chuẩn hóa riêng. NFR-01 vẫn cần k6 trên staging với 100 người đồng thời, P95 $\leq$ 2 giây trong 5 phút; kiểm tra schema/index trong môi trường nhúng không thay cho phép đo này.
+
+\subsubsection{Đối chiếu privacy và Claim với PA2/OOD}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{.21\linewidth}|>{\raggedright\arraybackslash}p{.46\linewidth}|>{\raggedright\arraybackslash}p{.25\linewidth}|}
+\hline\rowcolor{TableBlue}\tableheader{Rule / source} & \tableheader{Data design / enforcement} & \tableheader{Evidence / boundary} \\ \hline\endhead
+BR-01, UC-05/07 & User.isVerified và ACTIVE; Post/Claim guard từ chối chưa xác minh/BANNED, FK đến auth identity & Kiểm thử SQL với profile chưa xác minh và bị khóa; Auth thật phải kiểm tra ở API/adapter. \\ \hline
+BR-02, NFR-02 & private.post\_details và user\_contacts không được SELECT bằng role API thường; public\_posts không có PII, answer hoặc proof key & Thử role anon/authenticated, lf\_api và projection; chưa phải Postman test response HTTP. \\ \hline
+UC-07: hai chiều & Claim FK đến posts; FOUND bắt buộc answer, LOST bắt buộc message hoặc proof; không tự Claim & Guard liên bảng vì CHECK không đọc được loại Post ở bảng khác. \\ \hline
+UC-07: Claim trùng & UNIQUE (postId, claimantId) chỉ khi PENDING & Gửi trùng bị chặn; từ chối rồi gửi lại khi bài còn ACTIVE được phép. \\ \hline
+UC-08: một người nhận & Partial UNIQUE (postId) khi ACCEPTED, Post lock và transaction decideClaim & SQL chặn hai ACCEPTED ngay cả trước khi cập nhật Post. Cần chạy kiểm thử nhiều kết nối trên PostgreSQL thật ở PA4/PA5. \\ \hline
+UC-08: nguyên tử & decide\_claim cập nhật Claim/Post, từ chối PENDING khác và thêm notification trong cùng transaction & Tiêm lỗi giữa luồng: rollback cả trạng thái và thông báo. Deferred trigger chặn commit thiếu bước. \\ \hline
+UC-08: liên hệ hai bên & read\_post\_contact chỉ cho chủ bài hoặc đúng Claimant ACCEPTED; read\_claimant\_contact chỉ cho chủ bài sau ACCEPT, Post RESOLVED, hai tài khoản hợp lệ & Khách, sinh viên khác, PENDING, REJECTED và Admin không phải một trong hai bên bị từ chối. \\ \hline
+UC-06: tự hoàn tất & Post có thể RESOLVED mà không có ACCEPTED; quyền liên hệ vẫn yêu cầu quan hệ Claim riêng & Kiểm tra tự resolve không mở liên hệ cho sinh viên khác. Không coi RESOLVED là quyền đọc chung. \\ \hline
+UC-06/10: lịch sử & CLOSED là xóa mềm; mọi FK RESTRICT; role API không có DELETE; audit append-only & Claim đã kết thúc không bị xóa dây chuyền. Khi gỡ bài, hủy Claim PENDING cùng transaction. \\ \hline
+BR-03 và section 2 & Report UQ toàn lịch sử; đếm PENDING khác người; người thứ ba làm Post REPORTED và lưu previousStatus & Kiểm tra trùng reporter, ngưỡng ba, KEEP và restore ACTIVE/RESOLVED; báo cáo cũ không tự ẩn lại. \\ \hline
+UC-05: ảnh & position 1--5 + UNIQUE trên Post/position; MIME/size CHECK; deferred min một ảnh & Chỉ xác minh metadata SQL; API phải kiểm tra byte thực và bucket/Storage ACL khi triển khai. \\ \hline
+NFR-02: HTTPS & SQL role/schema/RLS bảo vệ đường đọc dữ liệu; kết nối pg dùng TLS và frontend/API dùng HTTPS ở deployment & Chưa kiểm tra redirect HTTP hoặc TLS trên staging; không thể chứng minh bằng ERD. \\ \hline
+\end{longtable}
+
+Thiết kế giữ các quyết định đã ghi ở section 2/4.2, gồm tự động ẩn khi đủ báo cáo và tối thiểu một ảnh. PA2 BR-03 chỉ nói đưa vào hàng đợi; chi tiết tự động ẩn là quyết định PA3, cần ghi nhận trong section 8 khi tích hợp. Các mâu thuẫn cũ giữa Acceptance Criteria tiền kiểm và UC hậu kiểm không được ngầm coi là đã sửa trong PA2.
+
+\subsubsection{Verification và liên kết bằng chứng}
+Schema/rules được chạy bằng PostgreSQL nhúng PGlite 0.5.16 trong cơ sở dữ liệu thử nghiệm mới. Bộ kiểm tra độc lập tạo fixture giả cho auth.users, kiểm tra các constraint, role, privacy gate, rollback và các nhánh Claim/Report. Kết quả chi tiết được ghi tại \href{run:../../../docs/design/database/verification-results.json}{verification-results.json}; cách tái chạy và giới hạn tại \href{run:../../../docs/design/database/README.md}{README dữ liệu} và \href{run:../../../docs/design/database/evidence.md}{bằng chứng đối chiếu}.
+
+Đây là kiểm tra thực thi SQL, không phải kiểm thử ứng dụng/Supabase production. Chưa chạy Auth, SMTP, Storage thật, API HTTP, tải đồng thời hoặc benchmark NFR. Component Diagram ở section 3 vẫn chưa có nội dung nên chỉ xác nhận ánh xạ dữ liệu với OOD và PA2, chưa xác nhận review kiến trúc component hoàn chỉnh.
+
+Tham khảo cơ chế PostgreSQL: \href{https://www.postgresql.org/docs/current/ddl-constraints.html}{constraints và giới hạn CHECK}, \href{https://www.postgresql.org/docs/current/indexes-partial.html}{partial indexes}, \href{https://www.postgresql.org/docs/current/sql-createfunction.html}{SECURITY DEFINER}; công cụ kiểm tra: \href{https://pglite.dev/docs/}{PGlite}. Những nguồn này giải thích cơ chế, không thay thế bằng chứng chạy trên môi trường triển khai của nhóm.

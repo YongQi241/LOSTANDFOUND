@@ -1,18 +1,15 @@
-\section{Data Design}
+\section{Data Design}\label{data-design}
 
-\subsection{Data Diagram}
-\emph{[ERD / database diagram of the stored data and their relationships (MySQL Workbench, dbdiagram.io, \ldots).]}
+\subsection{Data Diagram}\label{data-erd}
 
-\subsection{Data Specification}
-\emph{[For a DBMS: describe each table. For JSON/XML/file storage: describe the structure, data types, constraints and give a sample file.]}
+\input{sections/05-data-design/05.1-overview.tex}
 
-\begin{longtable}{|p{0.13\textwidth}|p{0.15\textwidth}|p{0.14\textwidth}|p{0.27\textwidth}|p{0.19\textwidth}|}
-\hline
-\rowcolor{TableBlue}\tableheader{Table} & \tableheader{Column} & \tableheader{Data type} & \tableheader{Constraints (PK, FK, NOT NULL, UNIQUE, CHECK)} & \tableheader{Description} \\ \hline
-& & & & \\[0.6cm] \hline
-& & & & \\[0.6cm] \hline
-& & & & \\[0.6cm] \hline
-\end{longtable}
+\subsection{Data Specification}\label{data-specifications}
 
-\subsection{Normalisation and Indexes}
-\emph{[State the normal form reached (at least 3NF, or justify denormalisation) and the indexes created for frequent queries.]}
+\input{sections/05-data-design/05.2-introduction.tex}
+
+\input{sections/05-data-design/05.2-table-specifications.tex}
+
+\subsection{Normalisation and Indexes}\label{data-normalisation-indexes}
+
+\input{sections/05-data-design/05.3-normalisation-review.tex}
