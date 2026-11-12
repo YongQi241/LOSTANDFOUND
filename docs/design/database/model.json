@@ -1,0 +1,2021 @@
+{
+  "tables": [
+    {
+      "name": "app.universities",
+      "description": "Trường đại học tham gia; yêu cầu chưa duyệt nằm ở bảng riêng.",
+      "columns": [
+        {
+          "name": "university_id",
+          "type": "uuid",
+          "description": "Định danh trường.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "code",
+          "type": "varchar(30)",
+          "description": "Mã trường chuẩn hóa.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": true,
+          "check": "code = upper(btrim(code)) AND code <> ''"
+        },
+        {
+          "name": "name",
+          "type": "varchar(200)",
+          "description": "Tên trường.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(name) <> ''"
+        },
+        {
+          "name": "status",
+          "type": "varchar(12)",
+          "description": "Trạng thái trường.",
+          "null": false,
+          "default": "'APPROVED'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('PENDING','APPROVED')"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": []
+    },
+    {
+      "name": "app.university_domains",
+      "description": "Tên miền được phép đăng ký; một trường có thể có nhiều tên miền.",
+      "columns": [
+        {
+          "name": "domain",
+          "type": "varchar(253)",
+          "description": "Tên miền chính xác, chữ thường, không có @.",
+          "null": false,
+          "default": null,
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": "domain = lower(domain) AND domain ~ '^[a-z0-9][a-z0-9.-]*[.]edu[.]vn$'"
+        },
+        {
+          "name": "university_id",
+          "type": "uuid",
+          "description": "Trường sở hữu tên miền.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.universities.university_id",
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": []
+    },
+    {
+      "name": "app.campuses",
+      "description": "Cơ sở của trường dùng để đăng bài và lọc.",
+      "columns": [
+        {
+          "name": "campus_id",
+          "type": "uuid",
+          "description": "Định danh cơ sở.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "university_id",
+          "type": "uuid",
+          "description": "Trường sở hữu.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.universities.university_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "description": "Tên cơ sở.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(name) <> ''"
+        },
+        {
+          "name": "address",
+          "type": "text",
+          "description": "Địa chỉ cơ sở.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(address) <> ''"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "description": "Còn được chọn cho bài mới.",
+          "null": false,
+          "default": "true",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": []
+    },
+    {
+      "name": "app.categories",
+      "description": "Danh mục vật phẩm; ẩn danh mục không xóa tham chiếu bài cũ.",
+      "columns": [
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "description": "Định danh danh mục.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "description": "Tên danh mục.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(name) <> ''"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "description": "Danh mục được hiển thị trong form.",
+          "null": false,
+          "default": "true",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": []
+    },
+    {
+      "name": "app.users",
+      "description": "Profile nghiệp vụ; mật khẩu và link xác minh thuộc Supabase Auth.",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "description": "Cùng UUID với auth.users; không tự sinh identity thứ hai.",
+          "null": false,
+          "default": null,
+          "pk": true,
+          "ref": "auth.users.id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "full_name",
+          "type": "varchar(150)",
+          "description": "Họ tên.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(full_name) <> ''"
+        },
+        {
+          "name": "role",
+          "type": "varchar(10)",
+          "description": "Vai trò lưu trong CSDL; Guest không có bản ghi.",
+          "null": false,
+          "default": "'STUDENT'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "role IN ('STUDENT','ADMIN')"
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "description": "Trạng thái tài khoản.",
+          "null": false,
+          "default": "'ACTIVE'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('ACTIVE','BANNED')"
+        },
+        {
+          "name": "is_verified",
+          "type": "boolean",
+          "description": "Bản đồng bộ kết quả xác minh đáng tin cậy.",
+          "null": false,
+          "default": "false",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "student_id",
+          "type": "varchar(30)",
+          "description": "MSSV tùy chọn, không có trong projection công khai.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "failed_login_count",
+          "type": "smallint",
+          "description": "Số lần sai liên tiếp.",
+          "null": false,
+          "default": "0",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "failed_login_count BETWEEN 0 AND 5"
+        },
+        {
+          "name": "login_locked_until",
+          "type": "timestamptz",
+          "description": "Khóa đăng nhập tạm thời 15 phút; khác BANNED.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "ban_reason",
+          "type": "text",
+          "description": "Lý do khóa bởi Admin.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "users_ban_reason",
+          "CHECK (status <> 'BANNED' OR nullif(btrim(ban_reason),'') IS NOT NULL)"
+        ]
+      ]
+    },
+    {
+      "name": "private.user_contacts",
+      "description": "Email trường và số điện thoại được bảo vệ; không join vào kết quả công khai.",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "description": "Mỗi profile có đúng một bản ghi liên hệ.",
+          "null": false,
+          "default": null,
+          "pk": true,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "university_email",
+          "type": "varchar(254)",
+          "description": "Email trường chuẩn hóa; nguồn liên hệ Claimant sau ACCEPT.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": true,
+          "check": "university_email = lower(btrim(university_email)) AND university_email ~ '^[^@[:space:]]+@[^@[:space:]]+$'"
+        },
+        {
+          "name": "email_domain",
+          "type": "varchar(253)",
+          "description": "Tên miền trường đã đăng ký.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.university_domains.domain",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "phone_number",
+          "type": "varchar(10)",
+          "description": "Số điện thoại nếu có.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "phone_number ~ '^[0-9]{10}$'"
+        }
+      ],
+      "constraints": [
+        [
+          "user_contact_domain",
+          "CHECK (split_part(university_email,'@',2) = email_domain)"
+        ]
+      ]
+    },
+    {
+      "name": "app.sessions",
+      "description": "Định danh phiên để kiểm tra thu hồi; không lưu access/refresh token.",
+      "columns": [
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "description": "Session ID từ Auth adapter, không sinh ID không khớp token.",
+          "null": false,
+          "default": null,
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "description": "Chủ phiên.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "description": "Hạn phiên/token đang theo dõi.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "revoked_at",
+          "type": "timestamptz",
+          "description": "Có giá trị khi logout hoặc khóa tài khoản.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "sessions_time",
+          "CHECK (expires_at > created_at AND (revoked_at IS NULL OR revoked_at >= created_at))"
+        ]
+      ]
+    },
+    {
+      "name": "app.posts",
+      "description": "Single-table inheritance cho LostPost/FoundPost; dữ liệu riêng được tách.",
+      "columns": [
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Định danh bài.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "owner_id",
+          "type": "uuid",
+          "description": "Chủ bài.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "campus_id",
+          "type": "uuid",
+          "description": "Cơ sở xảy ra sự việc.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.campuses.campus_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "description": "Danh mục vật phẩm.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.categories.category_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "post_type",
+          "type": "varchar(5)",
+          "description": "Loại bài, độc lập vòng đời.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "post_type IN ('LOST','FOUND')"
+        },
+        {
+          "name": "title",
+          "type": "varchar(200)",
+          "description": "Tiêu đề tìm kiếm.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(title) <> ''"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "description": "Mô tả tùy chọn.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "location_detail",
+          "type": "text",
+          "description": "Vị trí chi tiết tùy chọn.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "incident_at",
+          "type": "timestamptz",
+          "description": "Thời gian mất/nhặt, không được ở tương lai khi ghi.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "verification_question",
+          "type": "text",
+          "description": "Bắt buộc với FOUND, NULL với LOST.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "reward_amount",
+          "type": "numeric(12,2)",
+          "description": "Hậu tạ tùy chọn của LOST.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "reward_amount >= 0"
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "description": "Vòng đời theo OOD.",
+          "null": false,
+          "default": "'ACTIVE'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('ACTIVE','RESOLVED','REPORTED','CLOSED')"
+        },
+        {
+          "name": "previous_status",
+          "type": "varchar(10)",
+          "description": "Chỉ có khi REPORTED để khôi phục đúng trạng thái.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "close_reason",
+          "type": "varchar(20)",
+          "description": "OWNER_DELETED hoặc ADMIN_REMOVED.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "closure_note",
+          "type": "text",
+          "description": "Lý do gỡ; không đưa vào kết quả công khai.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamptz",
+          "description": "Thời điểm đóng.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "description": "Thời điểm cập nhật.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "search_vector",
+          "type": "tsvector",
+          "description": "Projection tìm kiếm được tính từ nội dung công khai.",
+          "null": false,
+          "default": "GENERATED ALWAYS AS (to_tsvector('simple'::regconfig, title || ' ' || coalesce(description,'') || ' ' || coalesce(location_detail,''))) STORED",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "posts_subtype",
+          "CHECK ((post_type = 'FOUND' AND nullif(btrim(verification_question),'') IS NOT NULL AND reward_amount IS NULL) OR (post_type = 'LOST' AND verification_question IS NULL))"
+        ],
+        [
+          "posts_previous",
+          "CHECK ((status = 'REPORTED' AND previous_status IS NOT NULL AND previous_status IN ('ACTIVE','RESOLVED')) OR (status <> 'REPORTED' AND previous_status IS NULL))"
+        ],
+        [
+          "posts_closure",
+          "CHECK ((status = 'CLOSED' AND close_reason IS NOT NULL AND close_reason IN ('OWNER_DELETED','ADMIN_REMOVED') AND closed_at IS NOT NULL AND (close_reason <> 'ADMIN_REMOVED' OR nullif(btrim(closure_note),'') IS NOT NULL)) OR (status <> 'CLOSED' AND close_reason IS NULL AND closed_at IS NULL AND closure_note IS NULL))"
+        ]
+      ]
+    },
+    {
+      "name": "private.post_details",
+      "description": "Liên hệ chủ bài theo từng Post và thuộc tính subtype riêng tư.",
+      "columns": [
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Đúng một bản ghi trên Post tại commit.",
+          "null": false,
+          "default": null,
+          "pk": true,
+          "ref": "app.posts.post_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "contact_kind",
+          "type": "varchar(5)",
+          "description": "Loại liên hệ.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "contact_kind IN ('PHONE','EMAIL')"
+        },
+        {
+          "name": "contact_value",
+          "type": "varchar(254)",
+          "description": "Liên hệ hợp lệ, không nằm trong public_posts.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "private_identifier",
+          "type": "text",
+          "description": "Đặc điểm nhận dạng kín của LOST.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "storage_location",
+          "type": "text",
+          "description": "Nơi giữ đồ của FOUND; không công khai.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "post_contact_value",
+          "CHECK ((contact_kind = 'PHONE' AND contact_value ~ '^[0-9]{10}$') OR (contact_kind = 'EMAIL' AND contact_value ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$'))"
+        ]
+      ]
+    },
+    {
+      "name": "app.post_images",
+      "description": "Metadata ảnh bài; binary nằm ở Supabase Storage.",
+      "columns": [
+        {
+          "name": "image_id",
+          "type": "uuid",
+          "description": "Định danh ảnh.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Bài chứa ảnh.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.posts.post_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "position",
+          "type": "smallint",
+          "description": "Vị trí gallery 1–5.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "position BETWEEN 1 AND 5"
+        },
+        {
+          "name": "object_key",
+          "type": "text",
+          "description": "Object key trong post-images; không lưu signed URL.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": true,
+          "check": "btrim(object_key) <> ''"
+        },
+        {
+          "name": "mime_type",
+          "type": "varchar(10)",
+          "description": "MIME đã kiểm tra từ nội dung file.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "mime_type IN ('image/jpeg','image/png')"
+        },
+        {
+          "name": "size_bytes",
+          "type": "integer",
+          "description": "Dung lượng thực tế.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "size_bytes BETWEEN 1 AND 5242880"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "post_images_position",
+          "UNIQUE (post_id, position)"
+        ]
+      ]
+    },
+    {
+      "name": "app.claims",
+      "description": "Claim đến Post chung, hỗ trợ cả LOST và FOUND; câu trả lời/bằng chứng không công khai.",
+      "columns": [
+        {
+          "name": "claim_id",
+          "type": "uuid",
+          "description": "Định danh Claim.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Bài nhận Claim.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.posts.post_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "claimant_id",
+          "type": "uuid",
+          "description": "Người gửi.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "security_answer",
+          "type": "text",
+          "description": "Bắt buộc với bài FOUND.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "claim_message",
+          "type": "text",
+          "description": "Mô tả nơi nhặt với LOST.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "proof_object_key",
+          "type": "text",
+          "description": "Một ảnh trong claim-evidence riêng tư.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": true,
+          "check": null
+        },
+        {
+          "name": "proof_mime_type",
+          "type": "varchar(10)",
+          "description": "MIME của bằng chứng nếu có.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "proof_size_bytes",
+          "type": "integer",
+          "description": "Dung lượng bằng chứng nếu có.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "description": "Máy trạng thái Claim.",
+          "null": false,
+          "default": "'PENDING'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('PENDING','ACCEPTED','REJECTED','CANCELLED')"
+        },
+        {
+          "name": "decision_reason",
+          "type": "text",
+          "description": "Lý do từ chối tùy chọn; hủy có mã nguyên nhân.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "decided_at",
+          "type": "timestamptz",
+          "description": "Có khi không còn PENDING.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "submitted_at",
+          "type": "timestamptz",
+          "description": "Thời điểm gửi.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "claim_proof",
+          "CHECK ((proof_object_key IS NULL AND proof_mime_type IS NULL AND proof_size_bytes IS NULL) OR (proof_object_key IS NOT NULL AND btrim(proof_object_key) <> '' AND proof_mime_type IS NOT NULL AND proof_mime_type IN ('image/jpeg','image/png') AND proof_size_bytes IS NOT NULL AND proof_size_bytes BETWEEN 1 AND 5242880))"
+        ],
+        [
+          "claim_decision",
+          "CHECK ((status = 'PENDING' AND decided_at IS NULL AND decision_reason IS NULL) OR (status <> 'PENDING' AND decided_at IS NOT NULL AND decided_at >= submitted_at AND (status <> 'CANCELLED' OR nullif(btrim(decision_reason),'') IS NOT NULL)))"
+        ]
+      ]
+    },
+    {
+      "name": "app.moderation_actions",
+      "description": "Audit append-only cho giữ/gỡ bài và khóa tài khoản.",
+      "columns": [
+        {
+          "name": "action_id",
+          "type": "uuid",
+          "description": "Định danh audit.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "admin_id",
+          "type": "uuid",
+          "description": "Admin thực hiện.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Đích là bài khi KEEP/REMOVE.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.posts.post_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "target_user_id",
+          "type": "uuid",
+          "description": "Đích tài khoản khi BAN_USER.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "action",
+          "type": "varchar(12)",
+          "description": "Loại thao tác.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "action IN ('KEEP_POST','REMOVE_POST','BAN_USER')"
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "description": "Lý do bắt buộc cho gỡ/khóa.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "moderation_target",
+          "CHECK ((action IN ('KEEP_POST','REMOVE_POST') AND post_id IS NOT NULL AND target_user_id IS NULL) OR (action = 'BAN_USER' AND target_user_id IS NOT NULL AND post_id IS NULL))"
+        ],
+        [
+          "moderation_reason",
+          "CHECK (action = 'KEEP_POST' OR nullif(btrim(reason),'') IS NOT NULL)"
+        ]
+      ]
+    },
+    {
+      "name": "app.reports",
+      "description": "Mỗi người báo cáo một bài một lần, không xóa lịch sử khi Admin giữ bài.",
+      "columns": [
+        {
+          "name": "report_id",
+          "type": "uuid",
+          "description": "Định danh báo cáo.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Bài bị báo cáo.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.posts.post_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "reporter_id",
+          "type": "uuid",
+          "description": "Người báo cáo.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "reason",
+          "type": "varchar(12)",
+          "description": "Lý do báo cáo.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "reason IN ('SPAM','FALSE_INFO','INAPPROPRIATE','OTHER')"
+        },
+        {
+          "name": "detail_message",
+          "type": "text",
+          "description": "OTHER bắt buộc có mô tả.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "description": "Trạng thái xét báo cáo.",
+          "null": false,
+          "default": "'PENDING'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('PENDING','APPROVED','DISMISSED')"
+        },
+        {
+          "name": "action_id",
+          "type": "uuid",
+          "description": "Audit đã xử lý báo cáo.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.moderation_actions.action_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "reported_at",
+          "type": "timestamptz",
+          "description": "Thời điểm báo cáo.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "report_once",
+          "UNIQUE (post_id, reporter_id)"
+        ],
+        [
+          "report_other",
+          "CHECK (reason <> 'OTHER' OR nullif(btrim(detail_message),'') IS NOT NULL)"
+        ],
+        [
+          "report_settlement",
+          "CHECK ((status = 'PENDING' AND action_id IS NULL) OR (status <> 'PENDING' AND action_id IS NOT NULL))"
+        ]
+      ]
+    },
+    {
+      "name": "app.notifications",
+      "description": "Thông báo in-app lưu cùng transaction nghiệp vụ, không chứa liên hệ/câu trả lời.",
+      "columns": [
+        {
+          "name": "notification_id",
+          "type": "uuid",
+          "description": "Định danh thông báo.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "recipient_id",
+          "type": "uuid",
+          "description": "Người nhận.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "post_id",
+          "type": "uuid",
+          "description": "Ngữ cảnh bài nếu có.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.posts.post_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "claim_id",
+          "type": "uuid",
+          "description": "Ngữ cảnh Claim nếu có.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.claims.claim_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "event_type",
+          "type": "varchar(24)",
+          "description": "Loại sự kiện.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "event_type IN ('CLAIM_RECEIVED','CLAIM_DECIDED','POST_MODERATED','ACCOUNT_BANNED')"
+        },
+        {
+          "name": "message_code",
+          "type": "varchar(50)",
+          "description": "Mã thông điệp để UI dựng nội dung, không lưu payload liên hệ.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "message_code IN ('CLAIM_RECEIVED','CLAIM_ACCEPTED','CLAIM_REJECTED','CLAIM_CANCELLED','POST_REPORTED','POST_KEPT','POST_REMOVED','ACCOUNT_BANNED')"
+        },
+        {
+          "name": "read_at",
+          "type": "timestamptz",
+          "description": "NULL là chưa đọc.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "notification_time",
+          "CHECK (read_at IS NULL OR read_at >= created_at)"
+        ],
+        [
+          "notification_message_event",
+          "CHECK ((event_type = 'CLAIM_RECEIVED' AND message_code = 'CLAIM_RECEIVED') OR (event_type = 'CLAIM_DECIDED' AND message_code IN ('CLAIM_ACCEPTED','CLAIM_REJECTED','CLAIM_CANCELLED')) OR (event_type = 'POST_MODERATED' AND message_code IN ('POST_REPORTED','POST_KEPT','POST_REMOVED')) OR (event_type = 'ACCOUNT_BANNED' AND message_code = 'ACCOUNT_BANNED'))"
+        ],
+        [
+          "notification_context",
+          "CHECK ((event_type IN ('CLAIM_RECEIVED','CLAIM_DECIDED') AND claim_id IS NOT NULL AND post_id IS NOT NULL) OR (event_type = 'POST_MODERATED' AND post_id IS NOT NULL AND claim_id IS NULL) OR (event_type = 'ACCOUNT_BANNED' AND post_id IS NULL AND claim_id IS NULL))"
+        ]
+      ]
+    },
+    {
+      "name": "private.school_requests",
+      "description": "Yêu cầu thêm trường do đại diện chưa có tài khoản gửi.",
+      "columns": [
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "description": "Mã yêu cầu trả về người gửi.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "university_name",
+          "type": "varchar(200)",
+          "description": "Tên trường đề nghị.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(university_name) <> ''"
+        },
+        {
+          "name": "email_domain",
+          "type": "varchar(253)",
+          "description": "Tên miền xin tham gia, chuẩn hóa.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "email_domain = lower(email_domain) AND email_domain ~ '^[a-z0-9][a-z0-9.-]*[.]edu[.]vn$'"
+        },
+        {
+          "name": "contact_name",
+          "type": "varchar(150)",
+          "description": "Người liên hệ của trường.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(contact_name) <> ''"
+        },
+        {
+          "name": "contact_email",
+          "type": "varchar(254)",
+          "description": "Email nhận kết quả, chỉ Admin/Auth mail adapter đọc.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "contact_email ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$'"
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "description": "Ghi chú tùy chọn.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "description": "Vòng đời yêu cầu.",
+          "null": false,
+          "default": "'PENDING'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('PENDING','APPROVED','REJECTED')"
+        },
+        {
+          "name": "reviewer_id",
+          "type": "uuid",
+          "description": "Admin quyết định.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "university_id",
+          "type": "uuid",
+          "description": "Trường được tạo khi APPROVED.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.universities.university_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "rejection_reason",
+          "type": "text",
+          "description": "Bắt buộc khi REJECTED.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamptz",
+          "description": "Thời điểm quyết định.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "school_request_decision",
+          "CHECK ((status = 'PENDING' AND reviewer_id IS NULL AND university_id IS NULL AND reviewed_at IS NULL AND rejection_reason IS NULL) OR (status = 'APPROVED' AND reviewer_id IS NOT NULL AND university_id IS NOT NULL AND reviewed_at IS NOT NULL AND rejection_reason IS NULL) OR (status = 'REJECTED' AND reviewer_id IS NOT NULL AND university_id IS NULL AND reviewed_at IS NOT NULL AND nullif(btrim(rejection_reason),'') IS NOT NULL))"
+        ]
+      ]
+    },
+    {
+      "name": "private.school_request_campuses",
+      "description": "Danh sách cơ sở đề nghị, tách khỏi một ô JSON/CSV để đạt 1NF.",
+      "columns": [
+        {
+          "name": "request_campus_id",
+          "type": "uuid",
+          "description": "Định danh dòng cơ sở đề nghị.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "description": "Yêu cầu chứa cơ sở.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": "private.school_requests.request_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "description": "Tên cơ sở đề nghị.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(name) <> ''"
+        },
+        {
+          "name": "address",
+          "type": "text",
+          "description": "Địa chỉ đề nghị.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "btrim(address) <> ''"
+        }
+      ],
+      "constraints": []
+    },
+    {
+      "name": "app.integration_tasks",
+      "description": "Ghi bền vững việc cần thử lại với dịch vụ ngoài transaction CSDL.",
+      "columns": [
+        {
+          "name": "task_id",
+          "type": "uuid",
+          "description": "Định danh tác vụ tích hợp.",
+          "null": false,
+          "default": "gen_random_uuid()",
+          "pk": true,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "kind",
+          "type": "varchar(24)",
+          "description": "Loại thao tác.",
+          "null": false,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "kind IN ('REVOKE_SESSIONS','DELETE_OBJECT','SCHOOL_DECISION_EMAIL')"
+        },
+        {
+          "name": "target_user_id",
+          "type": "uuid",
+          "description": "Đích thu hồi phiên.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "app.users.user_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "description": "Đích gửi kết quả trường.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": "private.school_requests.request_id",
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "object_key",
+          "type": "text",
+          "description": "Đích dọn object Storage.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(8)",
+          "description": "Trạng thái thử lại.",
+          "null": false,
+          "default": "'PENDING'",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "status IN ('PENDING','DONE','FAILED')"
+        },
+        {
+          "name": "attempt_count",
+          "type": "integer",
+          "description": "Số lần thử.",
+          "null": false,
+          "default": "0",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": "attempt_count >= 0"
+        },
+        {
+          "name": "last_error_code",
+          "type": "varchar(50)",
+          "description": "Mã lỗi đã làm sạch, không chứa PII.",
+          "null": true,
+          "default": null,
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "next_attempt_at",
+          "type": "timestamptz",
+          "description": "Thời điểm được phép thử lại.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "description": "Thời điểm tạo, lưu UTC.",
+          "null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "pk": false,
+          "ref": null,
+          "unique": false,
+          "check": null
+        }
+      ],
+      "constraints": [
+        [
+          "integration_target",
+          "CHECK ((kind = 'REVOKE_SESSIONS' AND target_user_id IS NOT NULL AND request_id IS NULL AND object_key IS NULL) OR (kind = 'SCHOOL_DECISION_EMAIL' AND request_id IS NOT NULL AND target_user_id IS NULL AND object_key IS NULL) OR (kind = 'DELETE_OBJECT' AND object_key IS NOT NULL AND btrim(object_key) <> '' AND target_user_id IS NULL AND request_id IS NULL))"
+        ]
+      ]
+    }
+  ],
+  "indexes": [
+    [
+      "campus_name_uq",
+      "app.campuses",
+      "UNIQUE",
+      "(university_id, lower(name))",
+      "",
+      "Tên cơ sở không trùng trong cùng trường."
+    ],
+    [
+      "category_name_uq",
+      "app.categories",
+      "UNIQUE",
+      "(lower(name))",
+      "",
+      "UC-11: chặn tên trùng cả khác hoa/thường."
+    ],
+    [
+      "domain_university_idx",
+      "app.university_domains",
+      "",
+      "(university_id)",
+      "",
+      "Join trường và các tên miền; hỗ trợ FK."
+    ],
+    [
+      "session_user_idx",
+      "app.sessions",
+      "",
+      "(user_id, expires_at)",
+      "",
+      "Kiểm tra/thu hồi phiên theo User; session_id đã có PK."
+    ],
+    [
+      "post_owner_idx",
+      "app.posts",
+      "",
+      "(owner_id, created_at DESC, post_id DESC)",
+      "",
+      "UC-06: bài của tôi, phân trang ổn định."
+    ],
+    [
+      "post_feed_idx",
+      "app.posts",
+      "",
+      "(created_at DESC, post_id DESC)",
+      "status IN ('ACTIVE','RESOLVED')",
+      "UC-03: bảng tin công khai mới nhất; còn join trạng thái User."
+    ],
+    [
+      "post_campus_idx",
+      "app.posts",
+      "",
+      "(campus_id, incident_at, created_at DESC)",
+      "status IN ('ACTIVE','RESOLVED')",
+      "Lọc cơ sở và khoảng thời gian xảy ra sự việc."
+    ],
+    [
+      "post_category_idx",
+      "app.posts",
+      "",
+      "(category_id, incident_at)",
+      "status IN ('ACTIVE','RESOLVED')",
+      "Lọc danh mục kết hợp thời gian; planner có thể BitmapAnd."
+    ],
+    [
+      "post_type_idx",
+      "app.posts",
+      "",
+      "(post_type, created_at DESC, post_id DESC)",
+      "status IN ('ACTIVE','RESOLVED')",
+      "Lọc LOST/FOUND kết hợp mới nhất; không nhầm với lifecycle status."
+    ],
+    [
+      "post_search_gin",
+      "app.posts",
+      "",
+      "USING gin (search_vector)",
+      "",
+      "Tìm từ khóa trong projection nội dung công khai, không index liên hệ/bằng chứng."
+    ],
+    [
+      "post_queue_idx",
+      "app.posts",
+      "",
+      "(post_id)",
+      "status = 'REPORTED'",
+      "Tập nhỏ các bài vào hàng đợi; số báo cáo được tính khi truy vấn."
+    ],
+    [
+      "claim_pending_uq",
+      "app.claims",
+      "UNIQUE",
+      "(post_id, claimant_id)",
+      "status = 'PENDING'",
+      "Một Claim đang chờ/Post/User, vẫn cho gửi lại sau REJECTED."
+    ],
+    [
+      "claim_accepted_uq",
+      "app.claims",
+      "UNIQUE",
+      "(post_id)",
+      "status = 'ACCEPTED'",
+      "CSDL chặn hai Claim được chấp nhận trên cùng bài."
+    ],
+    [
+      "claim_post_idx",
+      "app.claims",
+      "",
+      "(post_id, submitted_at DESC, claim_id)",
+      "",
+      "UC-08: danh sách Claim, bao gồm lịch sử."
+    ],
+    [
+      "claim_user_idx",
+      "app.claims",
+      "",
+      "(claimant_id, status)",
+      "",
+      "Khóa tài khoản: tìm Claim PENDING do User gửi."
+    ],
+    [
+      "report_pending_idx",
+      "app.reports",
+      "",
+      "(post_id)",
+      "status = 'PENDING'",
+      "BR-03: đếm báo cáo chưa xử lý; report_once đã bảo đảm khác người."
+    ],
+    [
+      "report_reporter_idx",
+      "app.reports",
+      "",
+      "(reporter_id)",
+      "",
+      "Tra cứu lịch sử và hỗ trợ FK reporter."
+    ],
+    [
+      "notification_user_idx",
+      "app.notifications",
+      "",
+      "(recipient_id, created_at DESC, notification_id DESC)",
+      "",
+      "UC-14: phân trang thông báo theo người nhận."
+    ],
+    [
+      "notification_unread_idx",
+      "app.notifications",
+      "",
+      "(recipient_id)",
+      "read_at IS NULL",
+      "Đếm thông báo chưa đọc, chỉ index tập chưa đọc."
+    ],
+    [
+      "request_pending_uq",
+      "private.school_requests",
+      "UNIQUE",
+      "(email_domain)",
+      "status = 'PENDING'",
+      "UC-12 E3: một yêu cầu đang chờ cho tên miền."
+    ],
+    [
+      "request_campus_uq",
+      "private.school_request_campuses",
+      "UNIQUE",
+      "(request_id, lower(name))",
+      "",
+      "Không lặp tên cơ sở trong một yêu cầu."
+    ],
+    [
+      "request_queue_idx",
+      "private.school_requests",
+      "",
+      "(created_at, request_id)",
+      "status = 'PENDING'",
+      "UC-13: lấy các yêu cầu đang chờ theo thời gian."
+    ],
+    [
+      "audit_post_idx",
+      "app.moderation_actions",
+      "",
+      "(post_id, created_at DESC)",
+      "post_id IS NOT NULL",
+      "Lịch sử xử lý từng bài."
+    ],
+    [
+      "audit_user_idx",
+      "app.moderation_actions",
+      "",
+      "(target_user_id, created_at DESC)",
+      "target_user_id IS NOT NULL",
+      "Lịch sử khóa tài khoản."
+    ],
+    [
+      "task_retry_idx",
+      "app.integration_tasks",
+      "",
+      "(next_attempt_at, task_id)",
+      "status IN ('PENDING','FAILED')",
+      "Lấy tác vụ tích hợp đến hạn để thử lại từ API/CLI, không yêu cầu worker nền."
+    ]
+  ],
+  "relationships": [
+    [
+      "app.university_domains",
+      "university_id",
+      "app.universities",
+      "university_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.campuses",
+      "university_id",
+      "app.universities",
+      "university_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.users",
+      "user_id",
+      "auth.users",
+      "id",
+      "1 : 0..1",
+      false
+    ],
+    [
+      "private.user_contacts",
+      "user_id",
+      "app.users",
+      "user_id",
+      "1 : 1",
+      false
+    ],
+    [
+      "private.user_contacts",
+      "email_domain",
+      "app.university_domains",
+      "domain",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.sessions",
+      "user_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.posts",
+      "owner_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.posts",
+      "campus_id",
+      "app.campuses",
+      "campus_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.posts",
+      "category_id",
+      "app.categories",
+      "category_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "private.post_details",
+      "post_id",
+      "app.posts",
+      "post_id",
+      "1 : 1",
+      false
+    ],
+    [
+      "app.post_images",
+      "post_id",
+      "app.posts",
+      "post_id",
+      "1 : 1..5",
+      false
+    ],
+    [
+      "app.claims",
+      "post_id",
+      "app.posts",
+      "post_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.claims",
+      "claimant_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.moderation_actions",
+      "admin_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.moderation_actions",
+      "post_id",
+      "app.posts",
+      "post_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "app.moderation_actions",
+      "target_user_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "app.reports",
+      "post_id",
+      "app.posts",
+      "post_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.reports",
+      "reporter_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.reports",
+      "action_id",
+      "app.moderation_actions",
+      "action_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "app.notifications",
+      "recipient_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.notifications",
+      "post_id",
+      "app.posts",
+      "post_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "app.notifications",
+      "claim_id",
+      "app.claims",
+      "claim_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "private.school_requests",
+      "reviewer_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "private.school_requests",
+      "university_id",
+      "app.universities",
+      "university_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "private.school_request_campuses",
+      "request_id",
+      "private.school_requests",
+      "request_id",
+      "1 : 0..*",
+      false
+    ],
+    [
+      "app.integration_tasks",
+      "target_user_id",
+      "app.users",
+      "user_id",
+      "1 : 0..*",
+      true
+    ],
+    [
+      "app.integration_tasks",
+      "request_id",
+      "private.school_requests",
+      "request_id",
+      "1 : 0..*",
+      true
+    ]
+  ]
+}

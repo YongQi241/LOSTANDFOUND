@@ -1,0 +1,76 @@
+% Standalone styles: this ERD does not depend on the OOD diagram macros.
+\tikzset{
+  datatable/.style={draw=PrimaryBlue,thick,rectangle split,rectangle split parts=2,
+    rectangle split part fill={LightBlue,white},text width=4.65cm,inner sep=5pt,
+    align=left,font=\bodyfont\fontsize{8.5}{11}\selectfont},
+  dataref/.style={datatable,draw=black!50,rectangle split part fill={black!12,white}},
+  dataprivate/.style={datatable,draw=purple!65!black,rectangle split part fill={purple!12,white}},
+  dataedge/.style={thick,-{Stealth[length=5pt]}},
+  datalabel/.style={fill=white,inner sep=2pt,font=\bodyfont\scriptsize,align=center}
+}
+\newcommand{\databox}[5]{\node[#5] (#1) at (#2) {\textbf{#3}\nodepart{second}#4};}
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\databox{uni}{0,0}{app.universities}{PK university\_id\\UQ code\\name, status}{datatable}
+\databox{domains}{6.2,0}{app.university\_domains}{PK domain\\FK university\_id $\to$ universities}{datatable}
+\databox{campus}{12.4,0}{app.campuses}{PK campus\_id\\FK university\_id $\to$ universities\\UQ (university\_id, lower(name))}{datatable}
+\databox{users}{0,-5}{app.users}{PK/FK user\_id $\to$ auth.users.id\\role, status, is\_verified\\failed\_login\_count}{datatable}
+\databox{contacts}{6.2,-5}{private.user\_contacts}{PK/FK user\_id $\to$ users\\UQ university\_email\\FK email\_domain $\to$ domains}{dataprivate}
+\databox{sessions}{12.4,-5}{app.sessions}{PK session\_id\\FK user\_id $\to$ users\\expires\_at, revoked\_at}{datatable}
+\databox{categories}{6.2,-10}{app.categories}{PK category\_id\\UQ lower(name)\\is\_active}{datatable}
+\databox{posts}{12.4,-10}{app.posts (reference)}{PK post\_id\\FK campus\_id $\to$ campuses\\FK category\_id $\to$ categories}{dataref}
+\draw[dataedge] (uni) -- node[datalabel,above]{1 : 0..*} (domains);
+\draw[dataedge] (uni.north) -- ++(0,1.4) -| node[datalabel,pos=.5,above]{1 : 0..*} (campus.north);
+\draw[dataedge] (users) -- node[datalabel,above]{1 : 1} (contacts);
+\draw[dataedge] (domains) -- node[datalabel,right]{1 : 0..*} (contacts);
+\draw[dataedge] (users.south) -- ++(0,-1.7) -| node[datalabel,pos=.6,above]{1 : 0..*} (sessions.south);
+\draw[dataedge] (campus.east) -- ++(.7,0) |- node[datalabel,pos=.6,right]{1 : 0..*} (posts.east);
+\draw[dataedge] (categories) -- node[datalabel,above]{1 : 0..*} (posts);
+\end{tikzpicture}}
+\caption{\bodyfont ERD A -- Identity, trường/cơ sở và danh mục; mỗi User tham chiếu đúng một auth.users}
+\label{fig:data-identity}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\databox{users}{0,0}{app.users (reference)}{PK user\_id\\Người tạo / Claimant / reporter}{dataref}
+\databox{posts}{6.2,0}{app.posts}{PK post\_id\\FK owner\_id $\to$ users\\FK campus\_id, category\_id\\post\_type, status, previous\_status}{datatable}
+\databox{claims}{12.4,0}{app.claims}{PK claim\_id\\FK post\_id $\to$ posts\\FK claimant\_id $\to$ users\\UQ PENDING (post, claimant)\\UQ ACCEPTED (post)}{datatable}
+\databox{images}{0,-6}{app.post\_images}{PK image\_id\\FK post\_id $\to$ posts\\UQ (post\_id, position)\\UQ object\_key; position 1--5}{datatable}
+\databox{private}{6.2,-6}{private.post\_details}{PK/FK post\_id $\to$ posts\\contact\_kind, contact\_value\\private\_identifier, storage\_location}{dataprivate}
+\databox{reports}{12.4,-6}{app.reports}{PK report\_id\\FK post\_id, reporter\_id\\FK action\_id $\to$ moderation\_actions\\UQ (post\_id, reporter\_id)}{datatable}
+\draw[dataedge] (users) -- node[datalabel,above]{1 : 0..*} (posts);
+\draw[dataedge] (posts) -- node[datalabel,above]{1 : 0..*} (claims);
+\draw[dataedge] (posts) -- node[datalabel,right]{1 : 1} (private);
+\draw[dataedge] (posts.south west) -- node[datalabel,left]{1 : 1..5} (images.north east);
+\draw[dataedge] (posts.south east) -- node[datalabel,right]{1 : 0..*} (reports.north west);
+\draw[dataedge] (users.north) -- ++(0,2.2) -| node[datalabel,pos=.5,above]{1 : 0..* (claimant)} (claims.north);
+\end{tikzpicture}}
+\caption{\bodyfont ERD B -- Post chung nhận Claim hai chiều; dữ liệu liên hệ tách riêng}
+\label{fig:data-core}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}
+\databox{request}{0,0}{private.school\_requests}{PK request\_id\\FK reviewer\_id $\to$ users (NULL)\\FK university\_id (NULL)\\UQ PENDING (email\_domain)}{dataprivate}
+\databox{reqcampus}{6.2,0}{private.school\_\allowbreak{}request\_\allowbreak{}campuses}{PK request\_campus\_id\\FK request\_id $\to$ school\_requests\\UQ (request\_id, lower(name))}{dataprivate}
+\databox{uni}{12.4,0}{app.universities (reference)}{PK university\_id\\Một yêu cầu APPROVED có\\đúng một university\_id}{dataref}
+\databox{audit}{0,-6}{app.moderation\_actions}{PK action\_id\\FK admin\_id $\to$ users\\FK post\_id / target\_user\_id\\CHECK chọn đúng một loại đích}{datatable}
+\databox{notifications}{6.2,-6}{app.notifications}{PK notification\_id\\FK recipient\_id $\to$ users\\FK post\_id, claim\_id (NULL)\\event\_type, message\_code, read\_at}{datatable}
+\databox{tasks}{12.4,-6}{app.integration\_tasks}{PK task\_id\\FK target\_user\_id / request\_id\\object\_key tham chiếu Storage\\CHECK chọn đúng một loại đích}{datatable}
+\databox{users}{0,-11}{app.users (reference)}{PK user\_id\\Admin / tài khoản bị khóa\\hoặc người nhận thông báo}{dataref}
+\databox{posts}{6.2,-11}{app.posts (reference)}{PK post\_id\\Claim và Report giữ lịch sử\\khi bài chuyển CLOSED}{dataref}
+\draw[dataedge] (request) -- node[datalabel,above]{1 : 0..*} (reqcampus);
+\draw[dataedge] (uni.north) -- ++(0,1.5) -| node[datalabel,pos=.5,above]{1 : 0..*; FK con có thể NULL} (request.north);
+\draw[dataedge] (users) -- node[datalabel,left]{1 : 0..* (admin)} (audit);
+\draw[dataedge] (posts) -- node[datalabel,right]{1 : 0..*; post FK tùy chọn} (notifications);
+\draw[dataedge] (request.west) -- ++(-.7,0) |- (6.2,-8.3)
+  -- node[datalabel,above]{1 : 0..* (request FK tùy chọn)} (12.4,-8.3) -- (tasks.south);
+\end{tikzpicture}}
+\caption{\bodyfont ERD C -- Yêu cầu thêm trường, audit, notification và tác vụ thử lại}
+\label{fig:data-admin}
+\end{figure}

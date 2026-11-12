@@ -13,7 +13,7 @@ Ngày: 12/11/2026. Phạm vi: PA3 section 4.2–4.6.
 | 4.6 Principles/patterns: where/why | [Bảng nguyên tắc và vị trí áp dụng][patterns] | Có |
 | Message tương ứng operation của class diagram | Đối chiếu lời gọi trong 5 file sequence bên dưới với các operation ở 4.2; kiểm tra tĩnh tên operation và target lifeline | Có; chưa phải kiểm thử ứng dụng |
 | Review với components | [Section 3][architecture] hiện chưa có Component Diagram hay danh sách component đã chốt | **Chưa đủ đầu vào để xác nhận** |
-| Review với ERD | [Section 5][data] hiện chưa có ERD, bảng hay ràng buộc dữ liệu cụ thể | **Chưa đủ đầu vào để xác nhận** |
+| Review với ERD | [Section 5][data] có 17 bảng, 126 cột, 27 FK và 25 index bổ sung; [mapping OOD–ERD và kiểm tra SQL][data-evidence] | **Đã đối chiếu thiết kế; chưa kiểm thử ứng dụng** |
 | Liên kết diagram và evidence | Các liên kết nguồn dưới đây, tham chiếu Figure trong PDF, [PDF đã build][pdf] | Có |
 
 ## Sơ đồ sequence và nguồn nghiệp vụ
@@ -26,9 +26,9 @@ Ngày: 12/11/2026. Phạm vi: PA3 section 4.2–4.6.
 | UC-09 — Báo cáo | [sequence-uc09.tex][seq09] | [UC-09 PA2][uc09] và [section 2 PA3][overview]; quyết định tự động ẩn theo PA3 |
 | UC-10 — Kiểm duyệt | [sequence-uc10.tex][seq10] | [UC-10 PA2][uc10]; đọc hàng đợi, giữ/gỡ, audit; khóa tài khoản được đặc tả bằng operation và diễn giải |
 
-## Đầu mục cần đối chiếu khi có components và ERD
+## Ánh xạ dữ liệu và đầu mục còn chờ components
 
-Đây là **danh sách đối chiếu dự kiến**, không phải component hoặc schema đã được nhóm phê duyệt. Chưa gán CMP-ID hoặc tên bảng để tránh tạo bằng chứng không tồn tại.
+Ánh xạ OOD–ERD cụ thể đã được bổ sung ở [bằng chứng section 5][data-evidence]. Bảng dưới đây giữ các nhóm nghiệp vụ để kiểm tra ranh giới component khi section 3 có nội dung; chưa gán CMP-ID hoặc coi thiết kế đã được nhóm phê duyệt.
 
 | Nhóm nghiệp vụ theo section 2 | Lớp/interface OOD | Nội dung cần section 3/5 xác nhận |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ Ngày: 12/11/2026. Phạm vi: PA3 section 4.2–4.6.
 | Danh mục/trường | University, Campus, SchoolRequest, CatalogService | Quan hệ trường–cơ sở–tên miền; duyệt yêu cầu nguyên tử; ẩn danh mục vẫn giữ tham chiếu bài cũ |
 | Thông báo | NotificationService, INotificationRepository | Component gửi/lưu thông báo; cùng transaction với thay đổi trạng thái và chỉ đúng người nhận |
 
-Khi section 3 và 5 có nội dung, cần bổ sung mã component, bảng/FK/index thực tế và kết quả đối chiếu từng dòng. Hiện chỉ có thể xác nhận nội dung OOD và tính nhất quán nội bộ, **chưa xác nhận hoàn tất review components/ERD**.
+Phần bảng/FK/index và mapping dữ liệu đã có trong section 5 cùng SQL thực thi. Khi section 3 hoàn thiện, cần bổ sung mã component và kết quả kiểm tra ranh giới từng module. **Chưa xác nhận hoàn tất review components hoặc integration runtime.**
 
 [classes]: ../../pa/PA3/src_latex/sections/04-object-oriented-design/04.2-class-diagram.tex
 [specs]: ../../pa/PA3/src_latex/sections/04-object-oriented-design/04.3-class-specifications.tex
@@ -49,6 +49,7 @@ Khi section 3 và 5 có nội dung, cần bổ sung mã component, bảng/FK/ind
 [patterns]: ../../pa/PA3/src_latex/sections/04-object-oriented-design/04.6-design-principles.tex
 [architecture]: ../../pa/PA3/src_latex/sections/03-architectural-design/03-architectural-design.tex
 [data]: ../../pa/PA3/src_latex/sections/05-data-design/05-data-design.tex
+[data-evidence]: database/evidence.md
 [overview]: ../../pa/PA3/src_latex/sections/02-design-overview/02-design-overview.tex
 [pdf]: ../../pa/PA3/src_latex/main.pdf
 [seq05]: ../../pa/PA3/src_latex/sections/04-object-oriented-design/sequence-uc05.tex

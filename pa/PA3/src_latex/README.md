@@ -46,3 +46,13 @@ Alternatively, run `latexmk -xelatex main.tex`.
 - Section 4.2 explicitly records implementation refinements, including
   soft deletion, restoration after moderation, verified-account checks and
   private contact access. The existing 4.1 source is preserved.
+
+## Data design (Section 5)
+
+- `sections/05-data-design/05-data-design.tex` includes the three ERDs, complete
+  FK/cardinality matrix, generated 17-table dictionary, 3NF review, index
+  rationale and PA2 privacy/Claim review.
+- Reproducible SQL, DBML, generator, pinned SQL verification tool and evidence
+  are in [`docs/design/database`](../../../docs/design/database/README.md).
+- Run the generator before editing generated SQL/table/index specifications;
+  see that directory's README for verification commands and deployment limits.
