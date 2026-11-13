@@ -1,10 +1,113 @@
 \section{Changes to the Requirements Since PA2}
 
-\emph{[List any changes made to the PA2 requirements after submission: what changed, why, and which items were affected.]}
+% \emph{[List any changes made to the PA2 requirements after submission: what changed, why, and which items were affected.]}
 
 \begin{longtable}{|p{0.07\textwidth}|p{0.40\textwidth}|p{0.25\textwidth}|p{0.20\textwidth}|}
 \hline
+
 \rowcolor{TableBlue}\tableheader{\#} & \tableheader{Change} & \tableheader{Reason} & \tableheader{Affected items} \\ \hline
-& & & \\[0.6cm] \hline
-& & & \\[0.6cm] \hline
+1 &
+\textbf{Post-moderation workflow:}
+PA3 adopts immediate publication of valid posts
+(\texttt{ACTIVE}) instead of requiring Admin approval
+before publication. Admin reviews posts after they
+reach the reporting threshold. This resolves a
+contradiction between PA2 acceptance criteria
+and UC-05.
+&
+Simplify post creation, reduce administrative workload,
+and align the workflow with UC-05 and BR-03.
+&
+FR-03, FR-07, AC-F02-01, AC-F05-02,
+UC-05, UC-09, UC-10, BR-03;
+PA3 Sections 4.2, 4.4, 6.2.
+\\ \hline
+2 &
+\textbf{Automatic hiding of reported posts:}
+When three distinct users report a post,
+the system changes its status to \texttt{REPORTED},
+hides it from public search, and places it in
+the Admin moderation queue. PA2 explicitly required
+queueing but did not consistently specify
+immediate hiding.
+&
+Prevent potentially harmful or fraudulent posts
+from remaining publicly accessible while
+awaiting moderation.
+&
+FR-07, BR-03, UC-09, UC-10;
+Post, Report, ModerationService, SCR-12.
+\\ \hline
+3 &
+\textbf{Mandatory contact information:}
+PA3 requires a valid 10-digit phone number
+or email address when creating a post.
+PA2 included a contact field but did not explicitly
+define it as mandatory in UC-05's validation exceptions.
+&
+Ensure that users can contact each other after
+a successful Claim while preserving contact privacy
+before approval.
+&
+FR-03, FR-05, BR-02, NFR-02,
+UC-05, UC-08;
+ContactDetails, ContactAccessService,
+SCR-06.
+\\ \hline
+
+4 &
+\textbf{Claim approval rule clarification:}
+PA3 explicitly defines BR-04 with Claim transitions
+\texttt{PENDING} $\rightarrow$
+\texttt{ACCEPTED}/\texttt{REJECTED}.
+When a Claim is accepted, the Post becomes
+\texttt{RESOLVED}, and both authorized parties
+can access each other's contact information.
+This formalizes behavior already described
+in PA2 UC-08.
+&
+Make Claim transitions, authorization,
+and contact disclosure consistent across
+the design.
+&
+FR-05, FR-06, BR-02, new BR-04,
+UC-07, UC-08;
+ClaimService, ContactAccessService,
+Post, Claim.
+\\ \hline
+
+5 &
+\textbf{Post image validation (unresolved):}
+PA3 Sections 4.1--4.2 specify 1--5 JPG/PNG images,
+each no larger than 5 MB.
+However, PA2 UC-05 and PA3 SCR-06 allow
+images to be optional.
+The minimum number of images remains inconsistent.
+&
+Clarify validation requirements and prevent
+different behavior between the frontend,
+application service, and database.
+&
+FR-03, UC-05, AC-F02-02, AC-F02-03;
+ItemMedia, PostService, SCR-06.
+\\ \hline
+
+6 &
+\textbf{Additional UI states and responsive layouts:}
+PA3 extends the PA2 prototype with empty-result
+screens, 360 px mobile layouts, Claim confirmation
+dialogs, approved-Claim contact displays,
+and focus/error states.
+These are design refinements rather than
+new functional requirements.
+&
+Improve usability, accessibility, and coverage
+of alternative and exception flows.
+&
+UC-03, UC-05, UC-08,
+NFR-03, NFR-04;
+SCR-04b, SCR-04m, SCR-05m,
+SCR-06m, SCR-09b, SCR-09c;
+Section 6.3.
+\\ \hline
 \end{longtable}

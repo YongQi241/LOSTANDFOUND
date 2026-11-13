@@ -216,22 +216,22 @@ Các mối quan hệ cấu trúc và ngữ nghĩa giữa các thực thể trong
 \begin{longtable}[]{@{}
   |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.18}}
   |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.16}}
-  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.17}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.17}}
   |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.13}}
   |>{\raggedright\arraybackslash}p{(\columnwidth - 24pt - 8\tabcolsep) * \real{0.40}}|@{}}
 \hline
 \rowcolor{TableBlue}
-\tableheader{Thực thể nguồn} & \tableheader{Thực thể đích} & \tableheader{Tên quan hệ} & \tableheader{Bội số} & \tableheader{Ý nghĩa nghiệp vụ} \\\\ \hline
-University & Post & hosts / located\_at & 1 : 0..* & Một trường đại học có thể diễn ra nhiều bài đăng mất/nhặt đồ; mỗi bài đăng bắt buộc gắn với đúng 1 trường đại học. \\\\ \hline
-ItemCategory & Post & classifies & 1 : 0..* & Một danh mục chứa nhiều bài đăng; mỗi bài đăng được phân loại vào đúng 1 danh mục vật phẩm. \\\\ \hline
-Post & ItemMedia & contains & 1 : 1..* & Một bài đăng chứa ít nhất 1 ảnh minh họa thực tế; mỗi ảnh đính kèm thuộc về đúng 1 bài đăng. \\\\ \hline
-User & Post & creates & 1 : 0..* & Một người dùng có thể tạo nhiều bài đăng theo thời gian; mỗi bài đăng do đúng 1 người dùng sở hữu. \\\\ \hline
-Post & LostPost / FoundPost & generalizes & 1 : 1 & Post là lớp cha trừu tượng khái niệm hóa các đặc tính chung của bài đăng mất đồ (LostPost) và nhặt đồ (FoundPost). \\\\ \hline
-Post & Claim & receives & 1 : 0..* & Một bài đăng Mất đồ hoặc Nhặt đồ có thể nhận nhiều yêu cầu nhận đồ từ nhiều sinh viên khác nhau; mỗi Claim gửi đến đúng 1 Post. \\\\ \hline
-User & Claim & submits & 1 : 0..* & Một sinh viên có thể nộp nhiều yêu cầu Claim cho các tài sản thất lạc khác nhau; mỗi Claim do đúng 1 sinh viên gửi. \\\\ \hline
-Post & Report & flagged\_on & 1 : 0..* & Một bài đăng có thể bị khiếu nại/báo cáo bởi nhiều người dùng khác nhau; mỗi Report trỏ tới đúng 1 bài đăng. \\\\ \hline
-User & Report & files & 1 : 0..* & Một người dùng có thể gửi báo cáo vi phạm đối với các bài đăng nghi vấn; mỗi Report do đúng 1 người gửi. \\\\ \hline
-User & Notification & receives & 1 : 0..* & Một người dùng nhận nhiều thông báo trong quá trình tương tác; mỗi thông báo thuộc quyền sở hữu của 1 người dùng. \\\\ \hline
+\tableheader{Thực thể nguồn} & \tableheader{Thực thể đích} & \tableheader{Tên quan hệ} & \tableheader{Bội số} & \tableheader{Ý nghĩa nghiệp vụ} \\ \hline
+University & Post & hosts / located\_at & 1 : 0..* & Một trường đại học có thể diễn ra nhiều bài đăng mất/nhặt đồ; mỗi bài đăng bắt buộc gắn với đúng 1 trường đại học. \\ \hline
+ItemCategory & Post & classifies & 1 : 0..* & Một danh mục chứa nhiều bài đăng; mỗi bài đăng được phân loại vào đúng 1 danh mục vật phẩm. \\ \hline
+Post & ItemMedia & contains & 1 : 1..* & Một bài đăng chứa ít nhất 1 ảnh minh họa thực tế; mỗi ảnh đính kèm thuộc về đúng 1 bài đăng. \\ \hline
+User & Post & creates & 1 : 0..* & Một người dùng có thể tạo nhiều bài đăng theo thời gian; mỗi bài đăng do đúng 1 người dùng sở hữu. \\ \hline
+Post & LostPost / FoundPost & generalizes & 1 : 1 & Post là lớp cha trừu tượng khái niệm hóa các đặc tính chung của bài đăng mất đồ (LostPost) và nhặt đồ (FoundPost). \\ \hline
+Post & Claim & receives & 1 : 0..* & Một bài đăng Mất đồ hoặc Nhặt đồ có thể nhận nhiều yêu cầu nhận đồ từ nhiều sinh viên khác nhau; mỗi Claim gửi đến đúng 1 Post. \\ \hline
+User & Claim & submits & 1 : 0..* & Một sinh viên có thể nộp nhiều yêu cầu Claim cho các tài sản thất lạc khác nhau; mỗi Claim do đúng 1 sinh viên gửi. \\ \hline
+Post & Report & flagged\_on & 1 : 0..* & Một bài đăng có thể bị khiếu nại/báo cáo bởi nhiều người dùng khác nhau; mỗi Report trỏ tới đúng 1 bài đăng. \\ \hline
+User & Report & files & 1 : 0..* & Một người dùng có thể gửi báo cáo vi phạm đối với các bài đăng nghi vấn; mỗi Report do đúng 1 người gửi. \\ \hline
+User & Notification & receives & 1 : 0..* & Một người dùng nhận nhiều thông báo trong quá trình tương tác; mỗi thông báo thuộc quyền sở hữu của 1 người dùng. \\ \hline
 \end{longtable}
 
 

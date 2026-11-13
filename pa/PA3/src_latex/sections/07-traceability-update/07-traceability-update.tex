@@ -1,3 +1,23 @@
-\section{Traceability Update}
+\section{Traceability Update} \label{requirements-traceability-matrix}
 
-\emph{[Extend the traceability matrix from PA2 with the design elements (component, class, screen) that realise each requirement.]}
+\begin{longtable}[]{@{}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.1385}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.1692}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.2000}}
+  |>{\raggedright\arraybackslash}p{(\columnwidth - 12pt - 8\tabcolsep) * \real{0.2615}}
+  |@{}}
+\hline
+\rowcolor{TableBlue}
+
+\tableheader{Req. ID} & \tableheader{PA2 Use case} &  \tableheader{PA3 classes/ services } & \tableheader{PA3 screens} \\ \hline
+FR-01 Authentication & UC-01, UC-02 & AutheService, User & SCR-01, SCR-02, SCR-03 \\ \hline
+FR-02 Role-based access& UC-02, UC-10 & AuthService, User, authorization middleware & SCR-03, SCR-12 \\ \hline
+FR-03 Post management & UC-05, UC-06 & PostService, Post, LostPost, FoundPost & SCR-06, SCR-07 \\ \hline
+FR-04 Search and filtering & UC-03, UC-04 & SearchService, ISearchRepository & SCR-04, SCR-05 \\ \hline
+FR-05 Submit Claim & UC-04, UC-07 & ClaimService, Claim, ContactAccessService & SCR-05, SCR-08 \\ \hline
+FR-06 Review Claim & UC-08 & ClaimService, Claim, Post, ContactAccessService  & SCR-09, SCR-09b, SCR-09c \\ \hline
+FR-07 Moderation& UC-09, UC-10 & ModerationService, Report, Post, User & SCR-10, SCR-12 \\ \hline
+FR-08 Categories and schools & UC-11, UC-12, UC-13 & CatalogService, SchoolRequest, University, ItemCategory & SCR-13, SCR-14, SCR-15 \\ \hline
+FR-09 Notifications & UC-14 & Notification, NotificationService & SCR-11 \\ \hline
+FR-10 Student Card Upload/ OCR & UC-15 & Not fully defined &  ScR-06 (optional feature)\\ \hline
+\end{longtable}
