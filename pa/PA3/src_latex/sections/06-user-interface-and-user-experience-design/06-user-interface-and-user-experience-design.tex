@@ -3,7 +3,7 @@
   \begin{figure}[H]
     \centering
     \IfFileExists{image/#2.png}%
-      {\includegraphics[width=#1]{image/#2.png}}%
+      {\includegraphics[width=#1,height=0.75\textheight,keepaspectratio]{image/#2.png}}%
       {\fbox{\parbox[c][4cm][c]{0.6\textwidth}{\centering Missing image: #2}}}%
     \caption{#3}\label{fig:#2}
   \end{figure}}
@@ -244,6 +244,9 @@ Tỉ lệ tương phản được tính theo công thức của WCAG, dựa trê
 
 \begin{longtable}{|p{0.30\textwidth}|p{0.26\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
 \caption{Kết quả đo tương phản các cặp màu}\label{tab:contrast}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Colour pair} & \tableheader{Used for} & \tableheader{Ratio} & \tableheader{Target} & \tableheader{Result} \\ \hline
+\endfirsthead
 \hline
 \rowcolor{TableBlue}\tableheader{Colour pair} & \tableheader{Used for} & \tableheader{Ratio} & \tableheader{Target} & \tableheader{Result} \\ \hline
 \endhead
