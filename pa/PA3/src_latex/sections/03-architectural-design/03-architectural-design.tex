@@ -2,7 +2,7 @@
   \begin{figure}[H]
     \centering
     \IfFileExists{image/#2.png}%
-      {\includegraphics[width=#1]{image/#2.png}}%
+      {\includegraphics[width=#1,height=0.75\textheight,keepaspectratio]{image/#2.png}}%
       {\fbox{\parbox[c][4cm][c]{0.6\textwidth}{\centering Missing image: #2}}}%
     \caption{#3}\label{fig:#2}
   \end{figure}}
@@ -36,6 +36,9 @@ Bảng~\ref{tab:arch-drivers} cho thấy kiến trúc đáp ứng các yêu cầ
 
 \begin{longtable}{|p{0.26\textwidth}|p{0.50\textwidth}|p{0.15\textwidth}|}
 \caption{Yêu cầu định hướng kiến trúc và cách đáp ứng}\label{tab:arch-drivers}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Requirement / constraint} & \tableheader{Architectural response} & \tableheader{ADR} \\ \hline
+\endfirsthead
 \hline
 \rowcolor{TableBlue}\tableheader{Requirement / constraint} & \tableheader{Architectural response} & \tableheader{ADR} \\ \hline
 \endhead
@@ -132,6 +135,9 @@ API Server được chia thành chín module chức năng và ba thành phần d
 
 \begin{longtable}{|p{0.17\textwidth}|p{0.33\textwidth}|p{0.29\textwidth}|p{0.11\textwidth}|}
 \caption{Các thành phần của API Server}\label{tab:components}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Component} & \tableheader{Responsibility} & \tableheader{Main endpoints} & \tableheader{Realises} \\ \hline
+\endfirsthead
 \hline
 \rowcolor{TableBlue}\tableheader{Component} & \tableheader{Responsibility} & \tableheader{Main endpoints} & \tableheader{Realises} \\ \hline
 \endhead
