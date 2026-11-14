@@ -2,7 +2,7 @@
 
 \subsection{Domain Model}\label{domain-model}
 
-Mô hình lĩnh vực (Domain Model) biểu diễn các thực thể khái niệm (Conceptual Business Entities) và mối quan hệ ngữ nghĩa thế giới thực trong hệ thống US-Recovery. Tuân thủ nguyên lý phân tích hướng đối tượng (OOA), Domain Model tập trung vào việc làm rõ bản chất nghiệp vụ, ý nghĩa thuộc tính và các quy tắc bất biến, \textbf{hoàn toàn không chứa phương thức xử lý (no methods)} cũng như không phụ thuộc vào chi tiết cài đặt kỹ thuật (khóa ngoại, chỉ mục, REST controller hay giao diện).
+Mô hình lĩnh vực (Domain Model) biểu diễn các thực thể khái niệm (Conceptual Business Entities) và mối quan hệ ngữ nghĩa thế giới thực trong hệ thống US-Recovery. Tuân thủ nguyên lý phân tích hướng đối tượng (OOA), Domain Model tập trung vào việc làm rõ bản chất nghiệp vụ, ý nghĩa thuộc tính và các quy tắc bất biến, \textbf{hoàn toàn không chứa phương thức xử lý (no methods)} cũng như không phụ thuộc vào chi tiết cài đặt kỹ thuật (khóa ngoại, chỉ mục, REST controller hay giao diện). Sơ đồ ghi bội số ở hai đầu đường nối; tên và diễn giải quan hệ được liệt kê trong bảng quan hệ và bội số bên dưới.
 
 \begin{figure}[H]
 \centering
@@ -157,28 +157,36 @@ Mô hình lĩnh vực (Domain Model) biểu diễn các thực thể khái niệ
 \draw[inherit] (lost.north) -- ++(0, 0.8) -| ([xshift=-0.8cm]post.south);
 \draw[inherit] (found.north) -- ++(0, 0.8) -| ([xshift=0.8cm]post.south);
 
-% 2. Left side associations entering Post without crossing LostPost
-\draw[assoc] (univ.east) -| node[near start, above, card] {1} node[near start, below, lbl] {hosts} ([xshift=-0.4cm]post.north) node[near end, left, card] {0..*};
-\draw[assoc] (category.east) -- node[near start, above, card] {1} node[midway, above, lbl] {classifies} ([yshift=0.3cm]post.west) node[near end, above, card] {0..*};
-\draw[assoc] (media.east) -- ++(1.0, 0) |- node[near start, above, card] {1..*} node[pos=0.7, left, lbl] {contains} ([yshift=-0.4cm]post.west) node[near end, above, card] {1};
+% 2. Left side associations entering Post without crossing LostPost.
+% Relationship names are kept in the matrix below; only endpoint multiplicities
+% appear here so labels do not collide with connectors or entity frames.
+\draw[assoc] (univ.east) -| node[pos=0.18, yshift=8pt, card] {1} node[pos=0.72, xshift=18pt, card] {0..*} ([xshift=-0.4cm]post.north);
+\coordinate (categoryPostRise) at ([yshift=1.5cm]category.east);
+\coordinate (categoryPostApproach) at ([xshift=-0.15cm,yshift=0.3cm]post.west);
+\coordinate (categoryPostTarget) at ([yshift=0.3cm]post.west);
+\draw[assoc] (category.east) -- (categoryPostRise)
+  -- node[pos=0.20, yshift=8pt, card] {1}
+     node[pos=0.76, yshift=8pt, card] {0..*}
+     (categoryPostApproach) -- (categoryPostTarget);
+\draw[assoc] (media.east) -- ++(1.0, 0) |- node[pos=0.12, xshift=-18pt, card] {1..*} ([yshift=-0.4cm]post.west) node[pos=0.80, yshift=8pt, card] {1};
 
 % 3. Post - User
-\draw[assoc] (post.east) -- node[near start, above, card] {0..*} node[midway, above, lbl] {created by} (user.west) node[near end, above, card] {1};
+\draw[assoc] (post.east) -- node[pos=0.30, yshift=8pt, card] {0..*} (user.west) node[pos=0.70, yshift=8pt, card] {1};
 
-% 4. Post - Claim (routed around the specialized post nodes)
-\draw[assoc] (post.east) -- ++(3.2, 0) |- node[pos=0.65, right, lbl] {receives} (claim.east) node[near end, above, card] {0..*} node[pos=0.08, above, card] {1};
+% 4. Post - Claim: route through the clear corridor between LostPost and FoundPost.
+\draw[assoc] (post.south) -- ++(-0.15, -0.4) |- node[pos=0.84, xshift=-18pt, card] {0..*} (claim.west) node[pos=0.08, xshift=9pt, card] {1};
 
 % 5. Post - Report (routed through empty corridor between FoundPost and Report)
-\draw[assoc] ([yshift=-0.8cm]post.east) -- ++(2.65, 0) |- node[near start, above, card] {1} node[pos=0.65, right, lbl] {flagged on} (report.west) node[near end, above, card] {0..*};
+\draw[assoc] ([yshift=-1.3cm]post.east) -- node[pos=0.22, yshift=8pt, card] {1} ++(2.65, 0) |- (report.west) node[pos=0.62, xshift=-18pt, yshift=8pt, card] {0..*};
 
 % 6. User - Report (straight vertical down)
-\draw[assoc] (user.south) -- node[near start, right, card] {1} node[midway, right, lbl] {files} (report.north) node[near end, right, card] {0..*};
+\draw[assoc] (user.south) -- node[pos=0.22, xshift=10pt, card] {1} (report.north) node[pos=0.78, xshift=18pt, card] {0..*};
 
 % 7. User - Notification (straight vertical up)
-\draw[assoc] (user.north) -- node[near start, right, card] {1} node[midway, right, lbl] {receives} (notif.south) node[near end, right, card] {0..*};
+\draw[assoc] (user.north) -- node[pos=0.25, xshift=10pt, card] {1} (notif.south) node[pos=0.75, xshift=18pt, card] {0..*};
 
 % 8. User - Claim (routed cleanly around the right of Report without collision)
-\draw[assoc] (user.east) -- ++(0.9, 0) |- node[near start, above, card] {1} node[pos=0.75, below, lbl] {submits} ([yshift=-0.2cm]claim.east) node[near end, above, card] {0..*};
+\draw[assoc] (user.east) -- node[pos=0.20, yshift=8pt, card] {1} ++(0.9, 0) |- ([yshift=-0.2cm]claim.east) node[pos=0.78, yshift=-8pt, card] {0..*};
 
 \end{tikzpicture}
 \caption{Domain Model diagram for US-Recovery}

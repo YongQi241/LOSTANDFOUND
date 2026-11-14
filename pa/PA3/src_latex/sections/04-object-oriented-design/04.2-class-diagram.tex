@@ -27,13 +27,13 @@ Thuộc tính mở rộng & rewardAmount, privateIdentifier, storageLocation và
 \oodclass{media}{0,-10}{ItemMedia}{- mediaId: UUID\\- objectKey, mimeType: String\\- sizeBytes: Integer}{+ validate(): void}
 \oodclass{report}{6.2,-10}{Report}{- reportId, reporterId: UUID\\- reason: ReportReason\\- status: ReportStatus}{+ settle(decision): void}
 \oodclass{contact}{12.4,-10}{ContactDetails (value object)}{- kind: PHONE / EMAIL\\- value: String}{+ validate(): void}
-\draw[oodassoc] (user.east) -- node[oodlabel,above,pos=.12]{1} node[oodlabel,above,pos=.88]{0..*} (post.west);
-\draw[oodassoc] (post.east) -- node[oodlabel,above,pos=.12]{1} node[oodlabel,above,pos=.88]{0..*} (claim.west);
+\draw[oodassoc] (user.east) -- node[oodlabel,above=4pt,pos=.33]{1} node[oodlabel,below=4pt,pos=.67]{0..*} (post.west);
+\draw[oodassoc] (post.east) -- node[oodlabel,above=4pt,pos=.33]{1} node[oodlabel,below=4pt,pos=.67]{0..*} (claim.west);
 \draw[oodinherit] (lost.north) -- ++(0,0.7) -| ([xshift=-.7cm]post.south);
 \draw[oodinherit] (found.north) -- ++(0,.7) -| ([xshift=.7cm]post.south);
 \draw[oodassoc] (media.west) -- ++(-.6,0) |- node[oodlabel,pos=.15,left]{1..5} (post.north west);
-\draw[oodassoc] (post.south) -- (report.north) node[oodlabel,pos=.68,right]{1 : 0..*};
-\draw[oodassoc] (post.north) -- ++(0,1.9) -| node[oodlabel,pos=.5,above]{1 : 1; liên hệ riêng của bài} (contact.east);
+\draw[oodassoc] (post.south) -- (report.north) node[oodlabel,left=4pt,pos=.8]{1 : 0..*};
+\draw[oodassoc] (post.north) -- ++(0,1.9) -| node[oodlabel,pos=.5,above]{1 : 1; liên hệ bài} ([xshift=.4cm]contact.east) -- (contact.east);
 \end{tikzpicture}}
 \caption{\bodyfont Các lớp domain cốt lõi và operation chuyển trạng thái}
 \label{fig:ood-domain}
@@ -53,10 +53,10 @@ Hình~\ref{fig:ood-domain} lược bỏ đường User--Claim và User--Report �
 \oodclass{claimservice}{0,-12.0}{ClaimService}{- uow: IUnitOfWork\\- storage: IStorageAdapter}{+ listForPost(actorId, id): List<ClaimReviewDTO>\\+ readEvidence(actorId, id): EvidenceDTO\\+ submit(actorId, id, input): ClaimDTO\\+ decide(actorId, id, decision): ClaimDTO}
 \oodclass{contactservice}{6.2,-12.0}{ContactAccessService}{- contacts: IContactRepository\\- users: IUserRepository\\- posts: IPostRepository\\- claims: IClaimRepository\\- uow: IUnitOfWork}{+ readPostContact(viewerId, id): ContactDTO\\+ readClaimantContact(viewerId, id): ContactDTO}
 \oodclass{moderation}{12.4,-12.0}{ModerationService}{- uow: IUnitOfWork\\- provider: IAuthProvider}{+ listQueue(adminId, page): List<ModerationDTO>\\+ readCase(adminId, id): ModerationDTO\\+ report(actorId, id, input): UUID\\+ review(adminId, id, decision): void\\+ banUser(adminId, id, reason): void}
-\draw[oodassoc] (univ.east) -- node[oodlabel,above]{1 : 0..*} (campus.west);
-\draw[ooddep] (postservice.west) -- node[oodlabel,above]{kiểm tra actor} (auth.east);
+\draw[oodassoc] (univ.east) -- node[oodlabel,above=6pt,pos=.5]{1 : 0..*} (campus.west);
+\draw[ooddep] (postservice.west) -- (auth.east);
 \draw[ooddep] (claimservice.east) -- ++(.3,0) |- (auth.west);
-\draw[ooddep] (contactservice.north) -- node[oodlabel,right]{kiểm tra viewer} (auth.south);
+\draw[ooddep] (contactservice.north) -- (auth.south);
 \draw[ooddep] (moderation.west) -- ++(-.4,0) |- (auth.south east);
 \end{tikzpicture}}
 \caption{\bodyfont Các lớp hỗ trợ và application services; Campus và ItemCategory phân loại Post}
@@ -91,7 +91,7 @@ PostService, ClaimService và ModerationService phụ thuộc NotificationServic
 \oodclass{postgres}{0,-6}{PgUnitOfWork}{- pool: PgPool}{+ begin(options?): TxContext\\+ commit(tx): void\\+ rollback(tx): void}
 \oodclass{pgrepos}{6.5,-6}{Pg repositories}{- connection: PgClient}{Hiện thực các operation của\\IPostRepository, IClaimRepository,\\IUserRepository, IReportRepository,\\IContactRepository,\\INotificationRepository}
 \draw[oodinherit,dashed] (supabase.west) -- (provider.east);
-\draw[ooddep] (postgres.east) -- node[oodlabel,above]{cấp cùng TxContext} (pgrepos.west);
+\draw[ooddep] (postgres.east) -- (pgrepos.west);
 \end{tikzpicture}}
 \caption{\bodyfont Hiện thực interface; SupabaseStorageAdapter hiện thực IStorageAdapter tương tự}
 \label{fig:ood-adapters}
@@ -111,7 +111,7 @@ PgUnitOfWork hiện thực IUnitOfWork; mỗi Pg repository hiện thực interf
 \draw[ooddep] (catalog.east) -- (catrepo.west);
 \draw[oodassoc] (catrepo.east) -- (request.west);
 \draw[ooddep] (search.east) -- (searchrepo.west);
-\draw[ooddep] (catalog.south) -- ++(0,-.5) -| node[oodlabel,pos=.55,below]{gửi kết quả sau commit} (mail.west);
+\draw[ooddep] (catalog.south) -- ++(0,-.5) -- ++(-3,0) -- ++(0,-8.3) -| (mail.south);
 \end{tikzpicture}}
 \caption{\bodyfont Các lớp bổ trợ cho tìm kiếm và quản lý danh mục/trường}
 \label{fig:ood-catalog}
