@@ -1,29 +1,314 @@
+\providecommand{\archfigure}[3][\textwidth]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{image/#2.png}%
+      {\includegraphics[width=#1]{image/#2.png}}%
+      {\fbox{\parbox[c][4cm][c]{0.6\textwidth}{\centering Missing image: #2}}}%
+    \caption{#3}\label{fig:#2}
+  \end{figure}}
+\providecommand{\ep}[1]{\nolinkurl{#1}}
+
 \section{Architectural Design}
 
+Mục này mô tả kiến trúc US-Recovery theo mô hình C4. Các mức được trình bày gồm: ngữ cảnh hệ thống (mức 1), container (mức 2) và thành phần bên trong API. Kèm theo là sơ đồ triển khai và các bản ghi quyết định kiến trúc (ADR). Kiến trúc dùng đúng công nghệ đã chốt ở PA1 (Mục 3.2): React, Node.js với Express.js, Supabase (PostgreSQL, Auth, Storage), Brevo SMTP, Vercel và Render.
+
+Các sơ đồ được vẽ bằng PlantUML với thư viện C4-PlantUML. File nguồn chỉnh sửa được nằm trong \texttt{docs/design/diagrams/}; ảnh xuất ra được dùng trong báo cáo này. Năm ADR được lưu thành file riêng trong \texttt{docs/design/adr/}. Mỗi thành phần của API mang mã CMP-xx. Mã này được dùng ở cột ``Design element'' của Ma trận truy vết (Mục 7), giống cách dùng mã màn hình SCR-xx ở Mục 6.
+
+% ------------------------------------------------------------
 \subsection{Architectural Style}
-\emph{[Name the architectural style(s) used (layered, MVC, client--server, microservices, event-driven, \ldots) and justify the choice against the design goals.]}
 
-\subsection{System Context Diagram (C4 level 1)}
-\emph{[Update the context diagram from PA1.]}
+US-Recovery dùng kiến trúc \textbf{client--server ba tầng}:
+\begin{itemize}
+  \item \textbf{Tầng giao diện:} ứng dụng một trang (SPA) viết bằng React, chạy trong trình duyệt.
+  \item \textbf{Tầng nghiệp vụ:} một REST API viết bằng Express.js. Mọi quy tắc nghiệp vụ, phân quyền và kiểm tra dữ liệu đều nằm ở tầng này.
+  \item \textbf{Tầng dữ liệu:} PostgreSQL, cùng dịch vụ xác thực và lưu ảnh của Supabase.
+\end{itemize}
 
-\subsection{Container Diagram (C4 level 2)}
-\emph{[Show web/mobile apps, API/back end, database, external services and the technology of each container.]}
+Bên trong, API được tổ chức theo kiểu \textbf{modular monolith}. Đây là một ứng dụng duy nhất, chia thành các module theo chức năng (CMP-01 đến CMP-09). Mọi module chia lớp theo cùng một quy ước:
+\begin{itemize}
+  \item \textbf{Route và controller:} nhận request, kiểm tra dữ liệu đầu vào theo schema, gọi service và trả response. Lớp này không chứa câu lệnh SQL.
+  \item \textbf{Service:} thực hiện luồng use case và quy tắc nghiệp vụ (BR-01 đến BR-03). Service mở transaction khi một thao tác đổi nhiều bản ghi.
+  \item \textbf{Repository:} chứa câu lệnh SQL. Mỗi câu \texttt{SELECT} liệt kê rõ từng cột, không dùng \texttt{SELECT *}.
+  \item \textbf{Adapter:} bọc các dịch vụ bên ngoài (Supabase Auth, Supabase Storage, Brevo) để có thể thay bằng bản giả khi kiểm thử.
+\end{itemize}
 
-\subsection{Component Diagram}
-\emph{[Decompose the main container(s) into components/modules and show their dependencies (system decomposition).]}
+Bảng~\ref{tab:arch-drivers} cho thấy kiến trúc đáp ứng các yêu cầu có ảnh hưởng lớn đến thiết kế.
 
-\subsection{Deployment Diagram}
-\emph{[Show where each component runs (devices, servers/cloud services, database server) and how they communicate.]}
-
-\subsection{Architecture Decision Records}
-\emph{[Record at least 3 important decisions (e.g., database, framework, authentication, hosting). One table per ADR; store them in \texttt{/docs/design/adr}.]}
-
-\begin{longtable}{|p{0.25\textwidth}|p{0.67\textwidth}|}
+\begin{longtable}{|p{0.26\textwidth}|p{0.50\textwidth}|p{0.15\textwidth}|}
+\caption{Yêu cầu định hướng kiến trúc và cách đáp ứng}\label{tab:arch-drivers}\\
 \hline
-\rowcolor{TableBlue}\tableheader{ADR} & \tableheader{ADR-001: \textless title\textgreater} \\ \hline
-Status & proposed $\mid$ accepted $\mid$ superseded \\ \hline
-Context & \\[1.2cm] \hline
-Decision & \\[1.2cm] \hline
-Alternatives considered & \\[1.2cm] \hline
-Consequences & \\[1.2cm] \hline
+\rowcolor{TableBlue}\tableheader{Requirement / constraint} & \tableheader{Architectural response} & \tableheader{ADR} \\ \hline
+\endhead
+NFR-02, BR-02: thông tin liên hệ không được lộ qua API & SPA không truy cập CSDL trực tiếp; mọi dữ liệu đi qua API. Thông tin liên hệ nằm ở bảng riêng và chỉ CMP-05 được đọc. & ADR-001, ADR-005 \\ \hline
+BR-01, FR-02: chỉ email trường; phân quyền theo vai trò & API kiểm tra tên miền trước khi tạo tài khoản. Middleware kiểm tra JWT, vai trò và trạng thái tài khoản ở mọi request. & ADR-003 \\ \hline
+BR-03, UC-06, UC-08, UC-10: một thao tác đổi nhiều bản ghi & Logic nằm ở service. Các thay đổi liên quan chạy trong một transaction PostgreSQL, lỗi ở bước nào thì hoàn tác toàn bộ. & ADR-002 \\ \hline
+NFR-01: tìm kiếm $\leq$ 2 giây ở P95 & Mỗi lần tìm là một câu SQL có chỉ mục, phân trang 20 bài. API và CSDL đặt cùng vùng Singapore. & ADR-002, ADR-004 \\ \hline
+NFR-04: dùng được từ 360 đến 1920\,px & SPA dựng bằng Tailwind CSS theo hướng mobile-first. File tĩnh được phân phối qua CDN của Vercel. & -- \\ \hline
+NFR-05 và ngân sách hosting gần bằng 0 & Dùng dịch vụ có quản lý ở gói miễn phí, tự deploy. Endpoint \texttt{/health} được giám sát mỗi 5 phút. & ADR-004 \\ \hline
+Nhóm 5 người, tối đa 3 tuần coding & Một ngôn ngữ (JavaScript) cho cả hai đầu; một ứng dụng backend duy nhất để deploy và kiểm thử. & ADR-001 \\ \hline
+\end{longtable}
+
+\paragraph{Các kiểu kiến trúc đã cân nhắc.}
+\begin{itemize}
+  \item \textbf{Microservices:} mỗi service phải deploy và giám sát riêng. Thao tác chấp nhận Claim trải qua nhiều service thì không gói được trong một transaction. Cách này quá nặng cho 5 người trong 3 tuần.
+  \item \textbf{Backend-as-a-Service thuần} (SPA gọi thẳng Supabase, bảo vệ bằng Row Level Security): ít code backend hơn. Đổi lại, quy tắc nghiệp vụ nằm rải rác trong các policy SQL và khó kiểm thử bằng Jest, Supertest. Việc ẩn riêng cột thông tin liên hệ theo từng người xem cũng khó làm đúng bằng RLS, trong khi NFR-02 không cho phép sai sót.
+  \item \textbf{MVC render phía server} (Express kèm template): trái với ràng buộc dùng React đã chốt ở PA1.
+\end{itemize}
+
+% ------------------------------------------------------------
+\subsection{System Context Diagram (C4 Level 1)}
+
+\archfigure{c4-context}{Sơ đồ ngữ cảnh hệ thống US-Recovery (C4 mức 1)}
+
+US-Recovery có bốn nhóm người dùng và hai hệ thống bên ngoài:
+\begin{itemize}
+  \item \textbf{Khách} xem và tìm bài đăng mà không cần tài khoản.
+  \item \textbf{Sinh viên} đã xác minh email trường thì đăng bài, gửi và xử lý Claim, báo cáo vi phạm.
+  \item \textbf{Admin} xử lý bài bị báo cáo, khóa tài khoản, quản lý danh mục và duyệt trường mới.
+  \item \textbf{Đại diện trường} gửi đề nghị thêm trường mà không cần tài khoản.
+\end{itemize}
+Hệ thống gửi email qua Brevo SMTP. Thư đến hộp thư của sinh viên hoặc của người liên hệ phía trường.
+
+Supabase không xuất hiện ở mức này. Đây là hạ tầng do nhóm tạo và cấu hình, nằm bên trong ranh giới hệ thống, nên được thể hiện ở mức container (Mục 3.3).
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.45\textwidth}|p{0.40\textwidth}|}
+\caption{Thay đổi so với sơ đồ ngữ cảnh ở PA1}\label{tab:context-changes}\\
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Change} & \tableheader{Reason} \\ \hline
+\endhead
+1 & Đổi tên hệ thống từ CampusHub thành US-Recovery. & Tên chính thức từ PA2 (SRS Mục 2.1). \\ \hline
+2 & Thêm actor Khách. & Khách được xem và tìm bài (UC-03, UC-04). \\ \hline
+3 & Đại diện trường nhận email kết quả xét duyệt; ghi rõ không cần tài khoản. & UC-12, UC-13. \\ \hline
+4 & Hộp thư ``Outlook -- Microsoft 365'' đổi thành hộp thư nói chung của sinh viên và người liên hệ. & Trường mới có thể dùng nhà cung cấp email khác; người liên hệ không nhất thiết dùng email sinh viên. \\ \hline
+5 & Vai trò Admin đổi sang kiểm duyệt hậu kiểm và khóa tài khoản. & Thay đổi thiết kế ở PA3 (Mục 6, BR-03). \\ \hline
+\end{longtable}
+
+% ------------------------------------------------------------
+\subsection{Container Diagram (C4 Level 2)}
+
+\archfigure{c4-container}{Sơ đồ container của US-Recovery (C4 mức 2)}
+
+\begin{longtable}{|p{0.14\textwidth}|p{0.21\textwidth}|p{0.32\textwidth}|p{0.22\textwidth}|}
+\caption{Các container của US-Recovery}\label{tab:containers}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Container} & \tableheader{Technology} & \tableheader{Responsibility} & \tableheader{Communication} \\ \hline
+\endhead
+Web App (SPA) & React, Vite, React Router, Tailwind CSS; phân phối qua Vercel & Hiển thị SCR-01 đến SCR-15; chặn trang theo vai trò; kiểm tra form để báo lỗi sớm (API vẫn kiểm tra lại); hỏi số thông báo chưa đọc mỗi 60 giây. & Gọi API bằng JSON qua HTTPS, kèm JWT; tải ảnh từ Storage qua HTTPS. \\ \hline
+API Server & Node.js LTS, Express.js, \texttt{pg}, supabase-js, Nodemailer, Multer, Zod & Toàn bộ quy tắc nghiệp vụ, phân quyền, kiểm tra dữ liệu, tải ảnh lên và gửi email. & REST/JSON qua HTTPS; SQL qua TLS tới CSDL; HTTPS tới Auth, Storage; SMTP tới Brevo. \\ \hline
+Database & PostgreSQL do Supabase quản lý, vùng Singapore & Lưu tài khoản, bài đăng, thông tin liên hệ, Claim, báo cáo, danh mục, trường, thông báo, nhật ký thao tác Admin, số lần đăng nhập sai. & Chỉ API truy cập, qua connection pooler của Supabase. \\ \hline
+Auth Service & Supabase Auth & Băm mật khẩu, gửi link xác minh (hạn 24 giờ), cấp JWT, chặn tài khoản bị khóa. & Được API gọi qua HTTPS; gửi email xác minh qua Brevo. \\ \hline
+File Storage & Supabase Storage & Bucket \texttt{post-images} (ai cũng đọc được) và \texttt{claim-evidence} (riêng tư, chỉ mở bằng signed URL có hạn ngắn). & Chỉ API tải ảnh lên; trình duyệt đọc ảnh bằng URL do API cấp. \\ \hline
+\end{longtable}
+
+\paragraph{Hai luồng tiêu biểu.}
+\begin{itemize}
+  \item \textbf{Xem chi tiết bài (UC-04).} SPA gọi \texttt{GET /posts/:id}. API trả về thông tin bài và URL ảnh, không có thông tin liên hệ. Trình duyệt tải ảnh trực tiếp từ Storage. Chỉ khi người xem là chủ bài hoặc có Claim đã được chấp nhận, SPA mới gọi thêm \texttt{GET /posts/:id/contact}.
+  \item \textbf{Chấp nhận Claim (UC-08).} SPA gọi \texttt{POST /claims/:id/accept}. Trong một transaction, API làm bốn việc: chuyển Claim sang ``Đã chấp nhận'', chuyển bài sang ``Đã giải quyết'', chuyển các Claim còn lại sang ``Bị từ chối'' và tạo thông báo cho mọi Claimant. Nếu một bước lỗi, toàn bộ được hoàn tác.
+\end{itemize}
+
+\paragraph{Kiểm tra tính khả thi kỹ thuật.} Sơ đồ container được review cùng Developer trước khi chuyển sang Mục 3.4. Các điểm trong Bảng~\ref{tab:feasibility} là nội dung review; bình luận và kết luận được lưu trong pull request của Section 3.
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.22\textwidth}|p{0.27\textwidth}|p{0.36\textwidth}|}
+\caption{Các điểm kiểm tra tính khả thi của sơ đồ container}\label{tab:feasibility}\\
+\hline
+\rowcolor{TableBlue}\tableheader{\#} & \tableheader{Issue} & \tableheader{Risk if ignored} & \tableheader{Design response} \\ \hline
+\endhead
+1 & Thao tác đổi nhiều bản ghi (UC-06 A1, UC-08, UC-10) & Thư viện supabase-js không hỗ trợ transaction nhiều câu lệnh; dữ liệu có thể bị cập nhật dở dang khi lỗi giữa chừng. & API kết nối PostgreSQL bằng thư viện \texttt{pg} qua connection pooler và dùng \texttt{BEGIN}/\texttt{COMMIT}. supabase-js chỉ dùng cho Auth và Storage. \\ \hline
+2 & Giới hạn tên miền email (BR-01) & Supabase Auth không biết danh sách trường đã được duyệt. & API đối chiếu tên miền với bảng tên miền trường trước khi gọi Auth tạo tài khoản. \\ \hline
+3 & Khóa đăng nhập 15 phút sau 5 lần sai (UC-02 E4) & Giới hạn sẵn có của Auth không thực hiện đúng quy tắc này theo từng tài khoản. & Đăng nhập luôn đi qua API. Số lần sai được lưu trong CSDL, không lưu trong RAM, vì Render có thể khởi động lại tiến trình. \\ \hline
+4 & Khóa tài khoản phải kết thúc phiên ngay (UC-10 A2) & JWT đã cấp vẫn hợp lệ cho đến khi hết hạn. & Middleware đọc trạng thái tài khoản từ CSDL ở mỗi request và từ chối tài khoản bị khóa. API đồng thời gọi Auth để chặn đăng nhập lại. \\ \hline
+5 & Link xác minh hết hạn sau 24 giờ (UC-01 E4) & Thời hạn mặc định của Auth có thể khác 24 giờ. & Trong Supabase Auth, cấu hình thời hạn link 24 giờ và URL chuyển hướng về SCR-02b, SCR-02c; ghi cấu hình vào README. \\ \hline
+6 & SPA và API ở hai tên miền khác nhau (Vercel, Render) & Cookie giữa hai tên miền dễ bị trình duyệt chặn, nhất là Safari (NFR-04). & Token gửi qua header \texttt{Authorization}, không dùng cookie. API chỉ cho phép CORS từ tên miền của SPA. \\ \hline
+7 & Ảnh tải lên: tối đa 5 ảnh, mỗi ảnh $\leq$ 5\,MB & File lớn làm quá tải instance nhỏ của Render. & Middleware tải file giới hạn kích thước, số file và định dạng trước khi đẩy lên Storage. \\ \hline
+8 & Gói miễn phí tự ngủ hoặc tạm dừng & Request đầu tiên sau thời gian rảnh rất chậm; dự án Supabase có thể bị tạm dừng. & Xử lý ở ADR-004. \\ \hline
+\end{longtable}
+
+% ------------------------------------------------------------
+\subsection{Component Diagram}
+
+\archfigure{c4-component}{Sơ đồ thành phần của API Server}
+
+API Server được chia thành chín module chức năng và ba thành phần dùng chung (Bảng~\ref{tab:components}). Mọi request đi qua CMP-10 để xác thực, kiểm tra quyền và dữ liệu trước khi đến module.
+
+\begin{longtable}{|p{0.17\textwidth}|p{0.33\textwidth}|p{0.29\textwidth}|p{0.11\textwidth}|}
+\caption{Các thành phần của API Server}\label{tab:components}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Component} & \tableheader{Responsibility} & \tableheader{Main endpoints} & \tableheader{Realises} \\ \hline
+\endhead
+CMP-01 Auth \& Account & Đăng ký (kiểm tra tên miền), đăng nhập (đếm lần sai), làm mới token, đăng xuất, gửi lại link xác minh, thông tin người dùng hiện tại. & \ep{POST /auth/register}\newline \ep{POST /auth/login}\newline \ep{POST /auth/refresh}\newline \ep{POST /auth/logout}\newline \ep{POST /auth/resend}\newline \ep{GET /me} & UC-01, UC-02, BR-01 \\ \hline
+CMP-02 Post & Tạo, sửa, xóa bài; đánh dấu đã giải quyết; tải ảnh; danh sách bài của tôi. Khi xóa bài thì hủy các Claim đang chờ. & \ep{POST /posts}\newline \ep{PATCH /posts/:id}\newline \ep{DELETE /posts/:id}\newline \ep{POST /posts/:id/resolve}\newline \ep{GET /me/posts} & UC-05, UC-06 \\ \hline
+CMP-03 Search & Tìm theo từ khóa và bộ lọc, phân trang 20 bài; bỏ bài ``Đã gỡ'' và bài của tài khoản bị khóa; trả chi tiết bài không kèm liên hệ. & \ep{GET /posts}\newline \ep{GET /posts/:id} & UC-03, UC-04, NFR-01 \\ \hline
+CMP-04 Claim & Gửi Claim (một Claim đang chờ cho mỗi người trên mỗi bài); xem Claim của bài; chấp nhận hoặc từ chối trong transaction; cấp signed URL cho ảnh bằng chứng. & \ep{POST /posts/:id/claims}\newline \ep{GET /posts/:id/claims}\newline \ep{POST /claims/:id/accept}\newline \ep{POST /claims/:id/reject} & UC-07, UC-08 \\ \hline
+CMP-05 Contact Access & Đường duy nhất đọc thông tin liên hệ. Chỉ trả về cho chủ bài hoặc Claimant đã được chấp nhận; các trường hợp khác trả lỗi 403. & \ep{GET /posts/:id/contact}\newline \ep{GET /claims/:id/contact} & BR-02, NFR-02, UC-04 A4 \\ \hline
+CMP-06 Report \& Moderation & Nhận báo cáo; đếm số người báo cáo khác nhau, từ 3 người thì đưa bài vào hàng đợi; giữ bài, gỡ bài, khóa tài khoản; ghi nhật ký thao tác. & \ep{POST /posts/:id/reports}\newline \ep{GET /admin/queue}\newline \ep{POST /admin/posts/:id/keep}\newline \ep{POST /admin/posts/:id/remove}\newline \ep{POST /admin/users/:id/lock} & UC-09, UC-10, BR-03 \\ \hline
+CMP-07 Catalog \& School & Danh mục, cơ sở, tên miền trường; nhận và xét duyệt đề nghị thêm trường; gửi email kết quả. & \ep{GET /categories}\newline \ep{GET /campuses}\newline \ep{POST /admin/categories}\newline \ep{PATCH /admin/categories/:id}\newline \ep{POST /school-requests}\newline \ep{GET /admin/school-requests}\newline \ep{POST /admin/school-requests/:id/decision} & UC-11, UC-12, UC-13 \\ \hline
+CMP-08 Notification & Tạo thông báo in-app cho các module khác; liệt kê, đếm chưa đọc, đánh dấu đã đọc. & \ep{GET /notifications}\newline \ep{GET /notifications/unread-count}\newline \ep{PATCH /notifications/:id/read} & UC-14, FR-09 \\ \hline
+CMP-09 OCR (Could) & Đọc MSSV từ ảnh thẻ sinh viên bằng tesseract.js. Chỉ làm khi còn thời gian ở PA5. & Không có (CMP-02 gọi nội bộ) & UC-15 \\ \hline
+CMP-10 Middleware & \texttt{authenticate} (kiểm tra JWT, nạp vai trò và trạng thái từ CSDL), \texttt{requireRole}, \texttt{validate}, \texttt{upload}, \texttt{errorHandler}. & \ep{GET /health} & FR-02, AC-F05-07 \\ \hline
+CMP-11 Data Access & Pool kết nối \texttt{pg}, hàm chạy transaction, các repository theo bảng. & -- & -- \\ \hline
+CMP-12 Adapters & \texttt{AuthAdapter}, \texttt{StorageAdapter}, \texttt{MailAdapter} (Nodemailer qua Brevo SMTP). & -- & -- \\ \hline
+\end{longtable}
+
+\paragraph{Quy tắc phụ thuộc giữa các module.}
+\begin{itemize}
+  \item Phụ thuộc chỉ đi một chiều, không có vòng:
+  \begin{itemize}
+    \item CMP-06 $\rightarrow$ CMP-01, CMP-02, CMP-08
+    \item CMP-04 $\rightarrow$ CMP-02, CMP-08
+    \item CMP-02 $\rightarrow$ CMP-07, CMP-08, CMP-09
+    \item CMP-01 $\rightarrow$ CMP-07
+  \end{itemize}
+  CMP-03, CMP-05 và CMP-08 không gọi module nào khác.
+  \item Module gọi module khác qua service, không gọi qua controller hay route.
+  \item Có những thao tác phải đổi dữ liệu của module khác trong cùng transaction, ví dụ xóa bài thì hủy Claim đang chờ, khóa tài khoản thì hủy Claim do tài khoản đó gửi. Khi đó service gọi trực tiếp repository của bảng liên quan, dùng chung transaction. Thao tác vẫn nguyên tử mà không tạo vòng phụ thuộc giữa CMP-02 và CMP-04.
+  \item Chỉ CMP-05 được đọc bảng thông tin liên hệ. Chỉ CMP-12 được gọi dịch vụ bên ngoài.
+\end{itemize}
+
+\paragraph{Cấu trúc Web App.} SPA chia thành các trang theo mã SCR-xx, các thành phần giao diện dùng chung và một lớp gọi API:
+\begin{itemize}
+  \item Thành phần dùng chung gồm nút, ô nhập, chip, hộp thoại có giữ focus bên trong (Mục 6.3).
+  \item Lớp gọi API tự gắn token vào mỗi request và làm mới token khi nhận lỗi 401.
+  \item \texttt{ProtectedRoute} và \texttt{AdminRoute} chặn trang theo trạng thái đăng nhập và vai trò. Việc chặn này chỉ để điều hướng; API vẫn là nơi kiểm tra quyền.
+\end{itemize}
+
+\paragraph{Cấu trúc thư mục mã nguồn.} Developer dùng cấu trúc sau khi dựng khung dự án ở PA5:
+\begin{verbatim}
+src/
+  client/                 React + Vite
+    pages/                one folder per screen (SCR-01 ... SCR-15)
+    components/           Button, Field, Chip, Modal, ...
+    lib/apiClient.js      token, refresh, error mapping
+  server/                 Express
+    modules/
+      auth/  posts/  search/  claims/  contact/
+      moderation/  catalog/  notifications/  ocr/
+        *.routes.js  *.controller.js  *.service.js
+        *.repository.js  *.schema.js
+    middleware/           authenticate, requireRole, validate, upload
+    adapters/             authAdapter, storageAdapter, mailAdapter
+    db/                   pool.js, withTransaction.js
+    app.js  server.js
+\end{verbatim}
+
+Danh sách endpoint trong Bảng~\ref{tab:components} là bản đầu. Chi tiết request và response được chốt khi vẽ sequence diagram (Mục 4) và viết test case (PA4).
+
+% ------------------------------------------------------------
+\subsection{Deployment Diagram}
+
+\archfigure{deployment}{Sơ đồ triển khai US-Recovery (môi trường prod)}
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.24\textwidth}|p{0.46\textwidth}|}
+\caption{Các node triển khai}\label{tab:deploy-nodes}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Node} & \tableheader{Runs} & \tableheader{Key configuration} \\ \hline
+\endhead
+Thiết bị người dùng & SPA trong trình duyệt & Chrome, Firefox, Safari bản mới nhất; màn hình 360--1920\,px. \\ \hline
+Vercel (CDN) & File build tĩnh của SPA & Tự deploy khi merge vào \texttt{main}; tạo bản preview cho mỗi pull request; chuyển mọi đường dẫn về \texttt{index.html} để React Router xử lý. Biến môi trường duy nhất là URL của API. \\ \hline
+Render Web Service (Singapore) & API Server trên Node.js LTS & Health check tại \texttt{/health}; secret đặt trong biến môi trường; tự chuyển HTTP sang HTTPS. \\ \hline
+Supabase project ``prod'' (Singapore) & PostgreSQL, Auth, Storage & Auth dùng SMTP của Brevo; link xác minh hạn 24 giờ; hai bucket \texttt{post-images} và \texttt{claim-evidence}. \\ \hline
+Brevo & SMTP relay & Địa chỉ người gửi đã xác minh; cổng 587 với STARTTLS. \\ \hline
+UptimeRobot & Giám sát & Gọi \texttt{/health} mỗi 5 phút; báo email khi lỗi; xuất báo cáo uptime cho NFR-05. \\ \hline
+GitHub & Repository, GitHub Actions & Nhánh \texttt{main} được bảo vệ; mỗi pull request chạy ESLint và test trước khi review. \\ \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.27\textwidth}|p{0.20\textwidth}|p{0.43\textwidth}|}
+\caption{Kết nối giữa các node}\label{tab:deploy-links}\\
+\hline
+\rowcolor{TableBlue}\tableheader{From $\rightarrow$ To} & \tableheader{Protocol} & \tableheader{Content} \\ \hline
+\endhead
+Trình duyệt $\rightarrow$ Vercel & HTTPS (443) & Tải HTML, JS, CSS của SPA. \\ \hline
+Trình duyệt $\rightarrow$ Render & HTTPS (443) & REST/JSON, header \texttt{Authorization: Bearer <JWT>}. \\ \hline
+Trình duyệt $\rightarrow$ Supabase Storage & HTTPS (443) & Tải ảnh bằng URL công khai hoặc signed URL. \\ \hline
+Render $\rightarrow$ Supabase PostgreSQL & PostgreSQL qua TLS & Truy vấn và transaction qua connection pooler. \\ \hline
+Render $\rightarrow$ Supabase Auth, Storage & HTTPS & Đăng ký, đăng nhập, khóa tài khoản; tải ảnh lên, tạo signed URL. Dùng service role key, chỉ có trên server. \\ \hline
+Supabase Auth $\rightarrow$ Brevo & SMTP (587) & Email xác minh tài khoản. \\ \hline
+Render $\rightarrow$ Brevo & SMTP (587) & Email kết quả xét duyệt trường. \\ \hline
+Brevo $\rightarrow$ Hộp thư người nhận & SMTP & Chuyển thư. \\ \hline
+UptimeRobot $\rightarrow$ Render & HTTPS & \texttt{GET /health} mỗi 5 phút. \\ \hline
+GitHub $\rightarrow$ Vercel, Render & Webhook & Tự deploy khi có commit mới trên \texttt{main}. \\ \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.11\textwidth}|p{0.30\textwidth}|p{0.22\textwidth}|p{0.27\textwidth}|}
+\caption{Các môi trường}\label{tab:environments}\\
+\hline
+\rowcolor{TableBlue}\tableheader{Environment} & \tableheader{Front end / API} & \tableheader{Data} & \tableheader{Purpose} \\ \hline
+\endhead
+dev & Máy của từng thành viên (\texttt{npm run dev}) & Supabase project ``dev'' & Phát triển, kiểm thử đơn vị. \\ \hline
+staging & Bản preview của Vercel và một Render service thứ hai, chỉ bật trong tuần kiểm thử & Supabase project ``dev'' với dữ liệu mẫu & Load test k6 (NFR-01), kiểm thử hệ thống. \\ \hline
+prod & Vercel và Render (Singapore) & Supabase project ``prod'' & Demo tuần 10--11, đo uptime (NFR-05). \\ \hline
+\end{longtable}
+
+Secret của API được đặt trong biến môi trường trên Render: \texttt{DATABASE\_URL}, \texttt{SUPABASE\_URL}, \texttt{SUPABASE\_SERVICE\_ROLE\_KEY}, \texttt{SMTP\_USER}, \texttt{SMTP\_PASS}, \texttt{CORS\_ORIGIN}. Repository chỉ chứa file \texttt{.env.example} không có giá trị thật. SPA không giữ bất kỳ khóa nào của Supabase.
+
+% ------------------------------------------------------------
+\subsection{Architecture Decision Records}
+
+Năm quyết định dưới đây có ảnh hưởng lớn nhất đến kiến trúc. Mỗi ADR được lưu thành một file trong \texttt{docs/design/adr/}. Nếu một quyết định thay đổi, nhóm tạo ADR mới và chuyển ADR cũ sang trạng thái ``Superseded''.
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.71\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{ADR} & \tableheader{ADR-001: API modular monolith là cổng duy nhất vào dữ liệu} \\ \hline
+\endhead
+Status & Accepted \\ \hline
+Context & NFR-02 không cho phép thông tin liên hệ xuất hiện trong bất kỳ response nào gửi cho người chưa được phép. Các quy tắc BR-01 đến BR-03 và luồng Claim cần được kiểm thử tự động bằng Jest và Supertest. Nhóm có 5 người và tối đa 3 tuần coding. \\ \hline
+Decision & SPA chỉ gọi REST API viết bằng Express.js, không truy cập trực tiếp CSDL hay Supabase Auth. Ngoại lệ duy nhất là đọc ảnh bằng URL do API cấp. API là một ứng dụng duy nhất, chia thành các module CMP-01 đến CMP-09, mỗi module chia lớp controller, service, repository. \\ \hline
+Alternatives considered & (1) SPA gọi thẳng Supabase, bảo vệ bằng Row Level Security: ít code hơn, nhưng quy tắc nằm trong policy SQL, khó kiểm thử, và khó ẩn đúng một cột theo từng người xem.\newline (2) Microservices: chi phí deploy và giám sát quá lớn; không có transaction xuyên service.\newline (3) Hàm serverless (Vercel Functions, Supabase Edge Functions): mỗi hàm khởi động lạnh riêng và khó chạy thử đầy đủ trên máy cá nhân. \\ \hline
+Consequences & Tích cực: mọi kiểm tra quyền nằm ở một nơi, dễ review và kiểm thử; có thể đổi nhà cung cấp CSDL mà không sửa SPA.\newline Tiêu cực: phải viết nhiều endpoint hơn; mọi request, kể cả tìm kiếm, đều đi qua một instance API (xử lý ở ADR-004). \\ \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.71\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{ADR} & \tableheader{ADR-002: PostgreSQL trên Supabase, ảnh lưu ở Supabase Storage} \\ \hline
+\endhead
+Status & Accepted \\ \hline
+Context & Dữ liệu có quan hệ rõ ràng: tài khoản, bài đăng, Claim, báo cáo, danh mục, trường. Nhiều quy tắc cần ràng buộc chặt: mỗi người chỉ có một Claim đang chờ trên một bài, mỗi người chỉ báo cáo một bài một lần, BR-03 đếm số người báo cáo khác nhau. Chấp nhận Claim và gỡ bài đổi nhiều bản ghi cùng lúc. Ngân sách hosting gần bằng 0. \\ \hline
+Decision & Dùng PostgreSQL do Supabase quản lý, vùng Singapore. API truy cập bằng thư viện \texttt{pg} qua connection pooler và dùng transaction cho thao tác đổi nhiều bản ghi. Ràng buộc nghiệp vụ được giữ bằng khóa ngoại, \texttt{UNIQUE} và \texttt{CHECK} ở CSDL (chi tiết ở Mục 5). Ảnh lưu ở Supabase Storage với hai bucket: \texttt{post-images} đọc công khai, \texttt{claim-evidence} riêng tư. \\ \hline
+Alternatives considered & (1) MongoDB Atlas: linh hoạt về schema nhưng ràng buộc giữa nhiều collection và truy vấn kết hợp yếu hơn.\newline (2) PostgreSQL hoặc MySQL tự cài trên VPS: tốn phí và tự lo sao lưu, bảo mật.\newline (3) Firebase Firestore: giới hạn khi lọc nhiều điều kiện cùng lúc, không phù hợp với UC-03. \\ \hline
+Consequences & Tích cực: CSDL tự chặn dữ liệu sai ngay cả khi code có lỗi; một nhà cung cấp lo cả CSDL, xác thực và lưu ảnh.\newline Tiêu cực: phụ thuộc giới hạn gói miễn phí (dung lượng, tạm dừng khi ít hoạt động, xem ADR-004); gắn với Supabase cho Auth và Storage. Rủi ro này được giảm nhờ CMP-12 bọc các lời gọi ra ngoài. \\ \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.71\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{ADR} & \tableheader{ADR-003: Xác thực bằng Supabase Auth, mọi thao tác đi qua API} \\ \hline
+\endhead
+Status & Accepted \\ \hline
+Context & FR-01 và BR-01 chỉ cho đăng ký bằng email của trường đã có trong hệ thống. UC-01 cần link xác minh hạn 24 giờ. UC-02 E4 khóa đăng nhập 15 phút sau 5 lần sai. UC-10 A2 yêu cầu kết thúc phiên ngay khi khóa tài khoản. SPA và API nằm ở hai tên miền khác nhau. \\ \hline
+Decision & Supabase Auth lưu mật khẩu đã băm, gửi link xác minh qua SMTP của Brevo và cấp JWT. Mọi thao tác xác thực đi qua CMP-01:
+\begin{itemize}[nosep,leftmargin=*]
+  \item API kiểm tra tên miền trước khi gọi Auth tạo tài khoản.
+  \item API đếm số lần đăng nhập sai trong CSDL.
+  \item SPA gửi access token qua header \texttt{Authorization}.
+  \item Middleware kiểm tra chữ ký JWT, rồi đọc vai trò và trạng thái tài khoản từ CSDL ở mỗi request. Vai trò không bao giờ lấy từ dữ liệu phía trình duyệt.
+\end{itemize} \\ \hline
+Alternatives considered & (1) Tự viết bằng bcrypt, jsonwebtoken và bảng token xác minh: chủ động hoàn toàn nhưng nhiều code và dễ sai sót bảo mật.\newline (2) Firebase Auth hoặc Auth0: thêm một nhà cung cấp, cấu hình SMTP riêng.\newline (3) SPA gọi thẳng Supabase Auth: không chặn được tên miền ngoài danh sách và không đếm được lần sai theo quy tắc UC-02 E4. \\ \hline
+Consequences & Tích cực: nhóm không phải tự viết phần lưu mật khẩu và gửi link xác minh; khóa tài khoản có hiệu lực ngay ở request kế tiếp.\newline Tiêu cực: mỗi request tốn thêm một lần đọc CSDL để lấy trạng thái tài khoản; cấu hình Auth (URL chuyển hướng, thời hạn link, SMTP) nằm ngoài mã nguồn nên phải ghi lại trong README. \\ \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.71\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{ADR} & \tableheader{ADR-004: Triển khai trên Vercel, Render và Supabase, vùng Singapore} \\ \hline
+\endhead
+Status & Accepted \\ \hline
+Context & Ngân sách công cụ và hosting ở PA1 là 0 đồng, có 500.000 VND dự phòng. NFR-05 yêu cầu uptime $\geq$ 99\% trong tuần 10--11. NFR-01 đo thời gian phản hồi ở P95. NFR-02 bắt buộc HTTPS. Web service miễn phí của Render tự ngủ khi không có request trong một khoảng thời gian, và request đầu tiên sau đó phải chờ khởi động lại. Dự án Supabase gói Free có thể bị tạm dừng khi CSDL ít hoạt động trong một tuần. \\ \hline
+Decision & SPA deploy trên Vercel; API chạy trên Render Web Service vùng Singapore; Supabase project ``prod'' cũng ở Singapore. Hai dịch vụ tự deploy khi merge vào \texttt{main} và cấp HTTPS sẵn.\newline UptimeRobot gọi \texttt{GET /health} mỗi 5 phút. Endpoint này chạy một truy vấn nhẹ vào CSDL, giúp giữ API và CSDL hoạt động, đồng thời cung cấp số liệu cho NFR-05.\newline Nếu load test ở PA5 cho thấy thời gian khởi động lại hoặc giới hạn gói miễn phí làm trượt NFR-01 hay NFR-05, nhóm nâng API lên gói trả phí thấp nhất của Render trong tuần 10--11, dùng khoản dự phòng (rủi ro R7). \\ \hline
+Alternatives considered & (1) Một VPS duy nhất: rẻ, không ngủ, nhưng phải tự cấu hình HTTPS, deploy và bảo mật máy chủ.\newline (2) Railway (đã nêu ở PA1): tín dụng miễn phí có hạn, khó bảo đảm chạy đủ đến tuần 11.\newline (3) Chạy API dưới dạng serverless trên Vercel: phải chỉnh Express cho mô hình hàm, vẫn có khởi động lạnh và giới hạn thời gian chạy mỗi hàm. \\ \hline
+Consequences & Tích cực: không tốn phí ở điều kiện bình thường; deploy tự động từ nhánh được bảo vệ; API và CSDL cùng vùng nên độ trễ thấp.\newline Tiêu cực: giữ dịch vụ thức bằng ping là cách làm tạm, không được nhà cung cấp bảo đảm; nhóm phải theo dõi email cảnh báo tạm dừng của Supabase. Secret nằm ở hai nơi (Render, Supabase) nên phải ghi danh sách biến môi trường trong README. \\ \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.71\textwidth}|}
+\hline
+\rowcolor{TableBlue}\tableheader{ADR} & \tableheader{ADR-005: Thông tin liên hệ lưu riêng và chỉ trả qua một endpoint có kiểm tra quyền} \\ \hline
+\endhead
+Status & Accepted \\ \hline
+Context & BR-02 và NFR-02: thông tin liên hệ chỉ mở cho hai bên khi Claim được chấp nhận. NFR-02 được kiểm tra bằng Postman với ba loại tài khoản. Ở PA3, ô liên hệ trở thành bắt buộc trong form đăng bài (Mục 6), nên mọi bài đều có dữ liệu cần bảo vệ. Nếu chỉ ẩn trên giao diện, người dùng vẫn đọc được liên hệ bằng công cụ của trình duyệt. \\ \hline
+Decision & Thông tin liên hệ lưu ở bảng riêng, quan hệ 1--1 với bài đăng. Chỉ repository của CMP-05 được đọc bảng này.
+\begin{itemize}[nosep,leftmargin=*]
+  \item \texttt{GET /posts} và \texttt{GET /posts/:id} không bao giờ chứa liên hệ.
+  \item \texttt{GET /posts/:id/contact} chỉ trả về cho chủ bài hoặc Claimant đã được chấp nhận; các trường hợp khác nhận lỗi 403.
+  \item \texttt{GET /claims/:id/contact} trả liên hệ của Claimant cho chủ bài sau khi chấp nhận.
+  \item Response được dựng theo danh sách trường cho phép.
+  \item Test tích hợp kiểm tra response của các endpoint tìm kiếm, chi tiết và Claim không chứa liên hệ với cả ba loại tài khoản trong NFR-02.
+\end{itemize} \\ \hline
+Alternatives considered & (1) Để liên hệ chung bảng bài đăng và bỏ cột này trong từng câu truy vấn: chỉ cần một câu truy vấn viết sót là lộ dữ liệu.\newline (2) Chỉ ẩn trên giao diện: vi phạm NFR-02.\newline (3) Phân quyền theo cột trong PostgreSQL: API dùng một tài khoản CSDL cho mọi người dùng nên không phân biệt được người xem.\newline (4) Mã hóa trường liên hệ: thêm việc quản lý khóa nhưng không giải quyết được câu hỏi ai được xem. \\ \hline
+Consequences & Tích cực: muốn lộ liên hệ phải viết code cố ý đi qua CMP-05, nên dễ review và dễ kiểm thử.\newline Tiêu cực: SPA tốn thêm một request khi liên hệ đã được mở; schema có thêm một bảng, Mục 5 phải thể hiện bảng này. \\ \hline
 \end{longtable}
