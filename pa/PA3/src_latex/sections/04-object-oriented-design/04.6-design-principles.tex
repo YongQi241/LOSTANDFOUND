@@ -19,7 +19,5 @@ DRY; validation nhiều tầng & DTO kiểm tra hình thức; entity kiểm tra 
 
 Các lựa chọn này cần được phản ánh trong section 5 khi thiết kế bảng, index và transaction; các trường hợp kiểm tra ở Mục~\ref{ood-state-machines} là đầu vào kế hoạch PA4, chưa phải kết quả kiểm thử ứng dụng. Các quyết định chi tiết hóa ở đầu 4.2 phải được đưa vào truy vết/thay đổi yêu cầu của PA3 khi nhóm tích hợp báo cáo, đặc biệt quy tắc tối thiểu ảnh và cách biểu diễn CLOSED.
 
-\subsubsection*{Đối chiếu thiết kế và bằng chứng}
-Class diagram tại Hình~\ref{fig:ood-domain}--\ref{fig:ood-catalog} được liên kết với tám đặc tả ở Mục~\ref{ood-class-specifications}. Năm sequence tại Hình~\ref{fig:seq-uc05}--\ref{fig:seq-uc10} dùng các operation trong những lớp/interface này. Các phép chuyển Post/Claim tại Hình~\ref{fig:state-post} và Hình~\ref{fig:state-claim} là hậu điều kiện của các luồng tạo, duyệt và kiểm duyệt tương ứng.
-
-\textbf{Trạng thái review: đã đối chiếu OOD--ERD, còn thiếu components.} Section 5 hiện có ERD tại Hình~\ref{fig:data-identity}--\ref{fig:data-admin}, đặc tả bảng, ràng buộc và index ánh xạ các lớp/repository ở trên; bằng chứng tại \href{run:../../../docs/design/database/evidence.md}{database/evidence.md}. Section 3 vẫn chưa có Component Diagram nên chưa xác nhận ranh giới component hoàn chỉnh. Bảng truy vết nguồn và trạng thái tích hợp được cập nhật tại \href{run:../../../docs/design/pa3-ood-traceability-review.md}{docs/design/pa3-ood-traceability-review.md}.
+% \subsubsection*{Đối chiếu thiết kế và bằng chứng}
+% Class diagram tại Hình~\ref{fig:ood-domain}--\ref{fig:ood-catalog} được liên kết với tám đặc tả ở Mục~\ref{ood-class-specifications}. Năm sequence tại Hình~\ref{fig:seq-uc05}--\ref{fig:seq-uc10} dùng các operation trong những lớp/interface này. Các phép chuyển Post/Claim tại Hình~\ref{fig:state-post} và Hình~\ref{fig:state-claim} là hậu điều kiện của các luồng tạo, duyệt và kiểm duyệt tương ứng.
