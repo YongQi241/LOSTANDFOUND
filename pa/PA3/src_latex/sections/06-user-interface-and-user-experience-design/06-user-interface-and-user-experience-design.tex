@@ -63,7 +63,14 @@ Các frame bổ sung ở PA3 không phải màn hình mới. Chúng thể hiện
 8 & Mẫu trạng thái & Nút và ô nhập ở các trạng thái mặc định, focus, lỗi, không dùng được; các loại nhãn. & Mục 6.3 \\ \hline
 \end{longtable}
 
-\screenimage[\textwidth]{screen-flow}{Sơ đồ điều hướng giữa các màn hình US-Recovery}
+\begin{figure}[p]
+    \centering
+    \rotatebox{90}{%
+        \includegraphics[width=0.85\textheight]{image/screen-flow.png}
+    }
+    \caption{Sơ đồ điều hướng giữa các màn hình US-Recovery}
+    \label{fig:screen-flow}
+\end{figure}
 
 Sơ đồ chia màn hình thành bốn nhóm theo thứ tự sử dụng: xác thực, tìm và xem, tương tác của người dùng đã đăng nhập, và quản trị. Mũi tên nét liền là luồng chính; mũi tên hai đầu thể hiện cặp đi và quay lại, ví dụ mở chi tiết bài rồi quay lại kết quả. Mũi tên nét đứt màu xám là luồng phụ: link xác minh hết hạn, chuyển qua lại giữa đăng ký và đăng nhập, liên kết ở chân trang, và chuyển hướng khách sang đăng nhập. Ô viền nét đứt là popup mở trên màn hình hiện tại. Hai ô ''Thanh điều hướng'' và ''Menu Admin'' không phải màn hình riêng; chúng đại diện cho thanh điều hướng có trên mọi trang.
 
