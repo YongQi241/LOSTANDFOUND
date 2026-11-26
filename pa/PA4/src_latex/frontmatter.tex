@@ -1,0 +1,56 @@
+% Cover page
+\thispagestyle{empty}
+\null
+\begin{tikzpicture}[remember picture, overlay]
+  \node[
+    anchor=north, align=center, inner sep=0,
+    font=\fontsize{21}{25}\bfseries
+  ] at ([yshift=-0.82in]current page.north)
+    {Introduction to Software Engineering};
+  \fill[CoverBlue]
+    ([xshift=0.65in, yshift=-1.78in]current page.north west)
+    rectangle
+    ([xshift=-0.65in, yshift=-3.42in]current page.north east);
+  \node[
+    font=\fontsize{38}{44}\bfseries, text=white, anchor=center
+  ] at ([yshift=-2.60in]current page.north)
+    {Test Plan \& Test Cases};
+  \node[anchor=south west, inner sep=0] at
+    ([xshift=0.52in, yshift=1.54in]current page.south west)
+    {\includegraphics[scale=1.25]{assets/hcmus_logo.png}};
+  \node[
+    anchor=west, inner sep=0, align=right,
+    font=\fontsize{11}{15}\selectfont
+  ] at ([xshift=1.72in, yshift=1.98in]current page.south west)
+    {Software Engineering Department\\
+     Faculty of Information and Technology\\
+     University of Science};
+\end{tikzpicture}
+\clearpage
+
+% Generated table of contents
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+% Objectives page
+\pagestyle{empty}
+\begin{center}
+  {\color{PrimaryBlue}\bfseries\fontsize{32}{39}\selectfont
+   Test Plan \& Test Cases}
+\end{center}
+\vspace{0.5in}
+{\fontsize{21}{25}\bfseries Objectives}\par
+This document focuses on the following topics:
+\begin{itemize}[label=$\checkmark$, leftmargin=1.9em, itemsep=7pt]
+  \item Completing the Test Plan \& Test Cases document with the following sections:
+  \begin{itemize}[label=\textbullet, itemsep=4pt]
+    \item Test plan
+    \item Test design (equivalence partitioning, boundary values, decision tables)
+    \item Test case list and specifications
+    \item Requirements--test traceability
+  \end{itemize}
+  \item Including an AI usage log for this phase
+  \item Understanding the Test Plan \& Test Cases document.
+\end{itemize}
+\addcontentsline{toc}{section}{Objectives}
