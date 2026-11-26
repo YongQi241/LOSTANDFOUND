@@ -1,0 +1,171 @@
+\section{Test Plan}
+\subsection{Objectives and Scope}
+
+[Objectives of testing; features to be tested and features not to be tested (with reasons).]
+\subsection{Test Levels}
+
+\begin{longtable}{|p{.13\textwidth}|p{.27\textwidth}|p{.2\textwidth}|p{.29\textwidth}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Level} & \tableheader{Target} & \tableheader{Responsible} & \tableheader{Approach / tools}\\
+\hline
+Unit & Business logic classes/functions & Developers & <e.g., JUnit, pytest, Jest>\\
+\hline
+Integration & API + database, component interactions & Developers + tester & \\
+\hline
+System & Complete system against the SRS & Tester & <manual + automated (Playwright, …)>\\
+\hline
+Acceptance & Acceptance criteria of Must-have features & Tester + BA & \\
+\hline
+\end{longtable}
+
+\subsection{Test Types}
+
+[Functional, non-functional (performance, security, usability -- link to NFR IDs), regression. State which types apply and how.]
+\subsection{Test Design Techniques}
+
+[Map each feature/requirement to the techniques used: requirements/use-case-based, equivalence partitioning, boundary value analysis, decision table, state transition, statement/decision coverage for unit tests.]
+\subsection{Test Environment and Test Data}
+
+[Hardware, OS, browsers/devices, database, test accounts and test data.]
+\subsection{Entry and Exit Criteria}
+
+\textbf{Entry:} build deployed to the test environment, smoke test passes, test data ready.\par
+\textbf{Exit (suggested):} 100\% of Must-have test cases executed; $\geq$ 90\% passed; no open critical/high defects.
+\subsection{Defect Management}
+
+\begin{longtable}{|p{.2\textwidth}|p{.68\textwidth}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Severity} & \tableheader{Definition}\\
+\hline
+Critical & System crash, data loss, security breach; no workaround\\
+\hline
+High & Main function fails; workaround difficult\\
+\hline
+Medium & Function works incorrectly; workaround exists\\
+\hline
+Low & Cosmetic or minor issue\\
+\hline
+\end{longtable}
+
+[Defects are recorded as issues in the repository (GitHub Issues/Jira) with steps to reproduce, severity, priority and the related test case.]
+\subsection{Schedule, Responsibilities and Tools}
+
+\subsubsection{Testing Schedule}
+
+Hoạt động kiểm thử được thực hiện xuyên suốt vòng đời phát triển phần mềm thay vì tập trung vào một khoảng thời gian cố định. Lịch trình kiểm thử được xây dựng theo phương pháp kiểm thử tăng trưởng (Incremental Testing), dựa trên các mốc tiến độ phát triển và điều kiện sẵn sàng của từng chức năng, thành phần hoặc môi trường kiểm thử.
+
+Kiểm thử đơn vị và kiểm thử tích hợp được thực hiện song song với quá trình phát triển. Kiểm thử hệ thống, kiểm thử phi chức năng và kiểm thử chấp nhận được tiến hành khi các chức năng tương ứng hoặc phiên bản hệ thống ổn định đã sẵn sàng. Kiểm thử lại và kiểm thử hồi quy được thực hiện khi có thay đổi liên quan đến hệ thống.
+
+\begin{longtable}{|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.24}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.36}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.25}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.15}}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Hoạt động kiểm thử} & \tableheader{Thời điểm thực hiện / Điều kiện kích hoạt} & \tableheader{Tần suất} & \tableheader{Phụ trách} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{TableBlue}
+\tableheader{Hoạt động kiểm thử} & \tableheader{Thời điểm thực hiện / Điều kiện kích hoạt} & \tableheader{Tần suất} & \tableheader{Phụ trách} \\ \hline
+\endhead
+Rà soát yêu cầu và kế hoạch kiểm thử & Trong PA4, trước khi hoàn thiện đặc tả ca kiểm thử & Ban đầu và khi yêu cầu thay đổi & BA, Tester \\ \hline
+Thiết kế ca kiểm thử & Trong PA4, dựa trên yêu cầu PA2 và thiết kế PA3 & Ban đầu và khi yêu cầu thay đổi & BA, Dev, Designer, Tester \\ \hline
+Unit Testing & Khi một hàm, lớp hoặc mô-đun được triển khai & Theo từng mô-đun và thay đổi mã nguồn liên quan & Dev \\ \hline
+Integration Testing & Khi các API, dịch vụ và thành phần cơ sở dữ liệu liên quan được tích hợp & Sau mỗi lần tích hợp thành phần & Dev, Tester \\ \hline
+Smoke Testing & Sau khi triển khai phiên bản mới lên môi trường kiểm thử & Mỗi phiên bản được triển khai & Tester \\ \hline
+System Testing & Khi có phiên bản hệ thống ổn định chứa các chức năng cần kiểm thử & Theo từng phiên bản chính & Tester \\ \hline
+Security Testing & Khi các chức năng xác thực, phân quyền và xử lý Claim được triển khai & Ban đầu và sau các thay đổi liên quan đến bảo mật & Dev, Tester \\ \hline
+Performance Testing & Khi chức năng tìm kiếm và lọc bài đăng được triển khai trên môi trường staging & Ban đầu và sau các thay đổi lớn về hiệu năng & Dev, Tester \\ \hline
+Usability Testing & Khi các giao diện và luồng tương tác chính được hoàn thiện & Ban đầu và sau các thay đổi lớn về giao diện & Designer, Tester \\ \hline
+Compatibility Testing & Khi giao diện thích ứng với các kích thước màn hình được hoàn thiện & Ban đầu và sau các thay đổi lớn về giao diện & Designer, Tester \\ \hline
+Availability Monitoring & Trong tuần 10--11 theo NFR-05 & Tự động mỗi 5 phút & Tester \\ \hline
+Retesting & Sau khi lỗi được khắc phục & Theo từng lỗi đã sửa & Tester \\ \hline
+Regression Testing & Sau khi sửa lỗi, tích hợp chức năng hoặc thay đổi hệ thống & Theo từng thay đổi hoặc phiên bản liên quan & Dev, Tester \\ \hline
+Acceptance Testing & Khi toàn bộ chức năng Must-have được triển khai và hệ thống có phiên bản ổn định & Trước khi nghiệm thu & BA, Tester \\ \hline
+Đánh giá kết quả kiểm thử & Trước khi nộp PA5 và trình diễn sản phẩm & Theo phiên bản dự kiến phát hành cuối cùng & Lead, Tester \\ \hline
+\end{longtable}
+
+Các hoạt động kiểm thử có thể diễn ra song song với quá trình phát triển và không yêu cầu thực hiện liên tục trong toàn bộ khoảng thời gian được lên kế hoạch. Thời điểm thực hiện cụ thể phụ thuộc vào tiến độ triển khai, mức độ ổn định của hệ thống và các điều kiện bắt đầu kiểm thử được xác định tại mục 2.6.
+
+Kết quả thực thi các ca kiểm thử, danh sách lỗi phát hiện được và kết quả đánh giá chất lượng hệ thống sẽ được ghi nhận trong PA5.
+
+\subsubsection{Testing Responsibilities}
+
+Trách nhiệm kiểm thử được phân công dựa trên vai trò, chuyên môn và phạm vi công việc của từng thành viên trong dự án.
+
+\begin{longtable}{|
+  >{\raggedright\arraybackslash}p{(\linewidth-6\tabcolsep-4\arrayrulewidth)*\real{0.22}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-6\tabcolsep-4\arrayrulewidth)*\real{0.23}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-6\tabcolsep-4\arrayrulewidth)*\real{0.55}}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Thành viên} & \tableheader{Vai trò} & \tableheader{Trách nhiệm kiểm thử} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{TableBlue}
+\tableheader{Thành viên} & \tableheader{Vai trò} & \tableheader{Trách nhiệm kiểm thử} \\ \hline
+\endhead
+Đỗ Vĩnh Kỳ & Team Lead / Project Manager & Xây dựng lịch trình kiểm thử, phân công nhiệm vụ, theo dõi tiến độ, điều phối quá trình xử lý lỗi và phê duyệt kết quả kiểm thử cuối cùng. \\ \hline
+Huỳnh Thái Hòa & Business Analyst & Rà soát yêu cầu và quy tắc nghiệp vụ, thiết kế các kịch bản kiểm thử chấp nhận, xác định hành vi mong đợi của hệ thống và tham gia nghiệm thu sản phẩm. \\ \hline
+Nguyễn Anh Tá & Designer / Architect & Thiết kế các kịch bản kiểm thử phi chức năng, xác minh các ràng buộc kiến trúc, kiểm thử tính khả dụng, tính tương thích và hành vi giao diện. \\ \hline
+Nguyễn Gia & Developer & Xây dựng và thực thi kiểm thử đơn vị, kiểm thử tích hợp; chuẩn bị môi trường và dữ liệu kiểm thử; phân tích, khắc phục lỗi kỹ thuật và thực hiện kiểm thử hồi quy. \\ \hline
+Trần Thiên Phú & Tester & Điều phối thiết kế ca kiểm thử, quản lý danh sách ca kiểm thử và ma trận truy vết yêu cầu, thực hiện kiểm thử hệ thống và kiểm thử phi chức năng, ghi nhận lỗi, kiểm thử lại và lập báo cáo kiểm thử. \\ \hline
+\end{longtable}
+
+Tất cả thành viên có trách nhiệm ghi nhận các lỗi phát hiện được trong quá trình phát triển và kiểm thử, đồng thời cung cấp minh chứng thông qua GitHub Issues, commits hoặc pull requests.
+
+Tester chịu trách nhiệm điều phối chuyên môn kiểm thử, trong khi Team Lead chịu trách nhiệm theo dõi tiến độ tổng thể và đảm bảo hệ thống đáp ứng các tiêu chí kết thúc kiểm thử trước khi nghiệm thu.
+
+\subsubsection{Testing Tools}
+
+Các công cụ kiểm thử được lựa chọn dựa trên kiến trúc hệ thống đã xác định trong PA3, phương pháp xác minh yêu cầu trong PA2 và đặc điểm của từng hoạt động kiểm thử.
+
+\begin{longtable}{|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.20}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.20}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.45}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-8\tabcolsep-5\arrayrulewidth)*\real{0.15}}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Công cụ} & \tableheader{Mục đích} & \tableheader{Phạm vi áp dụng} & \tableheader{Phụ trách} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{TableBlue}
+\tableheader{Công cụ} & \tableheader{Mục đích} & \tableheader{Phạm vi áp dụng} & \tableheader{Phụ trách} \\ \hline
+\endhead
+Jest & Kiểm thử đơn vị & Kiểm tra logic nghiệp vụ, xác thực dữ liệu đầu vào, các hàm xử lý và chuyển đổi trạng thái đối tượng. & Dev \\ \hline
+Supertest & Kiểm thử tích hợp API & Kiểm tra các REST API của Express.js, mã phản hồi HTTP, phân quyền và sự tương tác giữa các thành phần ứng dụng. & Dev \\ \hline
+Postman & Kiểm thử API và bảo mật & Kiểm tra hành vi API, quyền truy cập, xác thực người dùng và khả năng bảo vệ thông tin liên hệ theo NFR-02. & Dev, Tester \\ \hline
+Playwright & Kiểm thử End-to-End & Kiểm tra các luồng nghiệp vụ hoàn chỉnh như đăng ký, đăng nhập, quản lý bài đăng, tìm kiếm, xử lý Claim và quản trị hệ thống. & Tester \\ \hline
+PostgreSQL / Supabase & Kiểm tra cơ sở dữ liệu và quản lý dữ liệu kiểm thử & Chuẩn bị dữ liệu kiểm thử, xác minh các ràng buộc, quan hệ, giao dịch và tính nhất quán của dữ liệu. & Dev \\ \hline
+k6 & Kiểm thử hiệu năng & Mô phỏng 100 người dùng ảo đồng thời trong 5 phút, đo thời gian phản hồi P95 của chức năng tìm kiếm và lọc bài đăng theo NFR-01. & Dev, Tester \\ \hline
+Đồng hồ bấm giờ và bảng quan sát & Kiểm thử tính khả dụng & Đo thời gian hoàn thành thao tác tạo bài đăng của 5 người dùng lần đầu sử dụng hệ thống theo NFR-03. & Designer, Tester \\ \hline
+Chrome DevTools & Responsive Testing & Kiểm tra giao diện tại các kích thước màn hình 360 px, 768 px, 1366 px và 1920 px. & Designer \\ \hline
+Chrome, Firefox, Safari & Kiểm thử tính tương thích & Kiểm tra chức năng và tính nhất quán của giao diện trên các trình duyệt và thiết bị được hỗ trợ theo NFR-04. & Designer, Tester \\ \hline
+UptimeRobot & Giám sát tính sẵn sàng & Kiểm tra trạng thái hoạt động của hệ thống mỗi 5 phút trong tuần 10--11, xác minh tỷ lệ uptime đạt tối thiểu 99\% theo NFR-05. & Tester \\ \hline
+GitHub Issues & Defect Management & Ghi nhận lỗi, các bước tái hiện, mức độ nghiêm trọng, mức độ ưu tiên, ca kiểm thử liên quan và trạng thái xử lý. & Tất cả thành viên \\ \hline
+GitHub Projects & Quản lý tiến độ kiểm thử & Theo dõi nhiệm vụ, phân công trách nhiệm, quan hệ phụ thuộc và trạng thái hoàn thành. & Lead, Tester \\ \hline
+GitHub Actions  & Tự động hóa thực thi kiểm thử & Tự động thực thi các ca kiểm thử phù hợp khi có thay đổi mã nguồn hoặc pull request, nếu quy trình CI được thiết lập. & Dev \\ \hline
+\end{longtable}
+
+Kiểm thử tự động được ưu tiên áp dụng đối với các ca kiểm thử có khả năng lặp lại, bao gồm kiểm thử logic nghiệp vụ, API, xác thực dữ liệu và kiểm thử hồi quy.
+
+Kiểm thử thủ công được áp dụng đối với các hoạt động cần sự quan sát hoặc đánh giá trực tiếp của con người, đặc biệt là kiểm thử tính khả dụng, kiểm tra giao diện và kiểm thử chấp nhận.
+
+Các công cụ kiểm thử có thể được điều chỉnh trong quá trình triển khai tùy thuộc vào tính khả thi về kỹ thuật, nguồn lực của nhóm và các ràng buộc của dự án, với điều kiện vẫn đảm bảo đáp ứng các mục tiêu và tiêu chí kiểm thử đã đề ra.
+
+\subsection{Test Risks}
+
+\begin{longtable}{|p{.42\textwidth}|p{.42\textwidth}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Risk} & \tableheader{Mitigation}\\
+\hline
+& \\
+\hline
+& \\
+\hline
+\end{longtable}
