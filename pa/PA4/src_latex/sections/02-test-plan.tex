@@ -4,7 +4,7 @@
 [Objectives of testing; features to be tested and features not to be tested (with reasons).]
 \subsection{Test Levels}
 
-\begin{longtable}{|p{.13\textwidth}|p{.27\textwidth}|p{.2\textwidth}|p{.29\textwidth}|}
+\begin{longtable}{|p{.13\textwidth}|p{.30\textwidth}|p{.25\textwidth}|p{.29\textwidth}|}
 \hline
 \rowcolor{TableBlue}
 \tableheader{Level} & \tableheader{Target} & \tableheader{Responsible} & \tableheader{Approach / tools}\\
@@ -24,32 +24,738 @@ Acceptance & Acceptance criteria of Must-have features & Tester + BA & \\
 [Functional, non-functional (performance, security, usability -- link to NFR IDs), regression. State which types apply and how.]
 \subsection{Test Design Techniques}
 
-[Map each feature/requirement to the techniques used: requirements/use-case-based, equivalence partitioning, boundary value analysis, decision table, state transition, statement/decision coverage for unit tests.]
+Kiểm thử US-Recovery dựa trên yêu cầu và Use Case của PA2, đối chiếu với thiết kế và các thay đổi yêu cầu tại PA3, mục 8. 
+Phạm vi kiểm thử ưu tiên các tính năng Must-have 
+(F01--F05, FR-01--FR-08, UC-01--UC-13). 
+F06 (FR-09) được kiểm thử nếu triển khai trong PA5; 
+F07 (OCR) và F08 (AI Smart Matching) không thuộc phạm vi 
+kiểm thử bắt buộc.
+
+Các kỹ thuật kiểm thử được sử dụng bao gồm:
+\begin{itemize}
+    \item \textbf{Requirements/Use Case-based Testing (UC):}
+    Thiết kế ca kiểm thử dựa trên yêu cầu, luồng chính, 
+    luồng thay thế và luồng ngoại lệ của Use Case.
+
+    \item \textbf{Equivalence Partitioning (EP):}
+    Phân chia dữ liệu đầu vào thành các lớp tương đương 
+    hợp lệ và không hợp lệ.
+
+    \item \textbf{Boundary Value Analysis (BVA):}
+    Kiểm thử tại các giá trị biên và các giá trị 
+    ngay trước, ngay sau biên.
+
+    \item \textbf{Decision Table (DT):}
+    Kiểm thử các quy tắc nghiệp vụ có nhiều điều kiện 
+    kết hợp ảnh hưởng đến kết quả xử lý.
+
+    \item \textbf{State Transition (ST):}
+    Kiểm thử các trạng thái và sự chuyển đổi trạng thái 
+    hợp lệ hoặc không hợp lệ của đối tượng.
+
+    \item \textbf{White-box Testing (WB):}
+    Kiểm thử cấu trúc mã nguồn thông qua Statement 
+    Coverage và Decision/Branch Coverage ở mức Unit Test.
+\end{itemize}
+
+\noindent\textbf{Kiểm thử chức năng và quy tắc nghiệp vụ}
+
+
+\begin{longtable}{|
+  >{\raggedright\arraybackslash}p{(\linewidth-12\tabcolsep-7\arrayrulewidth)*\real{0.16}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-12\tabcolsep-7\arrayrulewidth)*\real{0.10}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-12\tabcolsep-7\arrayrulewidth)*\real{0.11}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-12\tabcolsep-7\arrayrulewidth)*\real{0.09}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-12\tabcolsep-7\arrayrulewidth)*\real{0.12}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-12\tabcolsep-7\arrayrulewidth)*\real{0.42}}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Feature} & \tableheader{FR} & \tableheader{UC} & \tableheader{BR} & \tableheader{Technique} & \tableheader{Testing Focus} \\
+\hline
+\endfirsthead
+
+\hline
+\rowcolor{TableBlue}
+\tableheader{Feature} & \tableheader{FR} & \tableheader{UC} & \tableheader{BR} & \tableheader{Technique} & \tableheader{Testing Focus} \\
+\hline
+\endhead
+
+\textbf{F01}
+
+Xác thực và phân quyền & FR-01,\newline
+FR-02 & UC-01,\newline
+UC-02,\newline
+UC-10 & BR-01 & UC, EP, BVA, DT, ST, WB 
+&
+Kiểm tra email thuộc hoặc không thuộc trường tham gia,
+email trùng lặp, xác nhận mật khẩu, độ dài mật khẩu
+7/8/9 ký tự, thời hạn link xác minh 24 giờ,
+4/5/6 lần đăng nhập sai và thời gian khóa đăng nhập
+15 phút. Kiểm tra phân quyền Guest, Student, Admin,
+tài khoản chưa xác minh hoặc bị khóa.
+\\ \hline
+
+\textbf{F02}
+
+Quản lý bài đăng & FR-03 & UC-05, UC-06 & BR-01, BR-02 & UC, EP, BVA, DT, ST, WB
+&
+Kiểm tra các trường bắt buộc, thời gian không nằm
+trong tương lai, số điện thoại 9/10/11 chữ số hoặc
+email hợp lệ. Kiểm tra định dạng JPG/PNG, giới hạn
+5 ảnh và 5 MB/ảnh. Bài đăng hợp lệ được công khai
+ngay với trạng thái ACTIVE. Kiểm tra quyền chỉnh sửa,
+xóa, hoàn tất bài đăng và điều kiện chỉnh sửa câu hỏi
+xác minh khi có Claim PENDING.
+\\ \hline
+
+\textbf{F03}
+
+Tìm kiếm và lọc & FR-04 & UC-03, UC-04 & BR-02 & UC, EP, BVA, DT, WB
+&
+Kiểm tra từ khóa có hoặc không có kết quả, kết hợp
+các bộ lọc cơ sở trường, danh mục, loại bài đăng
+và khoảng thời gian. Kiểm tra ngày bắt đầu trước,
+bằng hoặc sau ngày kết thúc; phân trang với
+19/20/21 kết quả. Chỉ hiển thị các bài ACTIVE hoặc
+RESOLVED của tài khoản không bị khóa và không
+tiết lộ thông tin liên hệ khi chưa đủ quyền.
+\\ \hline
+
+\textbf{F04}
+
+Claim Workflow & FR-05, FR-06 & UC-04, UC-07, UC-08 & BR-01, BR-02, BR-04 & UC, EP, DT, ST, WB
+&
+Kiểm tra gửi Claim đối với bài Mất đồ và Nhặt đồ,
+dữ liệu xác minh hợp lệ hoặc không hợp lệ.
+Ngăn tự Claim, Claim trùng PENDING và Claim trên
+bài không ACTIVE. Kiểm tra quyền chấp nhận hoặc
+từ chối Claim; chỉ một Claim được ACCEPTED, bài
+đăng chuyển sang RESOLVED và các Claim PENDING
+còn lại bị từ chối. Kiểm tra quyền xem thông tin
+liên hệ và trạng thái CANCELLED khi bài bị xóa,
+gỡ hoặc Claimant bị khóa.
+\\ \hline
+
+\textbf{F05}
+
+Kiểm duyệt bài đăng & FR-07, FR-02 & UC-09, UC-10 & BR-03 & UC, EP, BVA, DT, ST, WB
+&
+Kiểm tra báo cáo hợp lệ và báo cáo trùng lặp.
+Kiểm tra ngưỡng 2/3/4 người dùng khác nhau báo cáo.
+Khi đạt 3 báo cáo, bài đăng chuyển sang REPORTED,
+bị ẩn khỏi kết quả công khai và đưa vào hàng đợi
+kiểm duyệt. Kiểm tra Admin giữ bài, gỡ bài,
+khóa tài khoản và quyền thực hiện thao tác quản trị.
+\\ \hline
+
+\textbf{F05}
+
+Quản lý danh mục và trường & FR-08 & UC-11, UC-12, UC-13 & -- & UC, EP, DT, ST, WB
+&
+Kiểm tra thêm, sửa, xóa danh mục; xử lý danh mục
+trùng hoặc đang được sử dụng. Kiểm tra yêu cầu
+thêm trường với dữ liệu hợp lệ, không hợp lệ
+hoặc trùng tên miền. Kiểm tra quyền xét duyệt
+yêu cầu PENDING và gửi email thông báo kết quả.
+\\ \hline
+
+\textbf{F06}
+
+Thông báo & FR-09 & UC-07, UC-08, UC-14 & -- & UC, EP, ST
+&
+Nếu được triển khai, kiểm tra thông báo khi có
+Claim mới, thay đổi trạng thái hoặc hoạt động
+kiểm duyệt. Kiểm tra đúng người nhận và trạng thái
+đã đọc/chưa đọc.
+\\ \hline
+
+\textbf{F07}
+
+OCR & FR-10 & UC-15 & -- & N/A
+&
+Chỉ bổ sung các ca kiểm thử nếu nhóm chính thức
+đưa tính năng OCR vào phạm vi PA5 và có đặc tả
+tiêu chí chấp nhận tương ứng.
+\\ \hline
+
+\textbf{F08}
+
+AI Smart Matching & FR-11 & -- & -- & N/A
+&
+Không thuộc phạm vi kiểm thử bắt buộc.
+Chỉ thiết kế ca kiểm thử nếu tính năng được
+đưa vào phạm vi triển khai và có đặc tả
+yêu cầu đầy đủ.
+\\ \hline
+
+\end{longtable}
+
+
+
+\noindent\textbf{Kiểm thử phi chức năng}
+
+
+\begin{longtable}{|
+  >{\raggedright\arraybackslash}p{(\linewidth-6\tabcolsep-4\arrayrulewidth)*\real{0.23}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-6\tabcolsep-4\arrayrulewidth)*\real{0.19}}|
+  >{\raggedright\arraybackslash}p{(\linewidth-6\tabcolsep-4\arrayrulewidth)*\real{0.58}}|}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Requirement} & \tableheader{Technique} & \tableheader{Verification Method} \\
+\hline
+\endfirsthead
+
+\hline
+\rowcolor{TableBlue}
+\tableheader{Requirement} & \tableheader{Technique} & \tableheader{Verification Method} \\
+\hline
+\endhead
+
+\textbf{NFR-01 -- Performance} & Load Testing, BVA
+& 
+Sử dụng k6 trên môi trường staging với 100 người 
+dùng ảo trong 5 phút. Thời gian phản hồi tìm kiếm 
+và lọc tại P95 phải ≤ 2 giây. Ghi nhận cấu hình, 
+dữ liệu kiểm thử và báo cáo kết quả.
+\\ \hline
+
+\textbf{NFR-02 -- Security} & DT, EP, UC
+&
+Sử dụng Postman và Supertest để kiểm tra API với 
+Guest, Student khác, Claimant PENDING/REJECTED 
+và Claimant ACCEPTED. Đảm bảo không tiết lộ 
+thông tin liên hệ khi chưa đủ quyền. Kiểm tra 
+chuyển hướng HTTP sang HTTPS và phân quyền API.
+\\ \hline
+
+\textbf{NFR-03 -- Usability} & Task-based Testing, BVA
+&
+Yêu cầu 5 sinh viên chưa từng sử dụng hệ thống 
+thực hiện tạo bài đăng mà không cần hướng dẫn. 
+Đạt khi ít nhất 4/5 sinh viên hoàn thành trong 
+thời gian ≤ 3 phút.
+\\ \hline
+
+\textbf{NFR-04 -- Compatibility} & EP, BVA, Checklist
+&
+Kiểm thử trên Chrome, Firefox, Safari phiên bản 
+mới nhất; các kích thước màn hình 360, 768, 1366 
+và 1920 px; thiết bị Android và iPhone. Đảm bảo 
+các chức năng chính hoạt động và không xuất hiện 
+thanh cuộn ngang.
+\\ \hline
+
+\textbf{NFR-05 -- Availability} & Monitoring, Threshold Verification
+&
+Sử dụng UptimeRobot giám sát endpoint 
+\texttt{/health} mỗi 5 phút trong tuần 10--11. 
+Hệ thống phải đạt uptime ≥ 99. 
+Xuất báo cáo vào cuối tuần 11.
+\\ \hline
+
+\end{longtable}
+
+\noindent\textbf{Lưu ý về kiểm thử hình ảnh:}
+PA3 mục 8 chưa thống nhất số lượng hình ảnh tối thiểu 
+của một bài đăng. Các ca kiểm thử được thiết kế với 
+0, 1, 5 và 6 ảnh; định dạng JPG/PNG hoặc định dạng 
+không được hỗ trợ; kích thước ngay dưới, bằng và trên 
+5 MB. Kết quả mong đợi đối với trường hợp không có 
+ảnh phải được BA và Designer thống nhất trước khi 
+thực hiện kiểm thử nghiệm thu.
+
+\medskip
+
+\noindent\textbf{Kiểm thử hộp trắng:}
+Developer sử dụng Jest hoặc Vitest để đo Statement 
+Coverage và Decision/Branch Coverage đối với các 
+hàm xác thực, phân quyền, kiểm tra dữ liệu đầu vào, 
+xử lý Claim và Report. Các nhánh chưa được thực thi 
+sẽ được xem xét để bổ sung Unit Test. Coverage không 
+thay thế cho việc kiểm thử tính đúng đắn của nghiệp vụ.
+
+Mỗi quy tắc trong Decision Table phải được ánh xạ 
+đến ít nhất một Test Case. Chi tiết EP, BVA và Decision 
+Table được trình bày tại mục 3; danh sách Test Case 
+tại mục 4 và ma trận truy vết tại mục 5.
+
 \subsection{Test Environment and Test Data}
 
 [Hardware, OS, browsers/devices, database, test accounts and test data.]
+
 \subsection{Entry and Exit Criteria}
 
-\textbf{Entry:} build deployed to the test environment, smoke test passes, test data ready.\par
-\textbf{Exit (suggested):} 100\% of Must-have test cases executed; $\geq$ 90\% passed; no open critical/high defects.
+\subsubsection*{Entry Criteria}
+
+Quá trình kiểm thử US-Recovery được bắt đầu khi 
+các điều kiện sau được đáp ứng:
+
+\begin{itemize}
+    \item \textbf{Requirements and Design Readiness:}
+    Tài liệu SRS (PA2) và Software Design (PA3) 
+    đã được rà soát. Các thay đổi yêu cầu, quy tắc 
+    nghiệp vụ và tiêu chí chấp nhận đã được cập nhật 
+    và thống nhất. Các vấn đề chưa rõ, đặc biệt là 
+    số lượng hình ảnh tối thiểu của bài đăng, 
+    phải được giải quyết trước khi thực hiện 
+    các ca kiểm thử liên quan.
+
+    \item \textbf{Test Documentation Readiness:}
+    Test Plan, Test Cases, Expected Results và 
+    Requirements--Test Traceability Matrix đã được 
+    Tester, BA và các thành viên liên quan rà soát.
+
+    \item \textbf{Build Readiness:}
+    Phiên bản phần mềm cần kiểm thử đã được triển khai 
+    thành công trên môi trường kiểm thử được xác định 
+    tại mục 2.5. Phiên bản hoặc commit SHA của build 
+    phải được ghi nhận để đảm bảo khả năng tái hiện lỗi.
+
+    \item \textbf{Smoke Test:}
+    Các kiểm tra CI, bao gồm lint và Unit Test, 
+    đã đạt. Smoke Test xác nhận Frontend, Backend API 
+    và Database hoạt động, đồng thời các chức năng 
+    chính đã bàn giao có thể truy cập.
+
+    \item \textbf{Test Data Readiness:}
+    Dữ liệu và tài khoản kiểm thử đã được chuẩn bị, 
+    bao gồm Guest, Student đã xác minh, Student chưa 
+    xác minh, Student bị khóa và Admin. Các dữ liệu 
+    mẫu về bài đăng Mất/Nhặt đồ, Claim, Report, 
+    danh mục và trường đại học đã sẵn sàng.
+
+    \item \textbf{Test Environment Readiness:}
+    Các dịch vụ Supabase Auth, PostgreSQL, 
+    Supabase Storage, Brevo SMTP và công cụ kiểm thử 
+    đã được cấu hình. Dữ liệu kiểm thử phải được 
+    tách biệt với dữ liệu production.
+
+    \item \textbf{Dependency Readiness:}
+    Các thành phần phụ thuộc của phạm vi kiểm thử 
+    tương ứng đã sẵn sàng. Unit Test được thực hiện 
+    ngay khi module hoàn thành; Integration Test, 
+    System Test và Acceptance Test chỉ bắt đầu 
+    đối với phạm vi đã đáp ứng các điều kiện 
+    cần thiết.
+\end{itemize}
+
+Tester có trách nhiệm xác nhận các điều kiện bắt đầu. 
+Nếu một điều kiện chưa được đáp ứng, các ca kiểm thử 
+bị ảnh hưởng được ghi nhận là Blocked và thông báo 
+cho thành viên phụ trách để xử lý.
+
+\subsubsection*{Exit Criteria}
+
+Quá trình kiểm thử được xem là hoàn thành khi 
+đáp ứng các điều kiện sau:
+
+\begin{itemize}
+    \item \textbf{Test Execution:}
+    100\% Test Case thuộc phạm vi Must-have đã được 
+    thực thi trên phiên bản ứng viên cuối cùng. 
+    Tất cả yêu cầu FR-01--FR-08 và Use Case 
+    UC-01--UC-13 phải được truy vết đến ít nhất 
+    một Test Case.
+
+    \item \textbf{Test Pass Rate:}
+    Tối thiểu 90\% tổng số Test Case Must-have 
+    phải đạt kết quả Pass. Tỷ lệ được xác định 
+    theo công thức:
+
+    \[
+        \text{Pass Rate} =
+        \frac{N_{\text{Pass}}}
+        {N_{\text{Must-have}}}
+        \times 100\%
+    \]
+
+    Trong đó:
+    \begin{itemize}
+        \item $N_{\text{Pass}}$: Số Test Case 
+        Must-have có kết quả Pass.
+        
+        \item $N_{\text{Must-have}}$: Tổng số 
+        Test Case thuộc phạm vi Must-have.
+    \end{itemize}
+
+    Các Test Case có trạng thái Fail, Blocked 
+    hoặc Not Run không được tính vào số ca Pass. 
+    Các ca Blocked và Not Run phải được xử lý 
+    và thực thi trước khi đạt tiêu chí hoàn thành.
+
+    \item \textbf{Defect Status:}
+    Không còn defect có mức độ Critical hoặc High 
+    chưa được giải quyết. Các defect Medium hoặc Low 
+    còn tồn tại phải được ghi nhận, đánh giá tác động 
+    và được PM cùng BA chấp thuận nếu hoãn xử lý.
+
+    \item \textbf{Business Rules and Security:}
+    Các Test Case bắt buộc liên quan đến BR-01, 
+    BR-02, BR-03, BR-04 và NFR-02 phải đạt, 
+    đặc biệt là xác thực tài khoản, phân quyền, 
+    bảo vệ thông tin liên hệ, ngưỡng kiểm duyệt 
+    và tính toàn vẹn của Claim Workflow.
+
+    \item \textbf{Non-functional Requirements:}
+    Các yêu cầu phi chức năng NFR-01--NFR-04 
+    phải đạt các tiêu chí đo lường được xác định 
+    tại PA2, mục 5.2.
+
+    Đối với NFR-05, hệ thống phải đạt uptime 
+    $\geq 99\%$ trong tuần 10--11. Nếu thời gian 
+    giám sát chưa kết thúc tại thời điểm bàn giao 
+    PA5, kết quả được ghi nhận là Pending và 
+    xác nhận vào cuối tuần 11.
+
+    \item \textbf{Retesting and Regression Testing:}
+    Các defect đã sửa phải được kiểm thử lại. 
+    Regression Test và Smoke Test trên phiên bản 
+    ứng viên cuối cùng phải đạt đối với các 
+    chức năng cốt lõi.
+
+    \item \textbf{Test Report and Approval:}
+    Tester đã hoàn thành Test Report, bao gồm 
+    kết quả thực thi, tỷ lệ Pass/Fail, danh sách 
+    defect, bằng chứng kiểm thử và các vấn đề 
+    còn tồn tại. Báo cáo được lưu tại 
+    \texttt{docs/test/}.
+
+    BA xác nhận mức độ đáp ứng Acceptance Criteria 
+    và PM xem xét kết quả để quyết định nghiệm thu.
+\end{itemize}
+
+Nếu các Exit Criteria chưa được đáp ứng, nhóm phải 
+tiếp tục sửa lỗi, thực hiện Retesting và Regression 
+Testing trước khi xác nhận hoàn thành kiểm thử.
+
+Các kết quả kiểm thử thực tế được ghi nhận trong PA5, 
+không giả định kết quả Pass hoặc Fail tại giai đoạn 
+lập kế hoạch kiểm thử PA4.
+
+
 \subsection{Defect Management}
 
-\begin{longtable}{|p{.2\textwidth}|p{.68\textwidth}|}
+Quá trình quản lý lỗi của US-Recovery được thực hiện 
+tập trung thông qua GitHub Issues và GitHub Projects.
+
+Mỗi defect được phân loại dựa trên hai thuộc tính:
+
+\begin{itemize}
+    \item \textbf{Severity:} Mức độ ảnh hưởng của lỗi 
+    đối với chức năng, dữ liệu, bảo mật và khả năng 
+    vận hành của hệ thống.
+
+    \item \textbf{Priority:} Mức độ ưu tiên và thứ tự 
+    cần xử lý lỗi dựa trên tác động nghiệp vụ, 
+    tiến độ và phạm vi nghiệm thu.
+\end{itemize}
+
+\subsubsection*{Defect Severity}
+
+\begin{longtable}{
+    |>{\raggedright\arraybackslash}p{0.17\textwidth}
+    |>{\raggedright\arraybackslash}p{0.38\textwidth}
+    |>{\raggedright\arraybackslash}p{0.35\textwidth}|
+}
 \hline
 \rowcolor{TableBlue}
-\tableheader{Severity} & \tableheader{Definition}\\
+\tableheader{Severity} & \tableheader{Definition} & \tableheader{Example} \\
 \hline
-Critical & System crash, data loss, security breach; no workaround\\
+\endfirsthead
+
 \hline
-High & Main function fails; workaround difficult\\
+\rowcolor{TableBlue}
+\tableheader{Severity} & \tableheader{Definition} & \tableheader{Example} \\
 \hline
-Medium & Function works incorrectly; workaround exists\\
-\hline
-Low & Cosmetic or minor issue\\
-\hline
+\endhead
+
+Critical
+&
+Hệ thống không thể hoạt động, mất dữ liệu hoặc 
+xảy ra vi phạm bảo mật nghiêm trọng; không có 
+phương án thay thế khả thi.
+&
+API tiết lộ thông tin liên hệ của Post Owner 
+cho người chưa được cấp quyền; mất dữ liệu 
+bài đăng hoặc Claim.
+\\ \hline
+
+High
+&
+Một chức năng chính không hoạt động hoặc 
+hoạt động sai nghiêm trọng; khó tìm được 
+phương án thay thế.
+&
+Người dùng đã xác minh không thể đăng nhập; 
+không thể gửi hoặc chấp nhận Claim hợp lệ.
+\\ \hline
+
+Medium
+&
+Chức năng hoạt động không đúng yêu cầu nhưng 
+vẫn tồn tại phương án thay thế để người dùng 
+tiếp tục thực hiện nghiệp vụ.
+&
+Một bộ lọc tìm kiếm hoạt động sai, nhưng 
+người dùng vẫn có thể tìm bài đăng bằng 
+từ khóa hoặc bộ lọc khác.
+\\ \hline
+
+Low
+&
+Lỗi nhỏ về giao diện, nội dung hoặc trải nghiệm 
+người dùng, không ảnh hưởng đáng kể đến 
+chức năng nghiệp vụ.
+&
+Lỗi chính tả, căn lề, khoảng cách giữa các 
+thành phần giao diện.
+\\ \hline
+
 \end{longtable}
 
-[Defects are recorded as issues in the repository (GitHub Issues/Jira) with steps to reproduce, severity, priority and the related test case.]
+\subsubsection*{Defect Priority}
+
+\begin{longtable}{
+    |>{\raggedright\arraybackslash}p{0.20\textwidth}
+    |>{\raggedright\arraybackslash}p{0.70\textwidth}|
+}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Priority} & \tableheader{Description} \\
+\hline
+\endfirsthead
+
+\hline
+\rowcolor{TableBlue}
+\tableheader{Priority} & \tableheader{Description} \\
+\hline
+\endhead
+
+P0 -- Immediate
+&
+Phải xử lý ngay lập tức. Áp dụng mặc định 
+đối với các defect Critical gây gián đoạn hệ thống, 
+mất dữ liệu hoặc vi phạm bảo mật.
+\\ \hline
+
+P1 -- High
+&
+Phải được xử lý trước khi nghiệm thu. 
+Áp dụng mặc định đối với các defect High 
+ảnh hưởng đến chức năng Must-have.
+\\ \hline
+
+P2 -- Normal
+&
+Xử lý trong giai đoạn PA5 nếu phù hợp với 
+tiến độ và nguồn lực của nhóm.
+\\ \hline
+
+P3 -- Low
+&
+Có thể hoãn xử lý nếu không ảnh hưởng đến 
+các tiêu chí nghiệm thu. Việc hoãn phải 
+được ghi nhận và có lý do rõ ràng.
+\\ \hline
+
+\end{longtable}
+
+Severity và Priority được xác định độc lập. 
+Tester đề xuất Severity dựa trên kết quả kiểm thử; 
+PM và BA xác nhận tác động nghiệp vụ, Priority 
+và thành viên phụ trách xử lý.
+
+\subsubsection*{Defect Reporting}
+
+Khi phát hiện lỗi, Tester hoặc Developer kiểm tra 
+các GitHub Issues hiện có để tránh ghi nhận trùng lặp, 
+sau đó tạo Issue với nhãn \texttt{bug}.
+
+Mỗi Defect Report phải bao gồm các thông tin sau:
+
+\begin{longtable}{
+    |>{\raggedright\arraybackslash}p{0.28\textwidth}
+    |>{\raggedright\arraybackslash}p{0.62\textwidth}|
+}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Field} & \tableheader{Description} \\
+\hline
+\endfirsthead
+
+\hline
+\rowcolor{TableBlue}
+\tableheader{Field} & \tableheader{Description} \\
+\hline
+\endhead
+
+Defect ID & Mã Issue được tạo tự động bởi GitHub.
+\\ \hline
+
+Title & Tiêu đề mô tả ngắn gọn lỗi theo định dạng \texttt{[BUG][Module] Description}.
+\\ \hline
+
+Related Test Case
+&
+Mã Test Case phát hiện lỗi và các mã FR, UC, 
+BR hoặc NFR liên quan.
+\\ \hline
+
+Environment
+&
+Môi trường kiểm thử, hệ điều hành, trình duyệt, 
+thiết bị, phiên bản build hoặc commit SHA.
+\\ \hline
+
+Pre-conditions & Các điều kiện cần thiết trước khi tái hiện lỗi.
+\\ \hline
+
+Test Data & Dữ liệu đầu vào được sử dụng khi phát hiện lỗi.
+\\ \hline
+
+Steps to Reproduce & Danh sách các bước để tái hiện lỗi.
+\\ \hline
+
+Expected Result & Kết quả mong đợi theo yêu cầu và Test Case.
+\\ \hline
+
+Actual Result & Kết quả thực tế quan sát được khi thực hiện các bước kiểm thử.
+\\ \hline
+
+Severity & Critical, High, Medium hoặc Low.
+\\ \hline
+
+Priority & P0, P1, P2 hoặc P3.
+\\ \hline
+
+Evidence
+&
+Ảnh chụp màn hình, video, API response hoặc log 
+liên quan đến lỗi. Thông tin nhạy cảm phải 
+được che trước khi đính kèm.
+\\ \hline
+
+Assignee & Thành viên chịu trách nhiệm xử lý lỗi.
+\\ \hline
+
+Status & Trạng thái hiện tại của defect trong quy trình xử lý.
+\\ \hline
+
+\end{longtable}
+
+\subsubsection*{Defect Life Cycle}
+
+Quy trình xử lý defect được thực hiện theo 
+các trạng thái sau:
+
+\begin{enumerate}
+    \item \textbf{Open:}
+    Tester hoặc Developer phát hiện lỗi và 
+    tạo GitHub Issue.
+
+    \item \textbf{Triaged:}
+    Tester, PM và BA xem xét lỗi, xác định 
+    Severity, Priority, phạm vi ảnh hưởng 
+    và phân công người xử lý.
+
+    \item \textbf{In Progress:}
+    Developer tiếp nhận Issue, phân tích 
+    nguyên nhân và sửa lỗi trên nhánh riêng.
+
+    \item \textbf{Ready for Retest:}
+    Developer hoàn thành sửa lỗi, bổ sung 
+    hoặc cập nhật Unit Test nếu cần, tạo 
+    Pull Request và liên kết với Issue tương ứng. 
+    Sau khi được review, merge và triển khai 
+    lên môi trường kiểm thử, defect được 
+    chuyển cho Tester kiểm tra lại.
+
+    \item \textbf{Closed:}
+    Tester thực hiện Retesting và Regression 
+    Testing liên quan. Nếu lỗi không còn xuất hiện 
+    và các chức năng liên quan hoạt động đúng, 
+    Issue được đóng kèm bằng chứng kiểm thử.
+
+    \item \textbf{Reopened:}
+    Nếu lỗi vẫn tồn tại hoặc kết quả thực tế 
+    chưa đáp ứng Expected Result, Issue được 
+    mở lại và giao cho Developer tiếp tục xử lý.
+\end{enumerate}
+
+Các trường hợp Duplicate, Rejected hoặc Deferred 
+phải được ghi nhận lý do rõ ràng. Defect bị hoãn 
+xử lý phải được PM và BA chấp thuận, đồng thời 
+không được vi phạm Exit Criteria tại mục 2.6.
+
+\subsubsection*{Defect Tracking and Responsibilities}
+
+\begin{longtable}{
+    |>{\raggedright\arraybackslash}p{0.28\textwidth}
+    |>{\raggedright\arraybackslash}p{0.62\textwidth}|@{}}
+\hline
+\rowcolor{TableBlue}
+\tableheader{Role} & \tableheader{Responsibility} \\
+\hline
+\endfirsthead
+
+\hline
+\rowcolor{TableBlue}
+\tableheader{Role} & \tableheader{Responsibility} \\
+\hline
+\endhead
+
+Tester
+&
+Phát hiện, ghi nhận, tái hiện và phân loại lỗi; 
+thực hiện Retesting, Regression Testing 
+và cập nhật Test Report.
+\\ \hline
+
+Developer
+&
+Phân tích nguyên nhân, sửa lỗi, bổ sung Unit Test, 
+tạo Pull Request và cung cấp phiên bản 
+sẵn sàng để kiểm thử lại.
+\\ \hline
+
+Business Analyst
+&
+Xác minh lỗi liên quan đến yêu cầu và quy tắc 
+nghiệp vụ; đánh giá tác động đối với 
+Acceptance Criteria.
+\\ \hline
+
+Designer / Architect
+&
+Hỗ trợ phân tích lỗi liên quan đến kiến trúc, 
+thiết kế dữ liệu và giao diện người dùng.
+\\ \hline
+
+Team Lead / PM
+&
+Điều phối xử lý lỗi, xác nhận Priority, 
+theo dõi tiến độ và quyết định nghiệm thu 
+dựa trên Exit Criteria.
+\\ \hline
+
+\end{longtable}
+
+Trong giai đoạn kiểm thử PA5, PM theo dõi các defect 
+đang mở và tiến độ xử lý hằng ngày. Các defect 
+Critical hoặc High phải được thông báo ngay cho PM 
+và thành viên phụ trách.
+
+Mọi thay đổi mã nguồn để sửa lỗi phải tuân thủ 
+Conventional Commits, ví dụ \texttt{fix:}, và được 
+tích hợp vào nhánh \texttt{main} thông qua Pull Request 
+có ít nhất một thành viên review theo quy trình PA1.
+
+Tester tổng hợp số lượng defect theo Severity, 
+Priority và Status trong Test Report của PA5. 
+Không được đưa mật khẩu, token, API key, nội dung 
+file \texttt{.env} hoặc thông tin cá nhân thật 
+vào GitHub Issues.
+
 \subsection{Schedule, Responsibilities and Tools}
 
 \subsubsection{Testing Schedule}
@@ -158,14 +864,234 @@ Kiểm thử thủ công được áp dụng đối với các hoạt động c�
 Các công cụ kiểm thử có thể được điều chỉnh trong quá trình triển khai tùy thuộc vào tính khả thi về kỹ thuật, nguồn lực của nhóm và các ràng buộc của dự án, với điều kiện vẫn đảm bảo đáp ứng các mục tiêu và tiêu chí kiểm thử đã đề ra.
 
 \subsection{Test Risks}
+Các rủi ro kiểm thử của US-Recovery được xác định 
+dựa trên Risk Management tại PA1, các yêu cầu chức 
+năng và phi chức năng tại PA2, cùng với các ràng buộc 
+kiến trúc và thay đổi thiết kế tại PA3.
 
-\begin{longtable}{|p{.42\textwidth}|p{.42\textwidth}|}
+Việc xác định rủi ro giúp nhóm chủ động chuẩn bị 
+biện pháp phòng ngừa, giảm thiểu ảnh hưởng đến 
+tiến độ kiểm thử và đảm bảo chất lượng sản phẩm 
+trước giai đoạn nghiệm thu.
+
+\begin{longtable}{|p{.45\textwidth}|p{.50\textwidth}|}
 \hline
 \rowcolor{TableBlue}
 \tableheader{Risk} & \tableheader{Mitigation}\\
 \hline
-& \\
+\endfirsthead
+
 \hline
-& \\
+\rowcolor{TableBlue}
+\tableheader{Risk} & \tableheader{Mitigation}\\
 \hline
+\endhead
+
+\textbf{TR-01 -- Thiếu thời gian kiểm thử hoặc 
+chậm tiến độ triển khai}
+
+Giai đoạn PA5 có thời gian giới hạn. Việc chậm 
+hoàn thành các module có thể làm giảm thời gian 
+Integration Test, System Test và Regression Test.
+
+\textit{Reference: PA1 R1, R2, R3.}
+&
+Thực hiện Unit Test ngay khi từng module được 
+phát triển và tích hợp thông qua Pull Request. 
+Chia quá trình kiểm thử thành các đợt tương ứng 
+với mức độ sẵn sàng của module.
+
+Ưu tiên các chức năng Must-have, quy tắc nghiệp vụ 
+và yêu cầu bảo mật. PM theo dõi các công việc 
+phụ thuộc, bố trí thành viên hỗ trợ và dành thời 
+gian cho Retesting và Regression Testing.
+\\ \hline
+
+\textbf{TR-02 -- Yêu cầu và thiết kế không nhất quán}
+
+Một số yêu cầu giữa PA2 và PA3 có sự thay đổi 
+hoặc chưa được thống nhất, đặc biệt là cơ chế 
+kiểm duyệt và số lượng hình ảnh tối thiểu 
+của bài đăng.
+
+\textit{Reference: PA1 R6; PA3 Section 8.}
+&
+BA và Designer rà soát, thống nhất các quy tắc 
+nghiệp vụ trước khi thực hiện kiểm thử.
+
+Cập nhật Acceptance Criteria, Test Cases và 
+Traceability Matrix theo cơ chế hậu kiểm tại PA3, 
+ngưỡng ba người dùng khác nhau báo cáo và BR-04.
+
+Đối với số lượng ảnh tối thiểu, cần xác định 
+Expected Result trước khi thực hiện Acceptance Test, 
+không đánh giá Pass/Fail dựa trên giả định.
+\\ \hline
+
+\textbf{TR-03 -- Phụ thuộc vào dịch vụ bên ngoài}
+
+Supabase Auth, Supabase Storage hoặc Brevo SMTP 
+có thể gặp sự cố, phản hồi chậm hoặc vượt 
+giới hạn tài nguyên của gói miễn phí.
+
+\textit{Reference: PA1 R4; PA3 Section 3.}
+&
+Thực hiện kiểm thử tích hợp sớm với các 
+dịch vụ bên ngoài.
+
+Sử dụng Mock Adapter trong Unit Test và 
+Integration Test để kiểm tra cả trường hợp 
+dịch vụ hoạt động bình thường và gặp lỗi.
+
+Thực hiện lại Smoke Test và End-to-End Test 
+với dịch vụ thực tế trên môi trường kiểm thử. 
+Nếu dịch vụ không sẵn sàng, ghi nhận các ca 
+bị ảnh hưởng là Blocked.
+\\ \hline
+
+\textbf{TR-04 -- Giới hạn tài nguyên và hiệu năng 
+của môi trường triển khai}
+
+Render Free có thể xảy ra cold start hoặc 
+thiếu tài nguyên khi thực hiện kiểm thử tải 
+với 100 người dùng đồng thời.
+
+\textit{Reference: PA1 R7; NFR-01, NFR-05.}
+&
+Triển khai hệ thống sớm trên môi trường kiểm thử. 
+Theo dõi trạng thái endpoint \texttt{/health}, 
+log và mức sử dụng tài nguyên.
+
+Sử dụng k6 để thực hiện Load Test theo NFR-01. 
+Ghi nhận rõ điều kiện cold start và warm start, 
+không loại bỏ các kết quả phản hồi chậm 
+một cách tùy ý.
+
+Chuẩn bị phiên bản demo dự phòng trong trường hợp 
+môi trường triển khai gặp sự cố.
+\\ \hline
+
+\textbf{TR-05 -- Rò rỉ thông tin cá nhân hoặc 
+sai phân quyền}
+
+Thông tin liên hệ của Post Owner có thể bị 
+tiết lộ qua API trước khi Claim được chấp nhận. 
+Dữ liệu kiểm thử cũng có thể chứa thông tin 
+cá nhân hoặc thông tin xác thực nhạy cảm.
+
+\textit{Reference: PA1 R5; NFR-02; BR-01, BR-02.}
+&
+Sử dụng dữ liệu giả lập và cơ sở dữ liệu kiểm thử 
+riêng biệt.
+
+Thực hiện Security Test trực tiếp trên API 
+với các vai trò Guest, Student và Admin, 
+kết hợp với các trạng thái Claim khác nhau.
+
+Không chỉ kiểm tra thông tin hiển thị trên UI 
+mà còn phải kiểm tra toàn bộ API response 
+có liên quan. Che thông tin nhạy cảm trong log 
+và không commit secrets lên GitHub.
+\\ \hline
+
+\textbf{TR-06 -- Xung đột khi thực hiện 
+các thao tác đồng thời}
+
+Nhiều yêu cầu xử lý Claim, báo cáo bài đăng 
+hoặc khóa tài khoản đồng thời có thể gây ra 
+trạng thái dữ liệu không nhất quán.
+
+\textit{Reference: BR-03, BR-04; PA3 Section 4.}
+&
+Thực hiện Integration Test với các request 
+đồng thời trên cùng một bài đăng.
+
+Kiểm tra tính toàn vẹn của transaction và 
+khả năng rollback khi thao tác thất bại.
+
+Đảm bảo tối đa một Claim được ACCEPTED, 
+Post chuyển đúng trạng thái RESOLVED và 
+bài đăng chuyển sang REPORTED khi đạt ngưỡng 
+ba người báo cáo khác nhau.
+
+Xác minh quyền xem thông tin liên hệ sau 
+các thao tác thay đổi trạng thái.
+\\ \hline
+
+\textbf{TR-07 -- Dữ liệu kiểm thử không ổn định}
+
+Dữ liệu bị trùng lặp, thay đổi hoặc bị xóa 
+giữa các lần kiểm thử có thể khiến Test Case 
+không thể tái hiện hoặc cho kết quả sai lệch.
+&
+Chuẩn bị Seed Data và Test Fixtures có cấu trúc 
+xác định.
+
+Tách biệt dữ liệu theo từng Test Case hoặc 
+khôi phục dữ liệu kiểm thử về trạng thái ban đầu 
+sau mỗi lần thực thi.
+
+Ghi nhận phiên bản build, dữ liệu đầu vào 
+và điều kiện trước của mỗi Test Case. 
+Không thực hiện các ca kiểm thử có khả năng 
+phá hủy dữ liệu trên môi trường production.
+\\ \hline
+
+\textbf{TR-08 -- Thiếu thiết bị và người tham gia 
+kiểm thử khả dụng}
+
+Nhóm có thể không chuẩn bị đủ thiết bị 
+Android, iPhone, trình duyệt hoặc sinh viên 
+chưa từng sử dụng hệ thống.
+
+\textit{Reference: NFR-03, NFR-04.}
+&
+Lên lịch trước với ít nhất 5 sinh viên chưa 
+từng sử dụng hệ thống.
+
+Chuẩn bị các thiết bị Android, iPhone, 
+trình duyệt Chrome, Firefox, Safari và 
+Chrome DevTools để kiểm tra các kích thước 
+màn hình theo yêu cầu.
+
+Nếu thiếu thiết bị thực tế, ghi nhận rõ 
+phạm vi chưa được xác minh và không xem 
+kiểm thử giả lập là sự thay thế hoàn toàn 
+cho thiết bị thật.
+\\ \hline
+
+\textbf{TR-09 -- Chưa đủ thời gian đánh giá 
+tính sẵn sàng của hệ thống}
+
+NFR-05 yêu cầu hệ thống có uptime tối thiểu 
+99\% trong tuần 10--11. Kết quả giám sát 
+có thể chưa hoàn chỉnh tại thời điểm 
+nộp PA5.
+
+\textit{Reference: NFR-05; PA2 Section 5.2.}
+&
+Thiết lập UptimeRobot từ đầu tuần 10, 
+kiểm tra endpoint \texttt{/health} 
+với chu kỳ 5 phút.
+
+Xuất báo cáo tạm thời tại thời điểm 
+bàn giao PA5 và cập nhật kết quả chính thức 
+vào cuối tuần 11.
+
+Ghi nhận các sự cố gián đoạn dịch vụ 
+và biện pháp khắc phục. Không rút ngắn 
+thời gian giám sát để đạt chỉ tiêu uptime.
+\\ \hline
+
 \end{longtable}
+
+Tester chịu trách nhiệm theo dõi các rủi ro kiểm thử 
+trong suốt giai đoạn PA5 và thông báo cho PM khi 
+rủi ro phát sinh hoặc có khả năng ảnh hưởng đến 
+Exit Criteria.
+
+PM phối hợp với BA, Designer và Developer để 
+triển khai các biện pháp giảm thiểu tương ứng. 
+Các rủi ro thực tế phát sinh, biện pháp xử lý 
+và ảnh hưởng còn tồn tại được ghi nhận trong 
+Test Report của PA5.
